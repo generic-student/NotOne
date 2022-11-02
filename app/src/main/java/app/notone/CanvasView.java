@@ -25,15 +25,10 @@ public class CanvasView extends View {
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
 
-    // We can be in one of these 3 states
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mState = NONE;
-
     // Remember some things for zooming
-    Matrix mViewTransform;
-    Matrix mInverseViewTransform;
+    private Matrix mViewTransform;
+    private Matrix mInverseViewTransform;
+    private int mScale = 1;
 
     /**
      * Constructor
@@ -117,7 +112,7 @@ public class CanvasView extends View {
         }
 
         // if input with stylus dont handle here
-        if(mState != NONE || event.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
+        if(event.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
             return true;
         }
 
@@ -154,7 +149,6 @@ public class CanvasView extends View {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            mState = ZOOM;
             return true;
         }
 
@@ -168,11 +162,6 @@ public class CanvasView extends View {
             invalidate();
 
             return true;
-        }
-
-        @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            mState = NONE;
         }
     }
 
@@ -235,9 +224,7 @@ public class CanvasView extends View {
         }
 
         @Override
-        public void onLongPress(MotionEvent e) {
-
-        }
+        public void onLongPress(MotionEvent e) { }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
