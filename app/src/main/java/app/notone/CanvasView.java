@@ -31,6 +31,7 @@ public class CanvasView extends View {
     private final float MAX_SCALE = 5f;
     private final float MIN_SCALE = 0.01f;
     private float mScale    = 1;
+
     /**
      * Constructor
      * initializes vars for Paths and Transforms
@@ -223,7 +224,7 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
+//            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferences
 //                return true;
 //            }
 

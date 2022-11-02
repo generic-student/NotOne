@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NotOne</string>
+    <string name="canvas_toolbar_pencolor_1">Red</string>
+    <string name="canvas_toolbar_pencolor_2">Green</string>
 </resources>
