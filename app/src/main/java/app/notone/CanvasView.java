@@ -116,11 +116,7 @@ public class CanvasView extends View {
             return true;
         }
 
-        if(mState == ZOOM && event.getAction() == MotionEvent.ACTION_UP && event.getPointerCount() == 1) {
-            mState = NONE;
-            return true;
-        }
-
+        // if input with stylus dont handle here
         if(mState != NONE || event.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
             return true;
         }
@@ -223,9 +219,12 @@ public class CanvasView extends View {
          * @return
          */
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
-        {
-            if(e2.getPointerCount() <= 1) {
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
+                return true;
+            }
+
+            if(e2.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
                 return true;
             }
 
