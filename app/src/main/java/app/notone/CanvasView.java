@@ -12,12 +12,17 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
 
+    private ArrayList<Path> mPaths;
+    private int currentPath = 0;
+
     private Paint mPaint;
     private Path mPath;
-    private Path mDrawPath;
+    //private Path mDrawPath;
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
 
@@ -41,9 +46,11 @@ public class CanvasView extends View {
         setStrokeColor(Color.RED);
 
         mPath = new Path();
-        mDrawPath = new Path();
+        //mDrawPath = new Path();
         mViewTransform = new Matrix();
         mInverseViewTransform = new Matrix();
+        mPaths = new ArrayList<Path>();
+        mPaths.add(new Path());
 
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
@@ -68,7 +75,11 @@ public class CanvasView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawPath(mDrawPath, mPaint);
+        canvas.setMatrix(mViewTransform);
+        for(Path path : mPaths) {
+            canvas.drawPath(path, mPaint);
+        }
+        canvas.drawPath(mPath, mPaint);
         super.onDraw(canvas);
     }
 
@@ -99,17 +110,17 @@ public class CanvasView extends View {
 
                 mInverseViewTransform.mapPoints(pts);
                 mPath.moveTo(pts[0], pts[1]);
-                mPath.transform(mViewTransform, mDrawPath);
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 mInverseViewTransform.mapPoints(pts);
                 mPath.lineTo(pts[0], pts[1]);
-                mPath.transform(mViewTransform, mDrawPath);
                 invalidate();
                 break;
 
             case MotionEvent.ACTION_UP:
+                mPaths.add(new Path(mPath));
+                mPath.reset();
                 break;
         }
 
@@ -131,7 +142,6 @@ public class CanvasView extends View {
             mViewTransform.postTranslate(-detector.getFocusX(), -detector.getFocusY());
             mViewTransform.postScale(mScaleFactor, mScaleFactor);
             mViewTransform.postTranslate(detector.getFocusX(), detector.getFocusY());
-            mPath.transform(mViewTransform, mDrawPath);
             invalidate();
 
             return true;
@@ -177,9 +187,7 @@ public class CanvasView extends View {
             }
 
             mViewTransform.postTranslate(-distanceX, -distanceY);
-            mPath.transform(mViewTransform, mDrawPath);
             invalidate();
-
 
             return true;
         }
