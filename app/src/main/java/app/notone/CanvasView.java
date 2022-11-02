@@ -21,8 +21,6 @@ public class CanvasView extends View {
     private int currentPath = 0;
 
     private Paint mPaint;
-    private Path mPath;
-    //private Path mDrawPath;
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
 
@@ -45,8 +43,6 @@ public class CanvasView extends View {
         setStrokeWeight(10);
         setStrokeColor(Color.RED);
 
-        mPath = new Path();
-        //mDrawPath = new Path();
         mViewTransform = new Matrix();
         mInverseViewTransform = new Matrix();
         mPaths = new ArrayList<Path>();
@@ -79,7 +75,6 @@ public class CanvasView extends View {
         for(Path path : mPaths) {
             canvas.drawPath(path, mPaint);
         }
-        canvas.drawPath(mPath, mPaint);
         super.onDraw(canvas);
     }
 
@@ -109,18 +104,18 @@ public class CanvasView extends View {
             case MotionEvent.ACTION_DOWN:
 
                 mInverseViewTransform.mapPoints(pts);
-                mPath.moveTo(pts[0], pts[1]);
+                mPaths.get(currentPath).moveTo(pts[0], pts[1]);
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 mInverseViewTransform.mapPoints(pts);
-                mPath.lineTo(pts[0], pts[1]);
+                mPaths.get(currentPath).lineTo(pts[0], pts[1]);
                 invalidate();
                 break;
 
             case MotionEvent.ACTION_UP:
-                mPaths.add(new Path(mPath));
-                mPath.reset();
+                mPaths.add(new Path());
+                currentPath++;
                 break;
         }
 
