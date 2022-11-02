@@ -25,27 +25,44 @@ public class CanvasView extends View {
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
-    int mode = NONE;
+    int mState = NONE;
 
     // Remember some things for zooming
-    Matrix matrix;
-    Matrix inverse;
+    Matrix mViewTransform;
+    Matrix mInverseViewTransform;
 
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint();
-        mPaint.setColor(Color.RED);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(10);
+        setStrokeWeight(10);
+        setStrokeColor(Color.RED);
+
         mPath = new Path();
         mDrawPath = new Path();
-        matrix = new Matrix();
-        inverse = new Matrix();
+        mViewTransform = new Matrix();
+        mInverseViewTransform = new Matrix();
 
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
+    }
+
+    public void setStrokeWeight(float weight) {
+        mPaint.setStrokeWidth(weight);
+    }
+
+    public float getStrokeWeight() {
+        return mPaint.getStrokeWidth();
+    }
+
+    public void setStrokeColor(int color) {
+        mPaint.setColor(color);
+    }
+
+    public int getStrokeColor() {
+        return mPaint.getColor();
     }
 
 
@@ -65,30 +82,30 @@ public class CanvasView extends View {
             return true;
         }
 
-        if(mode == ZOOM && event.getAction() == MotionEvent.ACTION_UP && event.getPointerCount() == 1) {
-            mode = NONE;
+        if(mState == ZOOM && event.getAction() == MotionEvent.ACTION_UP && event.getPointerCount() == 1) {
+            mState = NONE;
             return true;
         }
 
-        if(mode != NONE || event.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
+        if(mState != NONE || event.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
             return true;
         }
 
         float pts[] = new float[]{event.getX(), event.getY()};
-        matrix.invert(inverse);
+        mViewTransform.invert(mInverseViewTransform);
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
 
-                inverse.mapPoints(pts);
+                mInverseViewTransform.mapPoints(pts);
                 mPath.moveTo(pts[0], pts[1]);
-                mPath.transform(matrix, mDrawPath);
+                mPath.transform(mViewTransform, mDrawPath);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                inverse.mapPoints(pts);
+                mInverseViewTransform.mapPoints(pts);
                 mPath.lineTo(pts[0], pts[1]);
-                mPath.transform(matrix, mDrawPath);
+                mPath.transform(mViewTransform, mDrawPath);
                 invalidate();
                 break;
 
@@ -103,7 +120,7 @@ public class CanvasView extends View {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            mode = ZOOM;
+            mState = ZOOM;
             return true;
         }
 
@@ -111,10 +128,10 @@ public class CanvasView extends View {
         public boolean onScale(ScaleGestureDetector detector) {
 
             float mScaleFactor = detector.getScaleFactor();
-            matrix.postTranslate(-detector.getFocusX(), -detector.getFocusY());
-            matrix.postScale(mScaleFactor, mScaleFactor);
-            matrix.postTranslate(detector.getFocusX(), detector.getFocusY());
-            mPath.transform(matrix, mDrawPath);
+            mViewTransform.postTranslate(-detector.getFocusX(), -detector.getFocusY());
+            mViewTransform.postScale(mScaleFactor, mScaleFactor);
+            mViewTransform.postTranslate(detector.getFocusX(), detector.getFocusY());
+            mPath.transform(mViewTransform, mDrawPath);
             invalidate();
 
             return true;
@@ -159,8 +176,8 @@ public class CanvasView extends View {
                 return true;
             }
 
-            matrix.postTranslate(-distanceX, -distanceY);
-            mPath.transform(matrix, mDrawPath);
+            mViewTransform.postTranslate(-distanceX, -distanceY);
+            mPath.transform(mViewTransform, mDrawPath);
             invalidate();
 
 

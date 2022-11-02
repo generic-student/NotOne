@@ -17,20 +17,20 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btn_undo"
+                android:id="@+id/btn_red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingHorizontal="16dp"
-                android:text="Undo" />
+                android:text="Red" />
 
             <Button
-                android:id="@+id/btn_redo"
+                android:id="@+id/btn_green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingHorizontal="16dp"
-                android:text="Redo" />
+                android:text="Green" />
         </LinearLayout>
 
         <app.notone.CanvasView
