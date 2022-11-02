@@ -2,6 +2,9 @@ package app.notone;
 
 import android.graphics.Path;
 
+/**
+ * Paths drawn by user
+ */
 public class Stroke {
     private Path mPath;
     private int mColor;
