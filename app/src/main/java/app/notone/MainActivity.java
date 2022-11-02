@@ -12,9 +12,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        canvasView = new CanvasView(this, null);
-
-
         setContentView(R.layout.activity_main);
     }
 }

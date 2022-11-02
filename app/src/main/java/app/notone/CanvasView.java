@@ -155,6 +155,15 @@ public class CanvasView extends View {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
         {
+            if(e2.getPointerCount() <= 1) {
+                return true;
+            }
+
+            matrix.postTranslate(-distanceX, -distanceY);
+            mPath.transform(matrix, mDrawPath);
+            invalidate();
+
+
             return true;
         }
 
