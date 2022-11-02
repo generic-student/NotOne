@@ -28,8 +28,9 @@ public class CanvasView extends View {
     // Remember some things for zooming
     private Matrix mViewTransform;
     private Matrix mInverseViewTransform;
-    private int mScale = 1;
-
+    private final float MAX_SCALE = 5f;
+    private final float MIN_SCALE = 0.01f;
+    private float mScale    = 1;
     /**
      * Constructor
      * initializes vars for Paths and Transforms
@@ -156,6 +157,19 @@ public class CanvasView extends View {
         public boolean onScale(ScaleGestureDetector detector) {
 
             float mScaleFactor = detector.getScaleFactor();
+            // clamp scale
+            if(mScale * mScaleFactor > MAX_SCALE) {
+                mScaleFactor = MAX_SCALE / mScale;
+                mScale = MAX_SCALE;
+            }
+            else if(mScale * mScaleFactor < MIN_SCALE) {
+                mScaleFactor = MIN_SCALE / mScale;
+                mScale = MIN_SCALE;
+            }
+            else {
+                mScale *= mScaleFactor;
+            }
+//            10 / mScale = mScaleFactor;
             mViewTransform.postTranslate(-detector.getFocusX(), -detector.getFocusY()); // post applies transform to mViewTransform // translate origin of mViewTransform to focuspoint
             mViewTransform.postScale(mScaleFactor, mScaleFactor); // scale around origin (focus)
             mViewTransform.postTranslate(detector.getFocusX(), detector.getFocusY()); // translate origin back away from focuspoint
@@ -209,9 +223,9 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
-                return true;
-            }
+//            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
+//                return true;
+//            }
 
             if(e2.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
                 return true;
