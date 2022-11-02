@@ -17,10 +17,12 @@ import java.util.ArrayList;
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
 
-    private ArrayList<Path> mPaths;
+    private ArrayList<Stroke> mStrokes;
     private int currentPath = 0;
 
     private Paint mPaint;
+    private float mStrokeWeight = 10.f;
+    private int mStrokeColor = Color.RED;
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
 
@@ -40,40 +42,46 @@ public class CanvasView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        setStrokeWeight(10);
-        setStrokeColor(Color.RED);
 
         mViewTransform = new Matrix();
         mInverseViewTransform = new Matrix();
-        mPaths = new ArrayList<Path>();
-        mPaths.add(new Path());
+        mStrokes = new ArrayList<Stroke>();
+        mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight()));
 
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
     }
 
     public void setStrokeWeight(float weight) {
-        mPaint.setStrokeWidth(weight);
+        mStrokeWeight = weight;
+        if(mStrokes.get(currentPath).getPath().isEmpty()) {
+            mStrokes.get(currentPath).setWeight(weight);
+        }
     }
 
     public float getStrokeWeight() {
-        return mPaint.getStrokeWidth();
+        return mStrokeWeight;
     }
 
     public void setStrokeColor(int color) {
-        mPaint.setColor(color);
+        mStrokeColor = color;
+        if(mStrokes.get(currentPath).getPath().isEmpty()) {
+            mStrokes.get(currentPath).setColor(color);
+        }
     }
 
     public int getStrokeColor() {
-        return mPaint.getColor();
+        return mStrokeColor;
     }
 
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform);
-        for(Path path : mPaths) {
-            canvas.drawPath(path, mPaint);
+        for(Stroke stroke : mStrokes) {
+            mPaint.setColor(stroke.getColor());
+            mPaint.setStrokeWidth(stroke.getWeight());
+            canvas.drawPath(stroke.getPath(), mPaint);
         }
         super.onDraw(canvas);
     }
@@ -104,17 +112,17 @@ public class CanvasView extends View {
             case MotionEvent.ACTION_DOWN:
 
                 mInverseViewTransform.mapPoints(pts);
-                mPaths.get(currentPath).moveTo(pts[0], pts[1]);
+                mStrokes.get(currentPath).getPath().moveTo(pts[0], pts[1]);
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 mInverseViewTransform.mapPoints(pts);
-                mPaths.get(currentPath).lineTo(pts[0], pts[1]);
+                mStrokes.get(currentPath).getPath().lineTo(pts[0], pts[1]);
                 invalidate();
                 break;
 
             case MotionEvent.ACTION_UP:
-                mPaths.add(new Path());
+                mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight()));
                 currentPath++;
                 break;
         }
