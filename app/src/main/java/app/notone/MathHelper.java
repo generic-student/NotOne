@@ -2,6 +2,8 @@ package app.notone;
 
 import android.graphics.Path;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper class for various math functions
  */
@@ -14,8 +16,8 @@ public class MathHelper {
      * @param radius Radius of the circle
      * @return boolean
      */
-    public static boolean lineSegmentIntersectsCircle(Point2D P, Point2D Q, Point2D O, float radius) {
-        float minDist = Float.MIN_VALUE;
+    public static boolean lineSegmentIntersectsCircle(@NonNull Point2D P, @NonNull Point2D Q, @NonNull Point2D O, float radius) {
+        float minDist;
         final Point2D OP = P.subtract(O);
         final Point2D QP = P.subtract(Q);
         final Point2D OQ = Q.subtract(O);
@@ -28,28 +30,31 @@ public class MathHelper {
         else {
             minDist = Math.min(O.distance(P), O.distance(Q));
         }
-        if(minDist <= radius && max_dist >= radius) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return minDist <= radius && max_dist >= radius;
+
+//        float minDist = 2.f * triangleArea(O, P, Q) / P.distance(Q);
+//        if(minDist <= radius) {
+//            return true;
+//        }
+//        else {
+//            return false;
+//        }
     }
 
     /**
      * compute the area of a triangle defined by three points
      * @param A first point of the triangle
      * @param B second point of the triangle
-     * @param C third point of the tirangle
+     * @param C third point of the triangle
      * @return area of the triangle
      */
-    public static float triangleArea(Point2D A, Point2D B, Point2D C) {
+    public static float triangleArea(@NonNull Point2D A, @NonNull Point2D B, @NonNull Point2D C) {
         Point2D AB = B.subtract(A);
         Point2D AC = C.subtract(A);
         return Math.abs(AB.crossProduct(AC))/2.f;
     }
 
-    public static boolean pathIntersectsCircle(Path path, Point2D center, float radius) {
+    public static boolean pathIntersectsCircle(@NonNull Path path, @NonNull Point2D center, float radius) {
         float[] points = path.approximate(0.5f);
         for(int j = 0; j < points.length - 6; j+=3) {
             Point2D begin = new Point2D(points[j+1], points[j+2]); //point in the path
