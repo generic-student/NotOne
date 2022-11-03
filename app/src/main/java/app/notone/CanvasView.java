@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -31,6 +33,12 @@ public class CanvasView extends View {
     private final float MAX_SCALE = 5f;
     private final float MIN_SCALE = 0.01f;
     private float mScale    = 1;
+
+    private enum DrawState {
+        WRITE, ERASE
+    }
+    private DrawState mDrawState = DrawState.WRITE;
+
     /**
      * Constructor
      * initializes vars for Paths and Transforms
@@ -51,6 +59,7 @@ public class CanvasView extends View {
         mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight()));
 
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
+        mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
     }
 
@@ -107,6 +116,8 @@ public class CanvasView extends View {
         mGestureDetector.onTouchEvent(event);
         mScaleDetector.onTouchEvent(event);
 
+        Log.d(LOG_TAG, event.toString());
+
         // input with two fingers (transformations) not handled here
         if(event.getPointerCount() > 1) {
             return true;
@@ -117,6 +128,35 @@ public class CanvasView extends View {
             return true;
         }
 
+        //get the current draw state depending on the event
+        mDrawState = getDrawStateFromMotionEvent(event);
+
+        switch(mDrawState) {
+            case WRITE:
+                handleOnTouchEventWrite(event);
+                break;
+            case ERASE:
+                handleOnTouchEventErase(event);
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * return the current draw state
+     * @param event the current MotionEvent
+     * @return
+     */
+    private DrawState getDrawStateFromMotionEvent(MotionEvent event) {
+        return (event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) ? DrawState.ERASE : DrawState.WRITE;
+    }
+
+    /**
+     * handles the MotionEvent when the draw state is WRITE
+     * @param event
+     */
+    private void handleOnTouchEventWrite(MotionEvent event) {
         float pts[] = new float[]{event.getX(), event.getY()};
         mViewTransform.invert(mInverseViewTransform); // mInverseViewTransform = mViewTransform.inverted
 
@@ -124,7 +164,7 @@ public class CanvasView extends View {
             case MotionEvent.ACTION_DOWN:
 
                 mInverseViewTransform.mapPoints(pts); // revert current transformation to work non transformed point // pts = transformed
-                mStrokes.get(currentPathIndex).getPath().moveTo(pts[0], pts[1]);; // set origin of path from touch point
+                mStrokes.get(currentPathIndex).getPath().moveTo(pts[0], pts[1]); // set origin of path from touch point
                 // no transform
                 break;
 
@@ -139,8 +179,45 @@ public class CanvasView extends View {
                 currentPathIndex++;
                 break;
         }
+    }
 
-        return true;
+    /**
+     * handles the MotionEvent if the draw state is ERASE
+     * @param event
+     */
+    private void handleOnTouchEventErase(MotionEvent event) {
+        if(event.getAction() != 213) {
+            return;
+        }
+
+        float pts[] = new float[]{event.getX(), event.getY()};
+        mViewTransform.invert(mInverseViewTransform); // mInverseViewTransform = mViewTransform.inverted
+        mInverseViewTransform.mapPoints(pts);
+
+        boolean strokeErased = false;
+        RectF bounds = new RectF();
+
+        //check if the current cursor position intersects the bounds of one of the strokes and remove it
+        for(int i = mStrokes.size() - 1; i >= 0; i--) {
+            mStrokes.get(i).getPath().computeBounds(bounds, true);
+
+            //check if the outer bounds that encompass the entire path intersects with the cursor
+            if(bounds.contains(pts[0], pts[1])) {
+                Point2D circleCenter = new Point2D(pts[0], pts[1]);
+                float circleRadius = getStrokeWeight();
+
+                if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), circleCenter, circleRadius)) {
+                    mStrokes.remove(i);
+                    currentPathIndex = mStrokes.size() - 1;
+                    strokeErased = true;
+                }
+            }
+        }
+
+        //invalidate the canvas if a stroke has been erased
+        if(strokeErased) {
+            invalidate();
+        }
     }
 
     /**
@@ -223,9 +300,9 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
-//                return true;
-//            }
+            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
+                return true;
+            }
 
             if(e2.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
                 return true;
