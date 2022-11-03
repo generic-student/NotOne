@@ -17,6 +17,10 @@ public class MathHelper {
      * @return boolean
      */
     public static boolean lineSegmentIntersectsCircle(@NonNull Point2D P, @NonNull Point2D Q, @NonNull Point2D O, float radius) {
+        if(P.distance(Q) <= radius && (P.distance(O) <= radius || Q.distance(O) <= radius)) {
+            return true;
+        }
+
         float minDist;
         final Point2D OP = P.subtract(O);
         final Point2D QP = P.subtract(Q);
@@ -31,6 +35,8 @@ public class MathHelper {
             minDist = Math.min(O.distance(P), O.distance(Q));
         }
         return minDist <= radius && max_dist >= radius;
+
+
 
 //        float minDist = 2.f * triangleArea(O, P, Q) / P.distance(Q);
 //        if(minDist <= radius) {
@@ -56,6 +62,11 @@ public class MathHelper {
 
     public static boolean pathIntersectsCircle(@NonNull Path path, @NonNull Point2D center, float radius) {
         float[] points = path.approximate(0.5f);
+
+        if(points.length == 3) {
+            return new Point2D(points[1], points[2]).distance(center) <= radius;
+        }
+
         for(int j = 0; j < points.length - 6; j+=3) {
             Point2D begin = new Point2D(points[j+1], points[j+2]); //point in the path
             Point2D end = new Point2D(points[j+4], points[j+5]); //next point in the path

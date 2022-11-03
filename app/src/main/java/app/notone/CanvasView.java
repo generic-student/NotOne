@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
+    private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
     private ArrayList<Stroke> mStrokes; // contains all Paths drawn by user Path, Color, Weight
     private int currentPathIndex = 0;
@@ -186,36 +187,22 @@ public class CanvasView extends View {
      * @param event
      */
     private void handleOnTouchEventErase(MotionEvent event) {
-        if(event.getAction() != 213) {
+        if(event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             return;
         }
 
+        //transform the cursor position using the inverse of the view matrix
         float pts[] = new float[]{event.getX(), event.getY()};
         mViewTransform.invert(mInverseViewTransform); // mInverseViewTransform = mViewTransform.inverted
         mInverseViewTransform.mapPoints(pts);
 
-        boolean strokeErased = false;
-        RectF bounds = new RectF();
-
-        //check if the current cursor position intersects the bounds of one of the strokes and remove it
-        for(int i = mStrokes.size() - 1; i >= 0; i--) {
-            mStrokes.get(i).getPath().computeBounds(bounds, true);
-
-            //check if the outer bounds that encompass the entire path intersects with the cursor
-            if(bounds.contains(pts[0], pts[1])) {
-                Point2D circleCenter = new Point2D(pts[0], pts[1]);
-                float circleRadius = getStrokeWeight();
-
-                if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), circleCenter, circleRadius)) {
-                    mStrokes.remove(i);
-                    currentPathIndex = mStrokes.size() - 1;
-                    strokeErased = true;
-                }
-            }
-        }
-
-        //invalidate the canvas if a stroke has been erased
-        if(strokeErased) {
+        final Point2D circleCenter = new Point2D(pts[0], pts[1]);
+        final float circleRadius = getStrokeWeight();
+        //erase the strokes that the eraser touches using the Eraser Class
+        final int strokesErased = Eraser.erase(mStrokes, circleCenter, circleRadius);
+        //if at least one stroke was erased, invalidate the canvas
+        if(strokesErased > 0) {
+            currentPathIndex -= strokesErased;
             invalidate();
         }
     }
