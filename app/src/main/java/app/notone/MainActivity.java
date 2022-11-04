@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -14,34 +15,24 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
-    CanvasView canvasView;
-    HashMap<String, Integer> penColors = new HashMap<String, Integer>();
+    HashMap<String, Integer> penColors = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_canvas);
 
-        CanvasView canvasView = findViewById(R.id.canvasView);
-
+        getSupportActionBar().hide();
         penColors.put("RED", Color.RED);
         penColors.put("GREEN", Color.GREEN);
         penColors.put("BLUE", Color.BLUE);
-//        ((Button) findViewById(R.id.btn_red)).setOnClickListener(v -> {
-//            canvasView.setStrokeColor(Color.RED);
-//            canvasView.setStrokeWeight(10);
-//        });
-//
-//        ((Button) findViewById(R.id.btn_green)).setOnClickListener(v -> {
-//            canvasView.setStrokeColor(Color.GREEN);
-//            canvasView.setStrokeWeight(100);
-//        });
 
-        Spinner dropdownPenColor = (Spinner) findViewById(R.id.spinner_pen_color);
+        CanvasView canvasView = findViewById(R.id.canvasView);
+        Spinner dropdownPenColor = findViewById(R.id.spinner_pen);
         ArrayAdapter<CharSequence> dropdownItems = ArrayAdapter.createFromResource(
-                this, R.array.pen_colors, R.layout.pen_color_spinner_dropdown_field); // load dropdown items
+                this, R.array.pen_colors, R.layout.pen_color_spinner_dropdown_field);
 
-        dropdownItems.setDropDownViewResource(R.layout.pen_color_spinner_dropdown_items); // layout for all items
+        dropdownItems.setDropDownViewResource(R.layout.pen_color_spinner_dropdown_items);
         dropdownPenColor.setAdapter(dropdownItems); // set to spinner
 
         class ItemSelectedListener implements AdapterView.OnItemSelectedListener {

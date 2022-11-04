@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     android:checkMark="@android:drawable/btn_radio"
     android:ellipsize="marquee"
-    android:maxLines="1"
+    android:textAlignment="center"
     android:textColor="@color/white" />
