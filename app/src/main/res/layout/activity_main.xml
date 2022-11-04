@@ -1,15 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Use DrawerLayout as root container for activity -->
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:fitsSystemWindows="true">
 
+<!--TOOLBAR should be switched out based on the NavHostFragment below -->
+    <include
+        layout="@layout/toolbar_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
     <androidx.fragment.app.FragmentContainerView
-        android:name="app.notone.CanvasFragment"
-        android:id="@+id/fooFragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/nav_main_host_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph"
         tools:layout="@layout/fragment_canvas" />
 
-</LinearLayout>
+    <!-- Container for contents of drawer - uses NavigationView to make configuration easier -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navdrawer_container_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer_menu" />
+<!--    as an alternative to the menu a list view can be used https://code.tutsplus.com/tutorials/how-to-code-a-navigation-drawer-in-an-android-app - -cms-30263-->
+
+</androidx.drawerlayout.widget.DrawerLayout>
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:orientation="vertical" >-->
+
+<!--    <androidx.fragment.app.FragmentContainerView-->
+<!--        android:name="app.notone.CanvasFragment"-->
+<!--        android:id="@+id/fooFragment"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        tools:layout="@layout/fragment_canvas" />-->
+<!--</LinearLayout>-->
