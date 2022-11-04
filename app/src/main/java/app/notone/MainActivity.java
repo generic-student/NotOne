@@ -1,5 +1,6 @@
 package app.notone;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -30,24 +31,25 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.canavastoolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navView = findViewById(R.id.navdrawer_container_view);
-        NavController navController = ((NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment)).getNavController();
+        DrawerLayout mainActivityDrawerLayout = findViewById(R.id.drawer_layout_activity_main); // contains everything enables the drawer
+        NavigationView navDrawerContainer = findViewById(R.id.navdrawercontainer_view); // contains the drawer menu
+        NavController navController = ((NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment)).getNavController(); // contains the fragments underneath the toolbar that are changed when set via drawer menu
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        Set<Integer> topLevelDestinations = new HashSet<Integer>();
-        topLevelDestinations.add(R.id.canvasFragment);
-        topLevelDestinations.add( R.id.settingsFragment);
-
-        mAppBarConfiguration = new AppBarConfiguration.Builder(topLevelDestinations)
-                .setOpenableLayout(drawerLayout)
+        /* top levels dont display a back button*/
+//        Set<Integer> topLevelDestinations = new HashSet<Integer>();
+//        topLevelDestinations.add(R.id.canvasFragment);
+//        topLevelDestinations.add( R.id.settingsFragment);
+        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()) //topLevelDestinations
+                .setOpenableLayout(mainActivityDrawerLayout) // adds burger button for toplevel
                 .build();
-        NavigationUI.setupActionBarWithNavController(this,
-                navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navView, navController);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration); // add titles from navgraph to actionbar
+        NavigationUI.setupWithNavController(navDrawerContainer, navController); // this will call onNavDestinationSelected when a menu item is selected.
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawerLayout, toolbar, R.string.open, R.string.close);
+
+        mainActivityDrawerLayout.addDrawerListener(toggle);
+//        navDrawerContainer.setNavigationItemSelectedListener(item -> );
 
         Log.d(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     }
