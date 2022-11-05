@@ -8,24 +8,17 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-<!--TOOLBAR should be switched out based on the NavHostFragment below -->
-    <include
-        layout="@layout/toolbar_canvas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
+    <!-- FRAGMENT: Layout to contain contents of main body of screen (drawer will slide over this) -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_main_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph"
-        tools:layout="@layout/fragment_canvas" />
+        tools:layout="@layout/fragment_canvas"  />
 
-    <!-- Container for contents of drawer - uses NavigationView to make configuration easier -->
+    <!-- DRAWER: Container for contents of drawer - uses NavigationView to make configuration easier -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navdrawercontainer_view"
         android:layout_width="wrap_content"
@@ -34,7 +27,13 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu" />
-<!--    as an alternative to the menu a list view can be used https://code.tutsplus.com/tutorials/how-to-code-a-navigation-drawer-in-an-android-app - -cms-30263-->
+    <!--    as an alternative to the menu a list view can be used https://code.tutsplus.com/tutorials/how-to-code-a-navigation-drawer-in-an-android-app - -cms-30263-->
+
+    <!--TOOLBAR: should be switched out based on the NavHostFragment above -->
+    <include
+        layout="@layout/toolbar_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
 <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
