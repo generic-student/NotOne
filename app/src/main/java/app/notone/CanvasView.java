@@ -86,8 +86,6 @@ public class CanvasView extends View {
         mGestureDetector.onTouchEvent(event);
         mScaleDetector.onTouchEvent(event);
 
-        Log.d(LOG_TAG, event.toString());
-
         // input with two fingers (transformations) not handled here
         if(event.getPointerCount() > 1) {
             return true;
