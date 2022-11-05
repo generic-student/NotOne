@@ -18,6 +18,13 @@
         app:navGraph="@navigation/nav_graph"
         tools:layout="@layout/fragment_canvas"  />
 
+
+    <!--TOOLBAR: should be switched out based on the NavHostFragment above -->
+    <include
+        layout="@layout/toolbar_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <!-- DRAWER: Container for contents of drawer - uses NavigationView to make configuration easier -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navdrawercontainer_view"
@@ -28,12 +35,6 @@
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu" />
     <!--    as an alternative to the menu a list view can be used https://code.tutsplus.com/tutorials/how-to-code-a-navigation-drawer-in-an-android-app - -cms-30263-->
-
-    <!--TOOLBAR: should be switched out based on the NavHostFragment above -->
-    <include
-        layout="@layout/toolbar_canvas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
 <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->

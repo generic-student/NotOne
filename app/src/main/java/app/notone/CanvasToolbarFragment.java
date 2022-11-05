@@ -37,7 +37,8 @@ class CanvasToolbarFragment extends Fragment {
         dropdownItems.setDropDownViewResource(R.layout.pen_color_spinner_dropdown_items);
         dropdownPenColor.setAdapter(dropdownItems); // set to spinner
 
-        class ItemSelectedListener implements AdapterView.OnItemSelectedListener {
+//        class ItemSelectedListener implements
+        dropdownPenColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -49,8 +50,7 @@ class CanvasToolbarFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
-        }
-        dropdownPenColor.setOnItemSelectedListener(new ItemSelectedListener());
+        });
         return view;
     }
 
@@ -60,5 +60,6 @@ class CanvasToolbarFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
+
     }
 }

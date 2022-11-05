@@ -1,54 +1,73 @@
 package app.notone;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
+import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
-import android.os.Bundle;
-import android.util.Log;
-
-import com.google.android.material.navigation.NavigationView;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
+    NavigationView navDrawerContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.canavastoolbar);
-        setSupportActionBar(toolbar);
+        Toolbar canvasToolbar = findViewById(R.id.canavastoolbar); // do depending on fragment
+        setSupportActionBar(canvasToolbar);
 
-        DrawerLayout mainActivityDrawerLayout = findViewById(R.id.drawer_layout_activity_main); // contains everything enables the drawer
-        NavigationView navDrawerContainer = findViewById(R.id.navdrawercontainer_view); // contains the drawer menu
-        NavController navController = ((NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment)).getNavController(); // contains the fragments underneath the toolbar that are changed when set via drawer menu
-
+        DrawerLayout mainActivityDrawerLayout = findViewById(R.id.drawer_layout_activity_main);
+        navDrawerContainer = findViewById(R.id.navdrawercontainer_view);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment);
+        NavController navGraphController = navHostFragment.getNavController(); // nav_graph
 
         /* top levels dont display a back button*/
-//        Set<Integer> topLevelDestinations = new HashSet<Integer>();
-//        topLevelDestinations.add(R.id.canvasFragment);
-//        topLevelDestinations.add( R.id.settingsFragment);
-        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()) //topLevelDestinations
-                .setOpenableLayout(mainActivityDrawerLayout) // adds burger button for toplevel
+        mAppBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
+                .setOpenableLayout(mainActivityDrawerLayout) // setDrawerLayout // adds burger button for toplevel
                 .build();
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration); // add titles from navgraph to actionbar
-        NavigationUI.setupWithNavController(navDrawerContainer, navController); // this will call onNavDestinationSelected when a menu item is selected.
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawerLayout, canvasToolbar, R.string.open, R.string.close); // open with burger
+        mainActivityDrawerLayout.addDrawerListener(toggle); // not needed?
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawerLayout, toolbar, R.string.open, R.string.close);
+        NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
+        NavigationUI.setupWithNavController(navDrawerContainer, navGraphController); // this will call onNavDestinationSelected when a menu item is selected.
 
-        mainActivityDrawerLayout.addDrawerListener(toggle);
+
+        navGraphController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller,
+                                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                if (destination.getId() == R.id.settings_fragment) {
+                    canvasToolbar.setVisibility(View.GONE);
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
+                } else {
+                    canvasToolbar.setVisibility(View.VISIBLE);
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
+//                setSupportActionBar(canvasToolbar); // breaks burger
+                }
+            }
+        });
+
+
 //        navDrawerContainer.setNavigationItemSelectedListener(item -> );
 
         Log.d(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -56,8 +75,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = findNavController(this, R.id.nav_main_host_fragment);
-        return navController.navigateUp() || super.onSupportNavigateUp();
-//        return super.onSupportNavigateUp();
+        NavController navGraphController = findNavController(this, R.id.nav_main_host_fragment);
+        Log.d(TAG, "onSupportNavigateUp: FCDFFFFFFFFFFFFFFFFF");
+        return navGraphController.navigateUp() || super.onSupportNavigateUp();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
+        Log.d(TAG, "onOptionsItemSelected: FCDFFFFFFFFFFFFFFFFF");
+        return NavigationUI.onNavDestinationSelected(item, navController)
+                || super.onOptionsItemSelected(item);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu: FCDFFFFFFFFFFFFFFFFF");
+//        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.drawer_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
 }
