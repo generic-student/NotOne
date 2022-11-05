@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -17,28 +15,18 @@ import java.util.ArrayList;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
-    private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
-    private ArrayList<Stroke> mStrokes; // contains all Paths drawn by user Path, Color, Weight
-    private int currentPathIndex = 0;
+    private CanvasPen mCanvasPen;
 
-    private Paint mPaint;
-    private float mStrokeWeight = 10.f;
-    private int mStrokeColor = Color.RED;
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
 
     // Remember some things for zooming
     private Matrix mViewTransform;
     private Matrix mInverseViewTransform;
-    private final float MAX_SCALE = 5f;
+    private final float MAX_SCALE = 5.f;
     private final float MIN_SCALE = 0.01f;
-    private float mScale    = 1;
-
-    private enum DrawState {
-        WRITE, ERASE
-    }
-    private DrawState mDrawState = DrawState.WRITE;
+    private float mScale    = 1.f;
 
     /**
      * Constructor
@@ -49,16 +37,9 @@ public class CanvasView extends View {
      */
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mPaint = new Paint();
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-
+        mCanvasPen = new CanvasPen(10.f, Color.RED);
         mViewTransform = new Matrix();
         mInverseViewTransform = new Matrix();
-        mStrokes = new ArrayList<Stroke>();
-        mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight()));
-
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
@@ -69,27 +50,19 @@ public class CanvasView extends View {
      * @param weight
      */
     public void setStrokeWeight(float weight) {
-        mStrokeWeight = weight;
-        // dont allow changing stroke width while drawing
-        if(mStrokes.get(currentPathIndex).getPath().isEmpty()) {
-            mStrokes.get(currentPathIndex).setWeight(weight);
-        }
+        mCanvasPen.setStrokeWeight(weight);
     }
 
     public float getStrokeWeight() {
-        return mStrokeWeight;
+        return mCanvasPen.getStrokeWeight();
     }
 
     public void setStrokeColor(int color) {
-        mStrokeColor = color;
-        // dont allow changing stroke color
-        if(mStrokes.get(currentPathIndex).getPath().isEmpty()) {
-            mStrokes.get(currentPathIndex).setColor(color);
-        }
+        mCanvasPen.setStrokeColor(color);
     }
 
     public int getStrokeColor() {
-        return mStrokeColor;
+        return mCanvasPen.getStrokeColor();
     }
 
     /**
@@ -99,11 +72,7 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
-        for(Stroke stroke : mStrokes) {
-            mPaint.setColor(stroke.getColor());
-            mPaint.setStrokeWidth(stroke.getWeight());
-            canvas.drawPath(stroke.getPath(), mPaint); // draw all paths on canvas
-        }
+        mCanvasPen.renderStrokes(canvas);
         super.onDraw(canvas);
     }
 
@@ -129,83 +98,16 @@ public class CanvasView extends View {
             return true;
         }
 
-        //get the current draw state depending on the event
-        mDrawState = getDrawStateFromMotionEvent(event);
+        mViewTransform.invert(mInverseViewTransform);
+        boolean invalidated = mCanvasPen.handleOnTouchEvent(event, mViewTransform, mInverseViewTransform);
 
-        switch(mDrawState) {
-            case WRITE:
-                handleOnTouchEventWrite(event);
-                break;
-            case ERASE:
-                handleOnTouchEventErase(event);
-                break;
+        if(invalidated) {
+            invalidate();
         }
 
         return true;
     }
 
-    /**
-     * return the current draw state
-     * @param event the current MotionEvent
-     * @return
-     */
-    private DrawState getDrawStateFromMotionEvent(MotionEvent event) {
-        return (event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) ? DrawState.ERASE : DrawState.WRITE;
-    }
-
-    /**
-     * handles the MotionEvent when the draw state is WRITE
-     * @param event
-     */
-    private void handleOnTouchEventWrite(MotionEvent event) {
-        float pts[] = new float[]{event.getX(), event.getY()};
-        mViewTransform.invert(mInverseViewTransform); // mInverseViewTransform = mViewTransform.inverted
-
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-
-                mInverseViewTransform.mapPoints(pts); // revert current transformation to work non transformed point // pts = transformed
-                mStrokes.get(currentPathIndex).getPath().moveTo(pts[0], pts[1]); // set origin of path from touch point
-                // no transform
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                mInverseViewTransform.mapPoints(pts);
-                mStrokes.get(currentPathIndex).getPath().lineTo(pts[0], pts[1]);
-                invalidate(); // call draw
-                break;
-
-            case MotionEvent.ACTION_UP:
-                mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight())); // prep empty next
-                currentPathIndex++;
-                break;
-        }
-    }
-
-    /**
-     * handles the MotionEvent if the draw state is ERASE
-     * @param event
-     */
-    private void handleOnTouchEventErase(MotionEvent event) {
-        if(event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
-            return;
-        }
-
-        //transform the cursor position using the inverse of the view matrix
-        float pts[] = new float[]{event.getX(), event.getY()};
-        mViewTransform.invert(mInverseViewTransform); // mInverseViewTransform = mViewTransform.inverted
-        mInverseViewTransform.mapPoints(pts);
-
-        final Point2D circleCenter = new Point2D(pts[0], pts[1]);
-        final float circleRadius = getStrokeWeight();
-        //erase the strokes that the eraser touches using the Eraser Class
-        final int strokesErased = Eraser.erase(mStrokes, circleCenter, circleRadius);
-        //if at least one stroke was erased, invalidate the canvas
-        if(strokesErased > 0) {
-            currentPathIndex -= strokesErased;
-            invalidate();
-        }
-    }
 
     /**
      * Scaling

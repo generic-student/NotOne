@@ -1,5 +1,7 @@
 package app.notone;
 
+import android.graphics.Matrix;
+
 public class Point2D {
     public float x;
     public float y;
@@ -27,5 +29,11 @@ public class Point2D {
 
     public Point2D add(Point2D other) {
         return new Point2D(x + other.y, y + other.y);
+    }
+
+    public Point2D transform(Matrix mat) {
+        float[] pts = new float[]{x, y};
+        mat.mapPoints(pts);
+        return new Point2D(pts[0], pts[1]);
     }
 }
