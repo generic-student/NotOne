@@ -13,109 +13,109 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
-<!-- why the hell does it need a scroll view here to display the fragment title if its removed there is no title -->
-<!-- im setting the title via the onDestinationChanged for now :P  -->
-<!--        <HorizontalScrollView-->
-<!--            android:scrollbarSize="0dp"-->
-<!--            android:requiresFadingEdge="horizontal"-->
-<!--            android:fadingEdgeLength="10dp"-->
-<!--            android:background="@color/purple_700"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="end">-->
+        <!-- why the hell does it need a scroll view here to display the fragment title if its removed there is no title -->
+        <!-- im setting the title via the onDestinationChanged for now :P  -->
+        <!--        <HorizontalScrollView-->
+        <!--            android:scrollbarSize="0dp"-->
+        <!--            android:requiresFadingEdge="horizontal"-->
+        <!--            android:fadingEdgeLength="10dp"-->
+        <!--            android:background="@color/purple_700"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_gravity="end">-->
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/canavas_toolbar"
-                android:layout_width="match_parent"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/canavas_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/purple_700"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme">
+        <!--            app:layout_scrollFlags="scroll|enterAlways|snap"-->
+
+            <!-- other hack for right align -->
+            <!--                <Space-->
+            <!--                    android:layout_width="300dp"-->
+            <!--                    android:layout_height="match_parent" />-->
+            <TextView
+                android:id="@+id/tv_fragment_title"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:layout_scrollFlags="scroll|enterAlways"
+                android:text="TITLE"
+                android:textStyle="bold"
+                android:textSize="20dp" />
+
+            <HorizontalScrollView
+                android:scrollbarSize="0dp"
+                android:overScrollMode="never"
+                android:requiresFadingEdge="horizontal"
+                android:fadingEdgeLength="10dp"
                 android:background="@color/purple_700"
-                android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end">
 
-<!-- other hack for right align -->
-<!--                <Space-->
-<!--                    android:layout_width="300dp"-->
-<!--                    android:layout_height="match_parent" />-->
-                <TextView
-                    android:id="@+id/tv_fragment_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="TITLE"
-                    android:textStyle="bold"
-                    android:textSize="20dp"/>
-
-                <HorizontalScrollView
-                    android:scrollbarSize="0dp"
-                    android:overScrollMode="never"
-                    android:requiresFadingEdge="horizontal"
-                    android:fadingEdgeLength="10dp"
-                    android:background="@color/purple_700"
+                <LinearLayout
+                    android:id="@+id/canvas_tools"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_gravity="end">
 
-                    <LinearLayout
-                        android:id="@+id/canvas_tools"
-                        android:layout_width="match_parent"
+                    <Button
+                        android:id="@+id/button_insert"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="end">
+                        android:maxLines="1"
+                        android:text="InsertAAAAAAAAAAAAAAAAAAAAAAaaaaaaAAAAAAAAAAAAAAAAAAAAAAAA" />
 
-                        <Button
-                            android:id="@+id/button_insert"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:text="InsertAAAAAAAAAAAAAAAAAAAAAAaaaaaaAAAAAAAAAAAAAAAAAAAAAAAA" />
+                    <Button
+                        android:id="@+id/button_undo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="undo" />
 
-                        <Button
-                            android:id="@+id/button_undo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:text="undo" />
+                    <Button
+                        android:id="@+id/button_redo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="redo" />
 
-                        <Button
-                            android:id="@+id/button_redo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:text="redo" />
+                    <Button
+                        android:id="@+id/button_hide"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="hide" />
 
-                        <Button
-                            android:id="@+id/button_hide"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:text="hide" />
+                    <Button
+                        android:id="@+id/asdasd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="hide" />
 
-                        <Button
-                            android:id="@+id/asdasd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:text="hide" />
+                    <Spinner
+                        android:id="@+id/spinner_eraser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                        <Spinner
-                            android:id="@+id/spinner_eraser"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                    <Spinner
+                        android:id="@+id/spinner_pen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                        <Spinner
-                            android:id="@+id/spinner_pen"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                    <Spinner
+                        android:id="@+id/spinner_marker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                        <Spinner
-                            android:id="@+id/spinner_marker"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-                </HorizontalScrollView>
-            </androidx.appcompat.widget.Toolbar>
-<!--        </HorizontalScrollView>-->
+                </LinearLayout>
+            </HorizontalScrollView>
+        </androidx.appcompat.widget.Toolbar>
+        <!--        </HorizontalScrollView>-->
     </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -123,9 +123,10 @@
         android:id="@+id/button_toggle_toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="78dp"
+        android:layout_marginEnd="16dp"
         android:contentDescription="TODO"
-        android:src="@android:drawable/arrow_up_float" />"
+        android:src="@android:drawable/arrow_up_float" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

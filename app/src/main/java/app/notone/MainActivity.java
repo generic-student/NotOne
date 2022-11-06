@@ -4,8 +4,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView navDrawerContainer;
+    boolean toolbarVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,24 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(navDrawerContainer, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 //        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        AppBarLayout appBar = findViewById(R.id.AppBar);
+        FloatingActionButton floatingActionButton = findViewById(R.id.button_toggle_toolbar);
+        floatingActionButton.setOnClickListener(view -> {
+
+            if(toolbarVisible) {
+                appBar.animate().translationY(-appBar.getHeight());
+                floatingActionButton.animate().translationY(-appBar.getHeight());
+                floatingActionButton.setImageResource(android.R.drawable.arrow_down_float);
+                toolbarVisible = false;
+            }
+            else {
+                appBar.animate().translationY(0);
+                floatingActionButton.animate().translationY(0);
+                floatingActionButton.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
+                toolbarVisible = true;
+            }
+        });
 
         navGraphController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
