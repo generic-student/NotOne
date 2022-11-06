@@ -4,9 +4,11 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Pair;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class CanvasPen {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
@@ -15,9 +17,11 @@ public class CanvasPen {
     private float mStrokeWeight;
     private int mStrokeColor;
 
+    private ArrayList<CanvasPenAction> mUndoneActions;
+    private ArrayList<CanvasPenAction> mActions;
+
     private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
     private Stroke mCurrentStroke; //the path that the user is currently drawing
-    private int mCurrentStrokeIndex = -1; //the index in the already drawn paths until which to render
 
     public enum DrawState {
         WRITE, ERASE
@@ -34,6 +38,8 @@ public class CanvasPen {
         this.mPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mStrokes = new ArrayList<>();
+        mActions = new ArrayList<>();
+        mUndoneActions = new ArrayList<>();
         mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
     }
 
@@ -52,8 +58,8 @@ public class CanvasPen {
     public void setStrokeWeight(float mStrokeWeight) {
         this.mStrokeWeight = mStrokeWeight;
 
-        if(mStrokes.get(mCurrentStrokeIndex).getPath().isEmpty()) {
-            mStrokes.get(mCurrentStrokeIndex).setWeight(mStrokeWeight);
+        if(mCurrentStroke.getPath().isEmpty()) {
+            mCurrentStroke.setWeight(mStrokeWeight);
         }
     }
 
@@ -64,8 +70,8 @@ public class CanvasPen {
     public void setStrokeColor(int mStrokeColor) {
         this.mStrokeColor = mStrokeColor;
 
-        if(mStrokes.get(mCurrentStrokeIndex).getPath().isEmpty()) {
-            mStrokes.get(mCurrentStrokeIndex).setColor(mStrokeColor);
+        if(mCurrentStroke.getPath().isEmpty()) {
+            mCurrentStroke.setColor(mStrokeColor);
         }
     }
 
@@ -83,14 +89,6 @@ public class CanvasPen {
 
     public void setStrokes(ArrayList<Stroke> mStrokes) {
         this.mStrokes = mStrokes;
-    }
-
-    public int getCurrentStrokeIndex() {
-        return mCurrentStrokeIndex;
-    }
-
-    public void setCurrentStrokeIndex(int mCurrentStrokeIndex) {
-        this.mCurrentStrokeIndex = mCurrentStrokeIndex;
     }
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
@@ -131,8 +129,8 @@ public class CanvasPen {
                 clearUndoneStrokes();
                 //add the current stroke to the list of strokes
                 mStrokes.add(mCurrentStroke);
-                //increment the current strokeIndex
-                mCurrentStrokeIndex++;
+                //add the action the the list
+                mActions.add(new CanvasPenAction(CanvasPenAction.Type.WRITE, mCurrentStroke));
                 //reset the current stroke
                 mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
                 break;
@@ -173,16 +171,14 @@ public class CanvasPen {
         RectF bounds = new RectF();
 
         //check if the current cursor position intersects the bounds of one of the strokes and remove it
-        final int startIndex = mCurrentStrokeIndex;
-        for(int i = startIndex; i >= 0; i--) {
+        for(int i = 0; i < mStrokes.size(); i++) {
             mStrokes.get(i).getPath().computeBounds(bounds, true);
 
             //check if the outer bounds that encompass the entire path intersects with the cursor
             if(bounds.isEmpty() || bounds.contains(eraserPosition.x, eraserPosition.y)) {
                 if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), eraserPosition, eraserRadius)) {
-
-                    mStrokes.add(mCurrentStrokeIndex, mStrokes.remove(i));
-                    mCurrentStrokeIndex--;
+                    Stroke erasedStroke = mStrokes.remove(i);
+                    mActions.add(new CanvasPenAction(CanvasPenAction.Type.ERASE, erasedStroke));
                     strokesErased++;
                 }
             }
@@ -192,10 +188,10 @@ public class CanvasPen {
     }
 
     public void renderStrokes(Canvas canvas) {
-        for(int i = 0; i <= mCurrentStrokeIndex; i++) {
-            mPaint.setColor(mStrokes.get(i).getColor());
-            mPaint.setStrokeWidth(mStrokes.get(i).getWeight());
-            canvas.drawPath(mStrokes.get(i).getPath(), mPaint); // draw all paths on canvas
+        for(Stroke stroke : mStrokes) {
+            mPaint.setColor(stroke.getColor());
+            mPaint.setStrokeWidth(stroke.getWeight());
+            canvas.drawPath(stroke.getPath(), mPaint); // draw all paths on canvas
         }
         mPaint.setColor(mCurrentStroke.getColor());
         mPaint.setStrokeWidth(mCurrentStroke.getWeight());
@@ -203,37 +199,53 @@ public class CanvasPen {
     }
 
     private void clearUndoneStrokes() {
-        if(mCurrentStrokeIndex == mStrokes.size() - 1) {
-            return;
-        }
-
-        //remove all strokes after the current strokeIndex
-        for (int i = mStrokes.size() - 1; i > mCurrentStrokeIndex ; i--) {
-            mStrokes.remove(i);
-        }
-
+        mUndoneActions.clear();
     }
 
     public boolean undo() {
-        if(mStrokes.isEmpty()) {
+        //undo the last action
+        if(mActions.isEmpty()) {
             return false;
         }
 
-        //decrement the stroke index
-        mCurrentStrokeIndex--;
-
-        return true;
+        CanvasPenAction currentAction = mActions.remove(mActions.size() - 1);
+        switch(currentAction.type) {
+            case WRITE:
+                currentAction.type = CanvasPenAction.Type.UNDO_WRITE;
+                mUndoneActions.add(currentAction);
+                mStrokes.remove(currentAction.stroke);
+                return true;
+            case ERASE:
+                currentAction.type = CanvasPenAction.Type.UNDO_ERASE;
+                mUndoneActions.add(currentAction);
+                mStrokes.add(currentAction.stroke);
+                return true;
+            default:
+                return false;
+        }
     }
 
     public boolean redo() {
-        if(mCurrentStrokeIndex >= mStrokes.size() - 1) {
+        //undo the last action
+        if(mUndoneActions.isEmpty()) {
             return false;
         }
 
-        //increment the stroke index
-        mCurrentStrokeIndex++;
-
-        return true;
+        CanvasPenAction currentAction = mUndoneActions.remove(mUndoneActions.size() - 1);
+        switch(currentAction.type) {
+            case UNDO_WRITE:
+                currentAction.type = CanvasPenAction.Type.WRITE;
+                mActions.add(currentAction);
+                mStrokes.add(currentAction.stroke);
+                return true;
+            case UNDO_ERASE:
+                currentAction.type = CanvasPenAction.Type.ERASE;
+                mActions.add(currentAction);
+                mStrokes.remove(currentAction.stroke);
+                return true;
+            default:
+                return false;
+        }
     }
 
 }
