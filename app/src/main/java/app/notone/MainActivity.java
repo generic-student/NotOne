@@ -30,10 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar canvasToolbar = findViewById(R.id.canavastoolbar); // do depending on fragment
+        Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // do depending on fragment
         setSupportActionBar(canvasToolbar);
 
         DrawerLayout mainActivityDrawerLayout = findViewById(R.id.drawer_layout_activity_main);
@@ -46,55 +47,54 @@ public class MainActivity extends AppCompatActivity {
                 .setOpenableLayout(mainActivityDrawerLayout) // setDrawerLayout // adds burger button for toplevel
                 .build();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawerLayout, canvasToolbar, R.string.open, R.string.close); // open with burger
-        mainActivityDrawerLayout.addDrawerListener(toggle); // not needed?
+        mainActivityDrawerLayout.addDrawerListener(toggle);
 
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
-        NavigationUI.setupWithNavController(navDrawerContainer, navGraphController); // this will call onNavDestinationSelected when a menu item is selected.
-
+        NavigationUI.setupWithNavController(navDrawerContainer, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
+//        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         navGraphController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller,
                                              @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 if (destination.getId() == R.id.settings_fragment) {
-                    canvasToolbar.setVisibility(View.GONE);
+//                    canvasToolbar.setVisibility(View.GONE);
+                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
                 } else {
-                    canvasToolbar.setVisibility(View.VISIBLE);
+                    getSupportActionBar().setTitle("asdasda");
+//                    canvasToolbar.setVisibility(View.VISIBLE);
+//                    findViewById(R.id.nav_main_host_fragment).setLayoutParams(110);
+                    findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
 //                setSupportActionBar(canvasToolbar); // breaks burger
                 }
             }
         });
-
-
-//        navDrawerContainer.setNavigationItemSelectedListener(item -> );
-
-        Log.d(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     }
 
     @Override
     public boolean onSupportNavigateUp() {
+        Log.d(TAG, "onSupportNavigateUp");
         NavController navGraphController = findNavController(this, R.id.nav_main_host_fragment);
-        Log.d(TAG, "onSupportNavigateUp: FCDFFFFFFFFFFFFFFFFF");
         return navGraphController.navigateUp() || super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
-        Log.d(TAG, "onOptionsItemSelected: FCDFFFFFFFFFFFFFFFFF");
+        Log.d(TAG, "onOptionsItemSelected");
         return NavigationUI.onNavDestinationSelected(item, navController)
                 || super.onOptionsItemSelected(item);
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.d(TAG, "onCreateOptionsMenu: FCDFFFFFFFFFFFFFFFFF");
-//        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.drawer_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        Log.d(TAG, "onCreateOptionsMenu: FCDFFFFFFFFFFFFFFFFF");
+////        super.onCreateOptionsMenu(menu);
+//        getMenuInflater().inflate(R.menu.drawer_menu, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
 }

@@ -23,8 +23,9 @@ class CanvasToolbarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
+        Log.d(TAG, "onCreateView");
+
         View view = inflater.inflate(R.layout.toolbar_canvas, parent, false);
-        Log.d(TAG, "onCreateView: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
         penColors.put("RED", Color.RED);
         penColors.put("GREEN", Color.GREEN);
         penColors.put("BLUE", Color.BLUE);
@@ -58,6 +59,7 @@ class CanvasToolbarFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated");
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
 

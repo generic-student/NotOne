@@ -4,34 +4,42 @@
 
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
+        android:background="@color/purple_700"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
         <HorizontalScrollView
-            android:id="@+id/AppBar"
             android:scrollbarSize="0dp"
             android:requiresFadingEdge="horizontal"
             android:fadingEdgeLength="10dp"
             android:background="@color/purple_700"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:context=".MainActivity"
+            android:layout_gravity="end">
 
-            <!--theoretically the bar can be scrolled out of view but is broken by horizontal scroll view-->
+        <!--theoretically the bar can be scrolled out of view but is broken by horizontal scroll view-->
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/canavastoolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/canavas_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 app:layout_scrollFlags="scroll|enterAlways"
-                android:background="?attr/colorPrimary"
+                android:background="@color/purple_700"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme">
-
+<!--cant move horizontal scroll into toolbar and gravtiy right cause then the title doesnt show anymore?!?!?-->
+                <Space
+                    android:layout_width="300dp"
+                    android:layout_height="match_parent" />
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/canvas_tools"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
@@ -77,19 +85,19 @@
 
                     <Spinner
                         android:id="@+id/spinner_eraser"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
 
                     <Spinner
                         android:id="@+id/spinner_pen"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
 
                     <Spinner
                         android:id="@+id/spinner_marker"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
 

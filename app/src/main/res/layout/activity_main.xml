@@ -16,8 +16,7 @@
         android:layout_height="wrap_content"
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph"
-        tools:layout="@layout/fragment_canvas"  />
-
+        tools:layout="@layout/fragment_canvas"/>
 
     <!--TOOLBAR: should be switched out based on the NavHostFragment above -->
     <include
