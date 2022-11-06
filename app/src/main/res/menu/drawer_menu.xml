@@ -30,7 +30,7 @@
         android:id="@+id/group2">
 
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/aboutFragment"
             android:icon="@android:drawable/ic_menu_info_details"
             android:title="About" />
 </group>
