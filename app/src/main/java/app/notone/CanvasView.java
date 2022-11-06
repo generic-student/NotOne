@@ -106,6 +106,22 @@ public class CanvasView extends View {
         return true;
     }
 
+    public boolean undo() {
+        boolean invalidated = mCanvasPen.undo();
+        if(invalidated) {
+            invalidate();
+        }
+        return invalidated;
+    }
+
+    public boolean redo() {
+        boolean invalidated = mCanvasPen.redo();
+        if(invalidated) {
+            invalidate();
+        }
+        return invalidated;
+    }
+
 
     /**
      * Scaling

@@ -15,8 +15,9 @@ public class CanvasPen {
     private float mStrokeWeight;
     private int mStrokeColor;
 
-    private ArrayList<Stroke> mStrokes; // contains all Paths drawn by user Path, Color, Weight
-    private int mCurrentStrokeIndex = 0;
+    private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
+    private Stroke mCurrentStroke; //the path that the user is currently drawing
+    private int mCurrentStrokeIndex = -1; //the index in the already drawn paths until which to render
 
     public enum DrawState {
         WRITE, ERASE
@@ -33,7 +34,7 @@ public class CanvasPen {
         this.mPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mStrokes = new ArrayList<>();
-        mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight()));
+        mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
     }
 
     public Paint getPaint() {
@@ -115,16 +116,25 @@ public class CanvasPen {
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                moveTo(mStrokes.get(mCurrentStrokeIndex), pos);
+                moveTo(mCurrentStroke, pos);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                lineTo(mStrokes.get(mCurrentStrokeIndex), pos);
+                lineTo(mCurrentStroke, pos);
                 return true;
 
             case MotionEvent.ACTION_UP:
-                mStrokes.add(new Stroke(getStrokeColor(), getStrokeWeight())); // prep empty next
+                if(mCurrentStroke.getPath().isEmpty()) {
+                    return false;
+                }
+                //delete the strokes that come after the currentStrokeIndex
+                clearUndoneStrokes();
+                //add the current stroke to the list of strokes
+                mStrokes.add(mCurrentStroke);
+                //increment the current strokeIndex
                 mCurrentStrokeIndex++;
+                //reset the current stroke
+                mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
                 break;
         }
 
@@ -144,7 +154,6 @@ public class CanvasPen {
         final int strokesErased = erase(pos, circleRadius);
         //if at least one stroke was erased, invalidate the canvas
         if(strokesErased > 0) {
-            mCurrentStrokeIndex -= strokesErased;
             return true;
         }
 
@@ -164,13 +173,16 @@ public class CanvasPen {
         RectF bounds = new RectF();
 
         //check if the current cursor position intersects the bounds of one of the strokes and remove it
-        for(int i = mStrokes.size() - 1; i >= 0; i--) {
+        final int startIndex = mCurrentStrokeIndex;
+        for(int i = startIndex; i >= 0; i--) {
             mStrokes.get(i).getPath().computeBounds(bounds, true);
 
             //check if the outer bounds that encompass the entire path intersects with the cursor
             if(bounds.isEmpty() || bounds.contains(eraserPosition.x, eraserPosition.y)) {
                 if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), eraserPosition, eraserRadius)) {
-                    mStrokes.remove(i);
+
+                    mStrokes.add(mCurrentStrokeIndex, mStrokes.remove(i));
+                    mCurrentStrokeIndex--;
                     strokesErased++;
                 }
             }
@@ -180,11 +192,48 @@ public class CanvasPen {
     }
 
     public void renderStrokes(Canvas canvas) {
-        for(Stroke stroke : mStrokes) {
-            mPaint.setColor(stroke.getColor());
-            mPaint.setStrokeWidth(stroke.getWeight());
-            canvas.drawPath(stroke.getPath(), mPaint); // draw all paths on canvas
+        for(int i = 0; i <= mCurrentStrokeIndex; i++) {
+            mPaint.setColor(mStrokes.get(i).getColor());
+            mPaint.setStrokeWidth(mStrokes.get(i).getWeight());
+            canvas.drawPath(mStrokes.get(i).getPath(), mPaint); // draw all paths on canvas
         }
+        mPaint.setColor(mCurrentStroke.getColor());
+        mPaint.setStrokeWidth(mCurrentStroke.getWeight());
+        canvas.drawPath(mCurrentStroke.getPath(), mPaint);
+    }
+
+    private void clearUndoneStrokes() {
+        if(mCurrentStrokeIndex == mStrokes.size() - 1) {
+            return;
+        }
+
+        //remove all strokes after the current strokeIndex
+        for (int i = mStrokes.size() - 1; i > mCurrentStrokeIndex ; i--) {
+            mStrokes.remove(i);
+        }
+
+    }
+
+    public boolean undo() {
+        if(mStrokes.isEmpty()) {
+            return false;
+        }
+
+        //decrement the stroke index
+        mCurrentStrokeIndex--;
+
+        return true;
+    }
+
+    public boolean redo() {
+        if(mCurrentStrokeIndex >= mStrokes.size() - 1) {
+            return false;
+        }
+
+        //increment the stroke index
+        mCurrentStrokeIndex++;
+
+        return true;
     }
 
 }
