@@ -8,11 +8,14 @@
     <fragment
         android:id="@+id/canvas_fragment"
         android:name="app.notone.CanvasFragment"
-        android:label="Zeichnen" />
+        android:label="Zeichnen"
+        tools:layout="@layout/fragment_canvas"/>
     <fragment
         android:id="@+id/settings_fragment"
         android:name="app.notone.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings"/>
+<!--res/xml/root_preferences.xml-->
     <fragment
         android:id="@+id/aboutFragment"
         android:name="app.notone.AboutFragment"
