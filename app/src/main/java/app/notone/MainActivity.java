@@ -15,13 +15,11 @@ public class MainActivity extends AppCompatActivity {
 
         CanvasView canvasView = findViewById(R.id.canvasView);
         ((Button) findViewById(R.id.btn_red)).setOnClickListener(v -> {
-            canvasView.setStrokeColor(Color.RED);
-            canvasView.setStrokeWeight(10);
+            canvasView.undo();
         });
 
         ((Button) findViewById(R.id.btn_green)).setOnClickListener(v -> {
-            canvasView.setStrokeColor(Color.GREEN);
-            canvasView.setStrokeWeight(100);
+            canvasView.redo();
         });
     }
 }

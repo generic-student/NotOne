@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingHorizontal="16dp"
-                android:text="Red" />
+                android:text="Undo" />
 
             <Button
                 android:id="@+id/btn_green"
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingHorizontal="16dp"
-                android:text="Green" />
+                android:text="Redo" />
         </LinearLayout>
 
         <app.notone.CanvasView
