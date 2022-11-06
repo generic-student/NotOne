@@ -17,7 +17,7 @@
         tools:layout="@layout/fragment_settings"/>
 <!--res/xml/root_preferences.xml-->
     <fragment
-        android:id="@+id/aboutFragment"
+        android:id="@+id/about_fragment"
         android:name="app.notone.AboutFragment"
         android:label="fragment_about"
         tools:layout="@layout/fragment_about" />

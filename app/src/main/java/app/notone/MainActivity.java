@@ -2,9 +2,9 @@ package app.notone;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -59,15 +59,21 @@ public class MainActivity extends AppCompatActivity {
                                              @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 if (destination.getId() == R.id.settings_fragment) {
 //                    canvasToolbar.setVisibility(View.GONE);
+                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("Einstellungen");
                     findViewById(R.id.canvas_tools).setVisibility(View.GONE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                } else {
-                    getSupportActionBar().setTitle("asdasda");
+                } else if (destination.getId() == R.id.canvas_fragment) {
+//                    getSupportActionBar().setTitle("asdasda");
 //                    canvasToolbar.setVisibility(View.VISIBLE);
 //                    findViewById(R.id.nav_main_host_fragment).setLayoutParams(110);
+                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("Zeichnen");
                     findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
 //                setSupportActionBar(canvasToolbar); // breaks burger
+                }  else if (destination.getId() == R.id.about_fragment) {
+                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("About");
+                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
                 }
             }
         });

@@ -4,19 +4,26 @@
 
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+        android:id="@+id/AppBar"
         android:background="@color/purple_700"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
+<!-- why the hell does it need a scroll view here to display the fragment title if its removed there is no title -->
+<!-- im setting the title via the onDestinationChanged for now :P  -->
+<!--        <HorizontalScrollView-->
+<!--            android:scrollbarSize="0dp"-->
+<!--            android:requiresFadingEdge="horizontal"-->
+<!--            android:fadingEdgeLength="10dp"-->
+<!--            android:background="@color/purple_700"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="end">-->
 
-
-        <!--theoretically the bar can be scrolled out of view but is broken by horizontal scroll view-->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/canavas_toolbar"
                 android:layout_width="match_parent"
@@ -25,78 +32,90 @@
                 android:background="@color/purple_700"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme">
-<!--cant move horizontal scroll into toolbar and gravtiy right cause then the title doesnt show anymore?!?!?-->
+
+<!-- other hack for right align -->
 <!--                <Space-->
 <!--                    android:layout_width="300dp"-->
 <!--                    android:layout_height="match_parent" />-->
+                <TextView
+                    android:id="@+id/tv_fragment_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="TITLE"
+                    android:textStyle="bold"
+                    android:textSize="20dp"/>
+
                 <HorizontalScrollView
                     android:scrollbarSize="0dp"
+                    android:overScrollMode="never"
                     android:requiresFadingEdge="horizontal"
                     android:fadingEdgeLength="10dp"
                     android:background="@color/purple_700"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end">
-                <LinearLayout
-                    android:id="@+id/canvas_tools"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="end">
 
-                    <Button
-                        android:id="@+id/button_insert"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/canvas_tools"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="InsertAAAAAAAAAAAAAAAAAAAAAAaaaaaaAAAAAAAAAAAAAAAAAAAAAAAA" />
+                        android:orientation="horizontal"
+                        android:layout_gravity="end">
 
-                    <Button
-                        android:id="@+id/button_undo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="undo" />
+                        <Button
+                            android:id="@+id/button_insert"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="InsertAAAAAAAAAAAAAAAAAAAAAAaaaaaaAAAAAAAAAAAAAAAAAAAAAAAA" />
 
-                    <Button
-                        android:id="@+id/button_redo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="redo" />
+                        <Button
+                            android:id="@+id/button_undo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="undo" />
 
-                    <Button
-                        android:id="@+id/button_hide"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="hide" />
+                        <Button
+                            android:id="@+id/button_redo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="redo" />
 
-                    <Button
-                        android:id="@+id/asdasd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="hide" />
+                        <Button
+                            android:id="@+id/button_hide"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="hide" />
 
-                    <Spinner
-                        android:id="@+id/spinner_eraser"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        <Button
+                            android:id="@+id/asdasd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="hide" />
 
-                    <Spinner
-                        android:id="@+id/spinner_pen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        <Spinner
+                            android:id="@+id/spinner_eraser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
-                    <Spinner
-                        android:id="@+id/spinner_marker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        <Spinner
+                            android:id="@+id/spinner_pen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
-                </LinearLayout>
+                        <Spinner
+                            android:id="@+id/spinner_marker"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
                 </HorizontalScrollView>
             </androidx.appcompat.widget.Toolbar>
+<!--        </HorizontalScrollView>-->
     </com.google.android.material.appbar.AppBarLayout>
 
 
