@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -75,12 +76,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        navDrawerContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                switch (menuItem.getItemId()) {
+                    case R.id.open_file:
+                        Log.i(TAG, "onNavigationItemSelected: Open File");
+                        return true;
+                }
+//                needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
+                if(navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
+                    navGraphController.navigate(menuItem.getItemId());
+                    mainActivityDrawerLayout.closeDrawers();
+                }
+
+                return true;
+            }
+        });
+
         navGraphController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller,
                                              @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 if (destination.getId() == R.id.settings_fragment) {
 //                    canvasToolbar.setVisibility(View.GONE);
+
                     ((TextView) findViewById(R.id.tv_fragment_title)).setText("Einstellungen");
                     findViewById(R.id.canvas_tools).setVisibility(View.GONE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
@@ -91,12 +114,17 @@ public class MainActivity extends AppCompatActivity {
                     ((TextView) findViewById(R.id.tv_fragment_title)).setText("Zeichnen");
                     findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
+                    return;
 //                setSupportActionBar(canvasToolbar); // breaks burger
                 }  else if (destination.getId() == R.id.about_fragment) {
                     ((TextView) findViewById(R.id.tv_fragment_title)).setText("About");
                     findViewById(R.id.canvas_tools).setVisibility(View.GONE);
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
                 }
+                appBar.animate().translationY(0);
+                floatingActionButton.animate().translationY(0);
+                floatingActionButton.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
+                toolbarVisible = true;
             }
         });
     }

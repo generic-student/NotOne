@@ -8,27 +8,40 @@
         <item
             android:id="@+id/canvas_fragment"
             android:icon="@android:drawable/ic_menu_edit"
-            android:title="CanvasFragment" />
+            android:title="Current File" />
         <item
-            android:id="@+id/settings_fragment"
-            android:icon="@android:drawable/ic_menu_preferences"
-            android:title="Settings" />
-        <item
+            android:id="@+id/open_file"
             android:icon="@drawable/ic_launcher_foreground"
-            android:title="A" />
+            android:title="Open" />
         <item
             android:icon="@drawable/ic_launcher_background"
-            android:title="F" />
+            android:title="Save as" />
+        <item
+            android:icon="@drawable/ic_launcher_background"
+            android:title="Export" />
+    </group>
+
+    <group>
+<!-- switches need an action layout -->
         <item
             android:id="@+id/app_bar_switch"
-            android:title="Switch"
+            android:title="Auto Save (minutes)"
             app:actionLayout="@layout/switch_item" />
+        <item
+            android:title="OCR"
+            app:actionLayout="@layout/switch_item" />
+<!--        <item-->
+<!--            android:title="OPR"-->
+<!--            app:actionLayout="@layout/switch_item" />-->
     </group>
 
 <!--    use listview instead if it should be at the bottom -->
     <group android:checkableBehavior="single"
         android:id="@+id/group2">
-
+        <item
+            android:id="@+id/settings_fragment"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="Settings" />
         <item
             android:id="@+id/about_fragment"
             android:icon="@android:drawable/ic_menu_info_details"
