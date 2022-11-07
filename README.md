@@ -1,4 +1,4 @@
 # NotOne
-Not a OneNote clone
+![GitHub CI](https://github.com/generic-student/NotOne/actions/workflows/android.yml/badge.svg)
 
-Android is Pain
+A simple note-taking app with stylus support.
