@@ -14,7 +14,7 @@
         android:id="@+id/settings_fragment"
         android:name="app.notone.SettingsFragment"
         android:label="SettingsFragment"
-        tools:layout="@layout/fragment_settings"/>
+        tools:layout="@layout/root_preferences"/>
 <!--res/xml/root_preferences.xml-->
     <fragment
         android:id="@+id/about_fragment"
