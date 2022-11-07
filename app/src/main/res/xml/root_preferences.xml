@@ -1,12 +1,12 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <EditTextPreference app:title="" />
+    <EditTextPreference app:title="\n" />
 
-    <PreferenceCategory app:title="AAAAAAAAAAAAAAAAAAA">
+    <PreferenceCategory app:title="Visuals">
 
         <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
+            app:key="daynightmode"
+            app:title="Day or Night Mode"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -19,7 +19,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
+    <PreferenceCategory app:title="Backend">
 
         <SwitchPreferenceCompat
             app:key="sync"
