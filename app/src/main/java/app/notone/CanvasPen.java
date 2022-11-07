@@ -4,12 +4,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Pair;
 import android.view.MotionEvent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Stack;
 
 public class CanvasPen implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
@@ -18,8 +16,8 @@ public class CanvasPen implements Serializable {
     private float mStrokeWeight;
     private int mStrokeColor;
 
-    private ArrayList<CanvasPenAction> mUndoneActions;
-    private ArrayList<CanvasPenAction> mActions;
+    private final ArrayList<CanvasPenAction> mUndoneActions;
+    private final ArrayList<CanvasPenAction> mActions;
 
     private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
     private Stroke mCurrentStroke; //the path that the user is currently drawing
@@ -152,11 +150,7 @@ public class CanvasPen implements Serializable {
         //erase the strokes that the eraser touches using the Eraser Class
         final int strokesErased = erase(pos, circleRadius);
         //if at least one stroke was erased, invalidate the canvas
-        if(strokesErased > 0) {
-            return true;
-        }
-
-        return false;
+        return strokesErased > 0;
     }
 
     public void moveTo(Stroke currentStroke, Point2D point) {
