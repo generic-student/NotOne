@@ -62,14 +62,14 @@ public class MathHelper {
         return Math.abs(AB.crossProduct(AC))/2.f;
     }
 
-    public static boolean pathIntersectsCircle(@NonNull ArrayList<float[]> path, @NonNull Vector2f center, float radius) {
-        if(path.size() == 1) {
-            return new Vector2f(path.get(0)[0], path.get(0)[1]).distance(center) <= radius;
+    public static boolean pathIntersectsCircle(@NonNull ArrayList<Float> path, @NonNull Vector2f center, float radius) {
+        if(path.size() == 2) {
+            return new Vector2f(path.get(0), path.get(1)).distance(center) <= radius;
         }
 
-        for(int i = 0; i < path.size() - 1; i++) {
-            Vector2f begin = new Vector2f(path.get(i)[0], path.get(i)[1]); //point in the path
-            Vector2f end = new Vector2f(path.get(i+1)[0], path.get(i+1)[1]); //next point in the path
+        for(int i = 2; i < path.size() - 2; i+=2) {
+            Vector2f begin = new Vector2f(path.get(i), path.get(i+1)); //point in the path
+            Vector2f end = new Vector2f(path.get(i+2), path.get(i+3)); //next point in the path
             //check if the line segment intersects with the circle
             if(MathHelper.lineSegmentIntersectsCircle(begin, end, center, radius)) {
                 return true;

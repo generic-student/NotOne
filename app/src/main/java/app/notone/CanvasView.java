@@ -62,6 +62,30 @@ public class CanvasView extends View {
         return mCanvasWriter.getStrokeColor();
     }
 
+    public float getScale() {
+        return mScale;
+    }
+
+    public void setScale(float mScale) {
+        this.mScale = mScale;
+    }
+
+    public Matrix getViewTransform() {
+        return mViewTransform;
+    }
+
+    public void setViewTransform(Matrix mViewTransform) {
+        this.mViewTransform = mViewTransform;
+    }
+
+    public Matrix getInverseViewTransform() {
+        return mInverseViewTransform;
+    }
+
+    public void setInverseViewTransform(Matrix mInverseViewTransform) {
+        this.mInverseViewTransform = mInverseViewTransform;
+    }
+
     public CanvasWriter getCanvasWriter() {
         return mCanvasWriter;
     }
