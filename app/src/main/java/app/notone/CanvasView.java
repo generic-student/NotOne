@@ -65,6 +65,14 @@ public class CanvasView extends View {
         return mCanvasPen.getStrokeColor();
     }
 
+    public CanvasPen getCanvasPen() {
+        return mCanvasPen;
+    }
+
+    public void setCanvasPen(CanvasPen mCanvasPen) {
+        this.mCanvasPen = mCanvasPen;
+    }
+
     /**
      * called when canvas is updated or invalidated
      * @param canvas current Canvas

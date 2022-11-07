@@ -7,10 +7,11 @@ import android.graphics.RectF;
 import android.util.Pair;
 import android.view.MotionEvent;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class CanvasPen {
+public class CanvasPen implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
     private Paint mPaint;
