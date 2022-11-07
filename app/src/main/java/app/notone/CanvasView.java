@@ -5,18 +5,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import java.util.ArrayList;
-
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
+    private final float MAX_SCALE = 5.f;
+    private final float MIN_SCALE = 0.01f;
 
-    private CanvasPen mCanvasPen;
+    private CanvasWriter mCanvasWriter;
 
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
@@ -24,8 +23,6 @@ public class CanvasView extends View {
     // Remember some things for zooming
     private Matrix mViewTransform;
     private Matrix mInverseViewTransform;
-    private final float MAX_SCALE = 5.f;
-    private final float MIN_SCALE = 0.01f;
     private float mScale    = 1.f;
 
     /**
@@ -37,7 +34,7 @@ public class CanvasView extends View {
      */
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mCanvasPen = new CanvasPen(10.f, Color.RED);
+        mCanvasWriter = new CanvasWriter(10.f, Color.RED);
         mViewTransform = new Matrix();
         mInverseViewTransform = new Matrix();
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
@@ -50,27 +47,27 @@ public class CanvasView extends View {
      * @param weight
      */
     public void setStrokeWeight(float weight) {
-        mCanvasPen.setStrokeWeight(weight);
+        mCanvasWriter.setStrokeWeight(weight);
     }
 
     public float getStrokeWeight() {
-        return mCanvasPen.getStrokeWeight();
+        return mCanvasWriter.getStrokeWeight();
     }
 
     public void setStrokeColor(int color) {
-        mCanvasPen.setStrokeColor(color);
+        mCanvasWriter.setStrokeColor(color);
     }
 
     public int getStrokeColor() {
-        return mCanvasPen.getStrokeColor();
+        return mCanvasWriter.getStrokeColor();
     }
 
-    public CanvasPen getCanvasPen() {
-        return mCanvasPen;
+    public CanvasWriter getCanvasWriter() {
+        return mCanvasWriter;
     }
 
-    public void setCanvasPen(CanvasPen mCanvasPen) {
-        this.mCanvasPen = mCanvasPen;
+    public void setCanvasWriter(CanvasWriter mCanvasWriter) {
+        this.mCanvasWriter = mCanvasWriter;
     }
 
     /**
@@ -80,7 +77,7 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
-        mCanvasPen.renderStrokes(canvas);
+        mCanvasWriter.renderStrokes(canvas);
         super.onDraw(canvas);
     }
 
@@ -105,7 +102,7 @@ public class CanvasView extends View {
         }
 
         mViewTransform.invert(mInverseViewTransform);
-        boolean invalidated = mCanvasPen.handleOnTouchEvent(event, mViewTransform, mInverseViewTransform);
+        boolean invalidated = mCanvasWriter.handleOnTouchEvent(event, mViewTransform, mInverseViewTransform);
 
         if(invalidated) {
             invalidate();
@@ -115,7 +112,7 @@ public class CanvasView extends View {
     }
 
     public boolean undo() {
-        boolean invalidated = mCanvasPen.undo();
+        boolean invalidated = mCanvasWriter.undo();
         if(invalidated) {
             invalidate();
         }
@@ -123,7 +120,7 @@ public class CanvasView extends View {
     }
 
     public boolean redo() {
-        boolean invalidated = mCanvasPen.redo();
+        boolean invalidated = mCanvasWriter.redo();
         if(invalidated) {
             invalidate();
         }

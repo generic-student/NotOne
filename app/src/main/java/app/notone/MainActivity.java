@@ -2,7 +2,6 @@ package app.notone;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
 
-        savedInstanceState.putSerializable("CanvasPen", canvasView.getCanvasPen());
+        savedInstanceState.putSerializable("CanvasWriter", canvasView.getCanvasWriter());
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -39,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onRestoreInstanceState(savedInstanceState);
 
-        CanvasPen pen = (CanvasPen) savedInstanceState.getSerializable("CanvasPen");
-        canvasView.setCanvasPen(pen);
+        CanvasWriter pen = (CanvasWriter) savedInstanceState.getSerializable("CanvasWriter");
+        canvasView.setCanvasWriter(pen);
 
 
     }

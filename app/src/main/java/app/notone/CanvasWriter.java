@@ -9,15 +9,15 @@ import android.view.MotionEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class CanvasPen implements Serializable {
+public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
     private Paint mPaint;
     private float mStrokeWeight;
     private int mStrokeColor;
 
-    private final ArrayList<CanvasPenAction> mUndoneActions;
-    private final ArrayList<CanvasPenAction> mActions;
+    private final ArrayList<CanvasWriterAction> mUndoneActions;
+    private final ArrayList<CanvasWriterAction> mActions;
 
     private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
     private Stroke mCurrentStroke; //the path that the user is currently drawing
@@ -25,9 +25,9 @@ public class CanvasPen implements Serializable {
     public enum DrawState {
         WRITE, ERASE
     }
-    private CanvasPen.DrawState mDrawState = CanvasPen.DrawState.WRITE;
+    private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
-    public CanvasPen(float mStrokeWeight, int mStrokeColor) {
+    public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
         this.mStrokeColor = mStrokeColor;
 
@@ -129,7 +129,7 @@ public class CanvasPen implements Serializable {
                 //add the current stroke to the list of strokes
                 mStrokes.add(mCurrentStroke);
                 //add the action the the list
-                mActions.add(new CanvasPenAction(CanvasPenAction.Type.WRITE, mCurrentStroke));
+                mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, mCurrentStroke));
                 //reset the current stroke
                 mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
                 break;
@@ -173,7 +173,7 @@ public class CanvasPen implements Serializable {
             if(bounds.isEmpty() || bounds.contains(eraserPosition.x, eraserPosition.y)) {
                 if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), eraserPosition, eraserRadius)) {
                     Stroke erasedStroke = mStrokes.remove(i);
-                    mActions.add(new CanvasPenAction(CanvasPenAction.Type.ERASE, erasedStroke));
+                    mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
                     strokesErased++;
                 }
             }
@@ -203,15 +203,15 @@ public class CanvasPen implements Serializable {
             return false;
         }
 
-        CanvasPenAction currentAction = mActions.remove(mActions.size() - 1);
+        CanvasWriterAction currentAction = mActions.remove(mActions.size() - 1);
         switch(currentAction.type) {
             case WRITE:
-                currentAction.type = CanvasPenAction.Type.UNDO_WRITE;
+                currentAction.type = CanvasWriterAction.Type.UNDO_WRITE;
                 mUndoneActions.add(currentAction);
                 mStrokes.remove(currentAction.stroke);
                 return true;
             case ERASE:
-                currentAction.type = CanvasPenAction.Type.UNDO_ERASE;
+                currentAction.type = CanvasWriterAction.Type.UNDO_ERASE;
                 mUndoneActions.add(currentAction);
                 mStrokes.add(currentAction.stroke);
                 return true;
@@ -226,15 +226,15 @@ public class CanvasPen implements Serializable {
             return false;
         }
 
-        CanvasPenAction currentAction = mUndoneActions.remove(mUndoneActions.size() - 1);
+        CanvasWriterAction currentAction = mUndoneActions.remove(mUndoneActions.size() - 1);
         switch(currentAction.type) {
             case UNDO_WRITE:
-                currentAction.type = CanvasPenAction.Type.WRITE;
+                currentAction.type = CanvasWriterAction.Type.WRITE;
                 mActions.add(currentAction);
                 mStrokes.add(currentAction.stroke);
                 return true;
             case UNDO_ERASE:
-                currentAction.type = CanvasPenAction.Type.ERASE;
+                currentAction.type = CanvasWriterAction.Type.ERASE;
                 mActions.add(currentAction);
                 mStrokes.remove(currentAction.stroke);
                 return true;

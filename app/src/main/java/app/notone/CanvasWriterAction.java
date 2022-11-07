@@ -1,6 +1,6 @@
 package app.notone;
 
-public class CanvasPenAction {
+public class CanvasWriterAction {
 
     public Type type;
     public Stroke stroke;
@@ -12,7 +12,7 @@ public class CanvasPenAction {
         UNDO_ERASE
     }
 
-    public CanvasPenAction(Type type, Stroke stroke) {
+    public CanvasWriterAction(Type type, Stroke stroke) {
         this.type = type;
         this.stroke = stroke;
     }
