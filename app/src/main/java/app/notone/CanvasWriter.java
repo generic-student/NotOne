@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
-    private Paint mPaint;
+    private transient Paint mPaint;
     private float mStrokeWeight;
     private int mStrokeColor;
 
@@ -42,6 +42,13 @@ public class CanvasWriter implements Serializable {
         mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
     }
 
+    public void initDefaultPaint() {
+        this.mPaint = new Paint();
+        this.mPaint.setStyle(Paint.Style.STROKE);
+        this.mPaint.setStrokeJoin(Paint.Join.ROUND);
+        this.mPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
+
     public Paint getPaint() {
         return mPaint;
     }
@@ -57,7 +64,7 @@ public class CanvasWriter implements Serializable {
     public void setStrokeWeight(float mStrokeWeight) {
         this.mStrokeWeight = mStrokeWeight;
 
-        if(mCurrentStroke.getPath().isEmpty()) {
+        if(mCurrentStroke.isEmpty()) {
             mCurrentStroke.setWeight(mStrokeWeight);
         }
     }
@@ -69,7 +76,7 @@ public class CanvasWriter implements Serializable {
     public void setStrokeColor(int mStrokeColor) {
         this.mStrokeColor = mStrokeColor;
 
-        if(mCurrentStroke.getPath().isEmpty()) {
+        if(mCurrentStroke.isEmpty()) {
             mCurrentStroke.setColor(mStrokeColor);
         }
     }
@@ -109,7 +116,7 @@ public class CanvasWriter implements Serializable {
     }
 
     private boolean handleOnTouchEventWrite(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
-        Point2D pos = new Point2D(event.getX(), event.getY()).transform(inverseViewMatrix);
+        Vector2f pos = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
@@ -121,7 +128,7 @@ public class CanvasWriter implements Serializable {
                 return true;
 
             case MotionEvent.ACTION_UP:
-                if(mCurrentStroke.getPath().isEmpty()) {
+                if(mCurrentStroke.isEmpty()) {
                     return false;
                 }
                 //delete the strokes that come after the currentStrokeIndex
@@ -144,7 +151,7 @@ public class CanvasWriter implements Serializable {
         }
 
         //transform the cursor position using the inverse of the view matrix
-        Point2D pos = new Point2D(event.getX(), event.getY()).transform(inverseViewMatrix);
+        Vector2f pos = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);
 
         final float circleRadius = getStrokeWeight();
         //erase the strokes that the eraser touches using the Eraser Class
@@ -153,25 +160,25 @@ public class CanvasWriter implements Serializable {
         return strokesErased > 0;
     }
 
-    public void moveTo(Stroke currentStroke, Point2D point) {
-        currentStroke.getPath().moveTo(point.x, point.y);
+    public void moveTo(Stroke currentStroke, Vector2f point) {
+        currentStroke.moveTo(point.x, point.y);
     }
 
-    public void lineTo(Stroke currentStroke, Point2D point) {
-        currentStroke.getPath().lineTo(point.x, point.y);
+    public void lineTo(Stroke currentStroke, Vector2f point) {
+        currentStroke.lineTo(point.x, point.y);
     }
 
-    public int erase(Point2D eraserPosition, float eraserRadius) {
+    public int erase(Vector2f eraserPosition, float eraserRadius) {
         int strokesErased = 0;
         RectF bounds = new RectF();
 
         //check if the current cursor position intersects the bounds of one of the strokes and remove it
         for(int i = 0; i < mStrokes.size(); i++) {
-            mStrokes.get(i).getPath().computeBounds(bounds, true);
+            mStrokes.get(i).computeBounds(bounds, true);
 
             //check if the outer bounds that encompass the entire path intersects with the cursor
             if(bounds.isEmpty() || bounds.contains(eraserPosition.x, eraserPosition.y)) {
-                if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPath(), eraserPosition, eraserRadius)) {
+                if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPathPoints(), eraserPosition, eraserRadius)) {
                     Stroke erasedStroke = mStrokes.remove(i);
                     mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
                     strokesErased++;
@@ -186,11 +193,11 @@ public class CanvasWriter implements Serializable {
         for(Stroke stroke : mStrokes) {
             mPaint.setColor(stroke.getColor());
             mPaint.setStrokeWidth(stroke.getWeight());
-            canvas.drawPath(stroke.getPath(), mPaint); // draw all paths on canvas
+            canvas.drawPath(stroke, mPaint); // draw all paths on canvas
         }
         mPaint.setColor(mCurrentStroke.getColor());
         mPaint.setStrokeWidth(mCurrentStroke.getWeight());
-        canvas.drawPath(mCurrentStroke.getPath(), mPaint);
+        canvas.drawPath(mCurrentStroke, mPaint);
     }
 
     private void clearUndoneStrokes() {

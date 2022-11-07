@@ -4,6 +4,8 @@ import android.graphics.Path;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+
 /**
  * Helper class for various math functions
  */
@@ -16,16 +18,16 @@ public class MathHelper {
      * @param radius Radius of the circle
      * @return boolean
      */
-    public static boolean lineSegmentIntersectsCircle(@NonNull Point2D P, @NonNull Point2D Q, @NonNull Point2D O, float radius) {
+    public static boolean lineSegmentIntersectsCircle(@NonNull Vector2f P, @NonNull Vector2f Q, @NonNull Vector2f O, float radius) {
         if(P.distance(Q) <= radius && (P.distance(O) <= radius || Q.distance(O) <= radius)) {
             return true;
         }
 
         float minDist;
-        final Point2D OP = P.subtract(O);
-        final Point2D QP = P.subtract(Q);
-        final Point2D OQ = Q.subtract(O);
-        final Point2D PQ = Q.subtract(P);
+        final Vector2f OP = P.subtract(O);
+        final Vector2f QP = P.subtract(Q);
+        final Vector2f OQ = Q.subtract(O);
+        final Vector2f PQ = Q.subtract(P);
 
         float max_dist = Math.max(P.distance(O), Q.distance(O));
         if(OP.dotProduct(QP) > 0 && OQ.dotProduct(PQ) > 0) {
@@ -54,22 +56,38 @@ public class MathHelper {
      * @param C third point of the triangle
      * @return area of the triangle
      */
-    public static float triangleArea(@NonNull Point2D A, @NonNull Point2D B, @NonNull Point2D C) {
-        Point2D AB = B.subtract(A);
-        Point2D AC = C.subtract(A);
+    public static float triangleArea(@NonNull Vector2f A, @NonNull Vector2f B, @NonNull Vector2f C) {
+        Vector2f AB = B.subtract(A);
+        Vector2f AC = C.subtract(A);
         return Math.abs(AB.crossProduct(AC))/2.f;
     }
 
-    public static boolean pathIntersectsCircle(@NonNull Path path, @NonNull Point2D center, float radius) {
+    public static boolean pathIntersectsCircle(@NonNull ArrayList<float[]> path, @NonNull Vector2f center, float radius) {
+        if(path.size() == 1) {
+            return new Vector2f(path.get(0)[0], path.get(0)[1]).distance(center) <= radius;
+        }
+
+        for(int i = 0; i < path.size() - 1; i++) {
+            Vector2f begin = new Vector2f(path.get(i)[0], path.get(i)[1]); //point in the path
+            Vector2f end = new Vector2f(path.get(i+1)[0], path.get(i+1)[1]); //next point in the path
+            //check if the line segment intersects with the circle
+            if(MathHelper.lineSegmentIntersectsCircle(begin, end, center, radius)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean pathIntersectsCircle(@NonNull Path path, @NonNull Vector2f center, float radius) {
         float[] points = path.approximate(0.5f);
 
         if(points.length == 3) {
-            return new Point2D(points[1], points[2]).distance(center) <= radius;
+            return new Vector2f(points[1], points[2]).distance(center) <= radius;
         }
 
         for(int j = 0; j < points.length - 6; j+=3) {
-            Point2D begin = new Point2D(points[j+1], points[j+2]); //point in the path
-            Point2D end = new Point2D(points[j+4], points[j+5]); //next point in the path
+            Vector2f begin = new Vector2f(points[j+1], points[j+2]); //point in the path
+            Vector2f end = new Vector2f(points[j+4], points[j+5]); //next point in the path
             //check if the line segment intersects with the circle
             if(MathHelper.lineSegmentIntersectsCircle(begin, end, center, radius)) {
                 return true;

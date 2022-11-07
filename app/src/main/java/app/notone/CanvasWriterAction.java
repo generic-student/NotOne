@@ -1,6 +1,8 @@
 package app.notone;
 
-public class CanvasWriterAction {
+import java.io.Serializable;
+
+public class CanvasWriterAction implements Serializable {
 
     public Type type;
     public Stroke stroke;
