@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /**
+         * Navigation and app layout
+         */
         Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // do depending on fragment
         setSupportActionBar(canvasToolbar);
 
@@ -75,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
                 toolbarVisible = true;
             }
         });
-
-
 
         navDrawerContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -127,6 +128,11 @@ public class MainActivity extends AppCompatActivity {
                 toolbarVisible = true;
             }
         });
+        /**
+         * Canvas tools see canvas fragment
+         */
+
+
     }
 
     @Override

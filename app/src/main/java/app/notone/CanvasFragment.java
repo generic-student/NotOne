@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import java.util.HashMap;
@@ -28,31 +29,68 @@ public class CanvasFragment extends Fragment {
         penColors.put("RED", Color.RED);
         penColors.put("GREEN", Color.GREEN);
         penColors.put("BLUE", Color.BLUE);
+        penColors.put("YELLOW", Color.YELLOW);
+        penColors.put("CYAN", Color.CYAN);
 
         View view = inflater.inflate(R.layout.fragment_canvas, parent, false);
 
         CanvasView canvasView = view.findViewById(R.id.canvasView);
 
-        Spinner dropdownPenColor = getActivity().findViewById(R.id.spinner_pen);
-        ArrayAdapter<CharSequence> dropdownItems = ArrayAdapter.createFromResource(
-                getActivity(), R.array.pen_colors, R.layout.pen_color_spinner_dropdown_field);
-
-        dropdownItems.setDropDownViewResource(R.layout.pen_color_spinner_dropdown_items);
-        dropdownPenColor.setAdapter(dropdownItems); // set to spinner
-
+        Spinner dropdownPenColor = getActivity().findViewById(R.id.spinner_pen_colors);
+        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(
+                getActivity(), R.array.pen_colors, R.layout.pen_spinner_dropdown_field);
+        dropdownColors.setDropDownViewResource(R.layout.pen_spinner_dropdown_items);
+        dropdownPenColor.setAdapter(dropdownColors); // set to spinner
         dropdownPenColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
                 canvasView.setStrokeColor(penColors.get(adapterView.getItemAtPosition(i)));
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
         });
+
+        Spinner dropdownPenWeight = getActivity().findViewById(R.id.spinner_pen_weights);
+        ArrayAdapter<CharSequence> dropdownWeights = ArrayAdapter.createFromResource(
+                getActivity(), R.array.pen_weights, R.layout.pen_spinner_dropdown_field);
+        dropdownWeights.setDropDownViewResource(R.layout.pen_spinner_dropdown_items);
+        dropdownPenWeight.setAdapter(dropdownWeights); // set to spinner
+        dropdownPenWeight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
+                canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i)));
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        Button buttonUndo = getActivity().findViewById(R.id.button_undo);
+        buttonUndo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: UNDO");
+            }
+        });
+
+        Button buttonEraser = getActivity().findViewById(R.id.button_eraser);
+        buttonEraser.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: ERASE");
+
+            }
+        });
+        Button buttonRedo = getActivity().findViewById(R.id.button_redo);
+        buttonRedo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: REDO");
+            }
+        });
+
         return view;
     }
 
