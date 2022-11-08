@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
 
         try {
-            CanvasImporter.initCanvasViewFromJSON(data, canvasView);
+            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         String jsonString = "";
         try {
-            jsonString = CanvasExporter.canvasViewToJSON(canvasView).toString();
+            jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
             Log.d(LOG_TAG, jsonString);
         } catch (JSONException e) {
             e.printStackTrace();

@@ -16,8 +16,8 @@ public class CanvasWriter implements Serializable {
     private float mStrokeWeight;
     private int mStrokeColor;
 
-    private final ArrayList<CanvasWriterAction> mUndoneActions;
-    private final ArrayList<CanvasWriterAction> mActions;
+    private ArrayList<CanvasWriterAction> mUndoneActions;
+    private ArrayList<CanvasWriterAction> mActions;
 
     private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
     private Stroke mCurrentStroke; //the path that the user is currently drawing
@@ -95,6 +95,22 @@ public class CanvasWriter implements Serializable {
 
     public void setStrokes(ArrayList<Stroke> mStrokes) {
         this.mStrokes = mStrokes;
+    }
+
+    public ArrayList<CanvasWriterAction> getUndoneActions() {
+        return mUndoneActions;
+    }
+
+    public ArrayList<CanvasWriterAction> getActions() {
+        return mActions;
+    }
+
+    public void setUndoneActions(ArrayList<CanvasWriterAction> mUndoneActions) {
+        this.mUndoneActions = mUndoneActions;
+    }
+
+    public void setActions(ArrayList<CanvasWriterAction> mActions) {
+        this.mActions = mActions;
     }
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {

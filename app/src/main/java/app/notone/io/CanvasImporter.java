@@ -4,12 +4,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import app.notone.CanvasView;
 import app.notone.CanvasWriter;
+import app.notone.CanvasWriterAction;
 import app.notone.Stroke;
 
 public class CanvasImporter {
-    public static void initCanvasViewFromJSON(String jsonString, CanvasView view) throws JSONException {
+    public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
         final float scale = (float) json.getDouble("scale");
@@ -26,7 +29,7 @@ public class CanvasImporter {
             inverseViewTransformData[i] = (float) inverseViewTransformJSON.getDouble(i);
         }
 
-        CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"));
+        CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
@@ -35,7 +38,7 @@ public class CanvasImporter {
 
     }
 
-    public static CanvasWriter canvasWriterFromJSON(JSONObject json) throws JSONException {
+    public static CanvasWriter canvasWriterFromJSON(JSONObject json, boolean loadUndoTree) throws JSONException {
         final int color = json.getInt("color");
         final float weight = (float) json.getDouble("weight");
         CanvasWriter writer = new CanvasWriter(weight, color);
@@ -46,6 +49,32 @@ public class CanvasImporter {
             Stroke stroke = StrokeFromJSON(strokeJSON);
             writer.getStrokes().add(stroke);
         }
+
+        if(!loadUndoTree) {
+            return writer;
+        }
+
+        //load the undo tree
+        JSONArray actionsJSON = json.getJSONArray("actions");
+        JSONArray undoneActionsJSON = json.getJSONArray("undoneActions");
+
+        ArrayList<CanvasWriterAction> actions = new ArrayList<>();
+        ArrayList<CanvasWriterAction> undoneActions = new ArrayList<>();
+
+        for (int i = 0; i < actionsJSON.length(); i++) {
+            JSONObject actionJSON = actionsJSON.getJSONObject(i);
+            CanvasWriterAction action = canvasWriterActionFromJSON(actionJSON, writer.getStrokes());
+            actions.add(action);
+        }
+
+        for (int i = 0; i < undoneActionsJSON.length(); i++) {
+            JSONObject undoneActionJSON = undoneActionsJSON.getJSONObject(i);
+            CanvasWriterAction undoneAction = canvasWriterActionFromJSON(undoneActionJSON, writer.getStrokes());
+            undoneActions.add(undoneAction);
+        }
+
+        writer.setActions(actions);
+        writer.setUndoneActions(undoneActions);
 
         return writer;
     }
@@ -62,5 +91,18 @@ public class CanvasImporter {
         stroke.initPathFromPathPoints();
 
         return stroke;
+    }
+
+    public static CanvasWriterAction canvasWriterActionFromJSON(JSONObject json, ArrayList<Stroke> strokes) throws JSONException {
+        final String typeString = json.getString("actionType");
+        final CanvasWriterAction.Type type = CanvasWriterAction.Type.valueOf(typeString);
+        final int strokeId = json.getInt("strokeId");
+
+        Stroke stroke = strokes.get(strokeId);
+
+        //map the strokeId with a Stroke in the strokes list
+        CanvasWriterAction action = new CanvasWriterAction(type, stroke);
+
+        return action;
     }
 }

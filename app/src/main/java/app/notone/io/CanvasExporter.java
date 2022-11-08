@@ -8,18 +8,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import app.notone.CanvasView;
 import app.notone.CanvasWriter;
+import app.notone.CanvasWriterAction;
 import app.notone.Stroke;
 
 public class CanvasExporter {
     private static final String LOG_TAG = CanvasExporter.class.getSimpleName();
 
-    public static JSONObject canvasViewToJSON(@NonNull CanvasView view) throws JSONException{
+    public static JSONObject canvasViewToJSON(@NonNull CanvasView view, boolean exportUndoTree) throws JSONException{
         JSONObject json = new JSONObject();
 
         //get the current scale
@@ -35,12 +37,12 @@ public class CanvasExporter {
         final JSONArray inverseViewTransform = new JSONArray(values);
         json.put("inverseViewTransform", inverseViewTransform);
         //get the write instance
-        json.put("writer", canvasWriterToJSON(view.getCanvasWriter()));
+        json.put("writer", canvasWriterToJSON(view.getCanvasWriter(), exportUndoTree));
 
         return json;
     }
 
-    public static JSONObject canvasWriterToJSON(@NonNull CanvasWriter writer) throws JSONException{
+    public static JSONObject canvasWriterToJSON(@NonNull CanvasWriter writer, boolean exportUndoTree) throws JSONException{
         //convert the strokes to json
         JSONObject json = new JSONObject();
 
@@ -53,6 +55,27 @@ public class CanvasExporter {
         JSONArray strokesJSON = new JSONArray(strokes);
         json.put("strokes", strokesJSON);
 
+        if(!exportUndoTree) {
+            return json;
+        }
+
+        //export the undo tree
+        List<JSONObject> actionsJSON = writer.getActions().stream().map(action -> {
+            final int strokeId = writer.getStrokes().indexOf(action.stroke);
+            return canvasWriterActionToJSON(action, strokeId);
+        }).collect(Collectors.toList());
+
+        JSONArray actions = new JSONArray(actionsJSON);
+
+        List<JSONObject> undoneActionsJSON = writer.getUndoneActions().stream().map(action -> {
+            final int strokeId = writer.getStrokes().indexOf(action.stroke);
+            return canvasWriterActionToJSON(action, strokeId);
+        }).collect(Collectors.toList());
+
+        JSONArray undoneActions = new JSONArray(undoneActionsJSON);
+
+        json.put("actions", actions);
+        json.put("undoneActions", undoneActions);
 
         return json;
     }
@@ -65,6 +88,19 @@ public class CanvasExporter {
             json.put("weight", stroke.getWeight());
             JSONArray arr = new JSONArray(stroke.getPathPoints());
             json.put("path", arr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return json;
+    }
+
+    public static JSONObject canvasWriterActionToJSON(CanvasWriterAction action, int strokeId) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("actionType", action.type);
+            json.put("strokeId", strokeId);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
