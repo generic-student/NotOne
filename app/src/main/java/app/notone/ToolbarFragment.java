@@ -1,20 +1,14 @@
 package app.notone;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-
-import java.util.HashMap;
 
 import androidx.fragment.app.Fragment;
 
-class CanvasToolbarFragment extends Fragment {
+class ToolbarFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     String TAG = "NotOneCanvasFragment";
@@ -23,7 +17,7 @@ class CanvasToolbarFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
         Log.d(TAG, "onCreateView");
-        return inflater.inflate(R.layout.toolbar_canvas, parent, false);
+        return inflater.inflate(R.layout.toolbar, parent, false);
     }
 
     // This event is triggered soon after onCreateView().

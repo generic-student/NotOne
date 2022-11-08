@@ -109,7 +109,6 @@
         <!--        </HorizontalScrollView>-->
     </com.google.android.material.appbar.AppBarLayout>
 
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_toggle_toolbar"
         android:layout_width="wrap_content"

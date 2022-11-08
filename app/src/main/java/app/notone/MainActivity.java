@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -13,13 +11,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -30,109 +26,103 @@ import static androidx.navigation.Navigation.findNavController;
 public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
-    NavigationView navDrawerContainer;
-    boolean toolbarVisible = true;
+    NavigationView mNavDrawerContainerNV;
+    boolean mToolbarVisibility = true;
 
+    /**
+     * Main onCreate of the App
+     * Set the Main Activity View
+     *  Burger Menu and Title State
+     *  Fragment Navigation
+     *  Toolbar state
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        /**
-         * Navigation and app layout
-         */
-        Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // do depending on fragment
+        DrawerLayout mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
+        Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // toolbar
+        AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
+        mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
+        NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
+
+        // configure AppBar with burger and title
         setSupportActionBar(canvasToolbar);
-
-        DrawerLayout mainActivityDrawerLayout = findViewById(R.id.drawer_layout_activity_main);
-        navDrawerContainer = findViewById(R.id.navdrawercontainer_view);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment);
-        NavController navGraphController = navHostFragment.getNavController(); // nav_graph
-
-        /* top levels dont display a back button*/
         mAppBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
-                .setOpenableLayout(mainActivityDrawerLayout) // setDrawerLayout // adds burger button for toplevel
+                .setOpenableLayout(mainActivityDrawer) // setDrawerLayout // define burger button for toplevel
                 .build();
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawerLayout, canvasToolbar, R.string.open, R.string.close); // open with burger
-        mainActivityDrawerLayout.addDrawerListener(toggle);
-
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawer, canvasToolbar, R.string.open, R.string.close); // add burger button for top level
+        mainActivityDrawer.addDrawerListener(toggle); // add listener to it
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
-        NavigationUI.setupWithNavController(navDrawerContainer, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
-//        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
-        AppBarLayout appBar = findViewById(R.id.AppBar);
-        FloatingActionButton floatingActionButton = findViewById(R.id.button_toggle_toolbar);
-        floatingActionButton.setOnClickListener(view -> {
-
-            if(toolbarVisible) {
-                appBar.animate().translationY(-appBar.getHeight());
-                floatingActionButton.animate().translationY(-appBar.getHeight());
-                floatingActionButton.setImageResource(android.R.drawable.arrow_down_float);
-                toolbarVisible = false;
+        // catch menu clicks for setting actions, forward to navController for destination change
+        mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.open_file:
+                    Log.i(TAG, "onNavigationItemSelected: Open File");
+                    return true;
             }
-            else {
-                appBar.animate().translationY(0);
-                floatingActionButton.animate().translationY(0);
-                floatingActionButton.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
-                toolbarVisible = true;
+            // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
+            if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
+                navGraphController.navigate(menuItem.getItemId());
+                mainActivityDrawer.closeDrawers();
             }
+            return true;
         });
 
-        navDrawerContainer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-
-                switch (menuItem.getItemId()) {
-                    case R.id.open_file:
-                        Log.i(TAG, "onNavigationItemSelected: Open File");
-                        return true;
-                }
-//                needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
-                if(navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
-                    navGraphController.navigate(menuItem.getItemId());
-                    mainActivityDrawerLayout.closeDrawers();
-                }
-
-                return true;
-            }
+        // Button to hide the toolbar
+        FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
+        fabToolbarVisibility.setOnClickListener(view -> {
+            toogleToolBarVisibility(appBar, fabToolbarVisibility);
         });
 
-        navGraphController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller,
-                                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                if (destination.getId() == R.id.settings_fragment) {
-//                    canvasToolbar.setVisibility(View.GONE);
-
-                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("Einstellungen");
-                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
-                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                } else if (destination.getId() == R.id.canvas_fragment) {
-//                    getSupportActionBar().setTitle("asdasda");
-//                    canvasToolbar.setVisibility(View.VISIBLE);
-//                    findViewById(R.id.nav_main_host_fragment).setLayoutParams(110);
-                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("Zeichnen");
-                    findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
+        // set Title and Toolbar function by Fragment
+        navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+            switch (destination.getId()) {
+                case R.id.canvas_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
-                    return;
-//                setSupportActionBar(canvasToolbar); // breaks burger
-                }  else if (destination.getId() == R.id.about_fragment) {
-                    ((TextView) findViewById(R.id.tv_fragment_title)).setText("About");
-                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
+                    findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
+                    tvTitle.setText("Zeichnen");
+                    return; // dont reset toolbar
+
+                case R.id.settings_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                }
-                appBar.animate().translationY(0);
-                floatingActionButton.animate().translationY(0);
-                floatingActionButton.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
-                toolbarVisible = true;
+                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
+                    tvTitle.setText("Einstellungen");
+                    break;
+                case R.id.about_fragment:
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
+                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
+                    tvTitle.setText("About");
+                    break;
+                default:
+                    throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
             }
+            mToolbarVisibility = false; // to toggle to right state
+            toogleToolBarVisibility(appBar, fabToolbarVisibility);
         });
-        /**
-         * Canvas tools see canvas fragment
-         */
+    }
 
-
+    private void toogleToolBarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
+        if (mToolbarVisibility) {
+            mToolbarVisibility = false;
+            appBar.animate().translationY(-appBar.getHeight());
+            fabToolbarVisibility.animate().translationY(-appBar.getHeight());
+            fabToolbarVisibility.setImageResource(android.R.drawable.arrow_down_float);
+        } else {
+            mToolbarVisibility = true;
+            appBar.animate().translationY(0);
+            fabToolbarVisibility.animate().translationY(0);
+            fabToolbarVisibility.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
+        }
     }
 
     @Override
@@ -146,17 +136,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
         Log.d(TAG, "onOptionsItemSelected");
-        return NavigationUI.onNavDestinationSelected(item, navController)
-                || super.onOptionsItemSelected(item);
-
+        return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        Log.d(TAG, "onCreateOptionsMenu: FCDFFFFFFFFFFFFFFFFF");
-////        super.onCreateOptionsMenu(menu);
-//        getMenuInflater().inflate(R.menu.drawer_menu, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-
 }
