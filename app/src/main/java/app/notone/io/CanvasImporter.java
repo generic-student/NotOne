@@ -98,7 +98,12 @@ public class CanvasImporter {
         final CanvasWriterAction.Type type = CanvasWriterAction.Type.valueOf(typeString);
         final int strokeId = json.getInt("strokeId");
 
-        Stroke stroke = strokes.get(strokeId);
+        Stroke stroke;
+        if(strokeId == -1) {
+            stroke = StrokeFromJSON(json.getJSONObject("stroke"));
+        } else {
+            stroke = strokes.get(strokeId);
+        }
 
         //map the strokeId with a Stroke in the strokes list
         CanvasWriterAction action = new CanvasWriterAction(type, stroke);

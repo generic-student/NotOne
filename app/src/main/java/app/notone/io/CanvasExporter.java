@@ -1,14 +1,11 @@
 package app.notone.io;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,7 +46,7 @@ public class CanvasExporter {
         json.put("color", writer.getStrokeColor());
         json.put("weight", writer.getStrokeWeight());
         List<JSONObject> strokes =  writer.getStrokes().stream().
-                map(s -> StrokeToJSON(s)).filter(Objects::nonNull).
+                map(s -> strokeToJSON(s)).filter(Objects::nonNull).
                 collect(Collectors.toList());
 
         JSONArray strokesJSON = new JSONArray(strokes);
@@ -80,7 +77,7 @@ public class CanvasExporter {
         return json;
     }
 
-    public static JSONObject StrokeToJSON(@NonNull Stroke stroke) {
+    public static JSONObject strokeToJSON(@NonNull Stroke stroke) {
         JSONObject json = new JSONObject();
 
         try {
@@ -101,6 +98,9 @@ public class CanvasExporter {
         try {
             json.put("actionType", action.type);
             json.put("strokeId", strokeId);
+            if(strokeId == -1) {
+                json.put("stroke", strokeToJSON(action.stroke));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

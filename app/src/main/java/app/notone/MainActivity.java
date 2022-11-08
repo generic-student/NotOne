@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
         }
     }
 
