@@ -19,7 +19,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Backend">
+    <PreferenceCategory app:title="Sync with Cloud">
 
         <SwitchPreferenceCompat
             app:key="sync"
