@@ -4,7 +4,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -85,23 +86,24 @@ public class MainActivity extends AppCompatActivity {
 
         /* set Title and Toolbar function by Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+//            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+            HorizontalScrollView viewPenTools = findViewById(R.id.canvas_tools_pen);
+            LinearLayout viewUnRedo = findViewById(R.id.canvas_tools_unredo);
             switch (destination.getId()) {
                 case R.id.canvas_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
-                    findViewById(R.id.canvas_tools).setVisibility(View.VISIBLE);
-                    tvTitle.setText("Zeichnen");
+                    viewPenTools.setVisibility(View.VISIBLE);
+                    viewUnRedo.setVisibility(View.VISIBLE);
+//                    tvTitle.setText("Zeichnen");
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:
-                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
-                    tvTitle.setText("Einstellungen");
-                    break;
                 case R.id.about_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                    findViewById(R.id.canvas_tools).setVisibility(View.GONE);
-                    tvTitle.setText("About");
+                    viewPenTools.setVisibility(View.GONE);
+                    viewUnRedo.setVisibility(View.GONE);
+//                    tvTitle.setText("Einstellungen");
+//                    tvTitle.setText("About");
                     break;
                 default:
                     throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());

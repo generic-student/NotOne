@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import java.util.HashMap;
@@ -52,8 +53,8 @@ public class CanvasFragment extends Fragment {
         // Undo Redo activate Eraser Actions
         FragmentActivity fragmentActivity = getActivity();
         Button buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
-        Button buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
-        Button buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
+        ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
+        ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));
         buttonUndo.setOnClickListener(v -> Log.d(TAG, "onClick: UNDO"));
         buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));

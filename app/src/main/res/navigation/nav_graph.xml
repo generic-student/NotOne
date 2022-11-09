@@ -13,12 +13,12 @@
     <fragment
         android:id="@+id/settings_fragment"
         android:name="app.notone.fragments.SettingsFragment"
-        android:label="SettingsFragment"
+        android:label="Settings"
         tools:layout="@layout/root_preferences"/>
 <!--res/xml/root_preferences.xml-->
     <fragment
         android:id="@+id/about_fragment"
         android:name="app.notone.fragments.AboutFragment"
-        android:label="fragment_about"
+        android:label="About Page"
         tools:layout="@layout/fragment_about" />
 </navigation>

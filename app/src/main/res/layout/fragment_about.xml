@@ -32,6 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
                 android:text="NotOne"
+                android:textColor="?colorTextDayNight"
                 android:textAlignment="center"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -68,6 +69,7 @@
                         android:paddingTop="10dp"
                         android:paddingBottom="5dp"
                         android:text="A Project by"
+                        android:textColor="?colorTextDayNight"
                         android:textAppearance="@android:style/TextAppearance.Material.Medium"
                         android:textStyle="bold" />
 
@@ -80,13 +82,16 @@
                         android:textAppearance="@android:style/TextAppearance.Material.Medium" />
                 </LinearLayout>
                 <Button
-                android:id="@+id/button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:text="VIST THEIR PAGES"
-                android:textColor="@color/black" />
+                    android:id="@+id/button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="?colorCanvas"
+                    android:textAlignment="viewStart"
+                    android:text="| VISIT THEIR PAGES"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?colorTextDayNight" />
             </LinearLayout>
 
             <TextView
@@ -95,6 +100,7 @@
                 android:paddingStart="80dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
+                android:textColor="?colorTextDayNight"
                 android:text="For"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textStyle="bold" />
@@ -125,6 +131,7 @@
                 android:paddingStart="80dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
+                android:textColor="?colorTextDayNight"
                 android:text="App License"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textStyle="bold" />
@@ -144,6 +151,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
                 android:text="Third-Party Licenses"
+                android:textColor="?colorTextDayNight"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textStyle="bold" />
 

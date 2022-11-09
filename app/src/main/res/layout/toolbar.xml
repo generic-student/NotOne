@@ -9,54 +9,66 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/AppBar"
-        android:background="@color/purple_700"
+        android:background="?colorPrimaryVariant"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
-
-        <!-- why the hell does it need a scroll view here to display the fragment title if its removed there is no title -->
-        <!-- im setting the title via the onDestinationChanged for now :P  -->
-        <!--        <HorizontalScrollView-->
-        <!--            android:scrollbarSize="0dp"-->
-        <!--            android:requiresFadingEdge="horizontal"-->
-        <!--            android:fadingEdgeLength="10dp"-->
-        <!--            android:background="@color/purple_700"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_gravity="end">-->
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/canavas_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/purple_700"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme">
-        <!--            app:layout_scrollFlags="scroll|enterAlways|snap"-->
+            android:background="?colorPrimaryVariant"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme">
 
-            <!-- other hack for right align -->
-            <!--                <Space-->
-            <!--                    android:layout_width="300dp"-->
-            <!--                    android:layout_height="match_parent" />-->
-            <TextView
-                android:id="@+id/tv_fragment_title"
+<!--            only needed when the bar is to full -->
+<!--            <TextView-->
+<!--                android:id="@+id/tv_fragment_title"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:text="TITLE"-->
+<!--                android:textStyle="bold"-->
+<!--                android:textSize="20dp" />-->
+
+            <LinearLayout
+                android:id="@+id/canvas_tools_unredo"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="TITLE"
-                android:textStyle="bold"
-                android:textSize="20dp" />
+                android:orientation="horizontal"
+                android:layout_gravity="end">
+
+                <ImageButton
+                    android:id="@+id/button_undo"
+                    android:layout_width="45dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:background="@android:drawable/ic_menu_revert"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:contentDescription="UNDO" />
+
+                <ImageButton
+                    android:id="@+id/button_redo"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:background="@android:drawable/ic_menu_revert"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:scaleX="-1"
+                    android:contentDescription="REDO" />
+            </LinearLayout>
 
             <HorizontalScrollView
+                android:id="@+id/canvas_tools_pen"
                 android:scrollbarSize="0dp"
                 android:overScrollMode="never"
                 android:requiresFadingEdge="horizontal"
                 android:fadingEdgeLength="10dp"
-                android:background="@color/purple_700"
-                android:layout_width="match_parent"
+                android:background="?colorPrimaryVariant"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end">
 
                 <LinearLayout
-                    android:id="@+id/canvas_tools"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -66,46 +78,40 @@
                         android:id="@+id/button_insert"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
                         android:layout_marginHorizontal="5dp"
-                        android:text="Insert" />
+                        android:maxLines="1"
+                        android:text="Ins"
+                        app:icon="@android:drawable/ic_menu_directions" />
 
                     <Button
                         android:id="@+id/button_eraser"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
                         android:layout_marginHorizontal="5dp"
-                        android:text="Eraser" />
+                        android:maxLines="1"
+                        android:text="Erase"
+                        app:icon="@android:drawable/ic_menu_delete" />
 
                     <Spinner
                         android:id="@+id/spinner_pen_colors"
                         android:layout_width="100dp"
+                        android:layout_marginStart="10dp"
                         android:layout_height="match_parent" />
 
                     <Spinner
                         android:id="@+id/spinner_pen_weights"
-                        android:layout_width="100dp"
+                        android:layout_width="80dp"
                         android:layout_height="match_parent" />
 
-                    <Button
-                        android:id="@+id/button_undo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="undo" />
 
-                    <Button
-                        android:id="@+id/button_redo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="redo" />
 
 
                 </LinearLayout>
             </HorizontalScrollView>
+
         </androidx.appcompat.widget.Toolbar>
+
+
         <!--        </HorizontalScrollView>-->
     </com.google.android.material.appbar.AppBarLayout>
 

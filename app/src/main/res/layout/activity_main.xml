@@ -6,6 +6,7 @@
     android:id="@+id/drawer_activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?colorCanvas"
     android:fitsSystemWindows="true">
 
     <!-- FRAGMENT: Layout to contain contents of main body of screen (drawer will slide over this) -->
