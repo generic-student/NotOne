@@ -7,18 +7,18 @@
     app:startDestination="@id/canvas_fragment">
     <fragment
         android:id="@+id/canvas_fragment"
-        android:name="app.notone.CanvasFragment"
+        android:name="app.notone.fragments.CanvasFragment"
         android:label="Zeichnen"
         tools:layout="@layout/fragment_canvas"/>
     <fragment
         android:id="@+id/settings_fragment"
-        android:name="app.notone.SettingsFragment"
+        android:name="app.notone.fragments.SettingsFragment"
         android:label="SettingsFragment"
         tools:layout="@layout/root_preferences"/>
 <!--res/xml/root_preferences.xml-->
     <fragment
         android:id="@+id/about_fragment"
-        android:name="app.notone.AboutFragment"
+        android:name="app.notone.fragments.AboutFragment"
         android:label="fragment_about"
         tools:layout="@layout/fragment_about" />
 </navigation>

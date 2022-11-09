@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,55 +15,27 @@ import java.util.HashMap;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import app.notone.CanvasView;
+import app.notone.R;
 
 public class CanvasFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy, via XML layout inflation.
     String TAG = "NotOneCanvasFragment";
     View mCanvasFragmentView;
-    /**
-     * @param inflater
-     * @param parent
-     * @param savedInstanceState
-     * @return
-     */
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
 
         mCanvasFragmentView = inflater.inflate(R.layout.fragment_canvas, parent, false);
-/* moved to onViewCreated*/
-
-//        Spinner dropdownPenWeight = getActivity().findViewById(R.id.spinner_pen_weights);
-//        ArrayAdapter<CharSequence> dropdownWeights = ArrayAdapter.createFromResource(
-//                getActivity(), R.array.pen_weights, R.layout.spinner_dropdown_pen_field);
-//        dropdownWeights.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
-//        dropdownPenWeight.setAdapter(dropdownWeights); // set to spinner
-//        dropdownPenWeight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
-//                canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i)));
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//            }
-//        });
-
-
         return mCanvasFragmentView;
     }
 
     // This event is triggered soon after onCreateView().
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
-    @FunctionalInterface
-    private interface onClickDropDownItem {
-        void onClick(AdapterView adapterView, View view, int i, long l);
-    }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
+        // maybe move to ToolbarFragment
         // Config Dropdowns for Pen Settings
         CanvasView canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
         HashMap<String, Integer> penColors = new HashMap<>(); // get from res instead
@@ -85,6 +57,11 @@ public class CanvasFragment extends Fragment {
         buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));
         buttonUndo.setOnClickListener(v -> Log.d(TAG, "onClick: UNDO"));
         buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));
+    }
+
+    @FunctionalInterface
+    private interface onClickDropDownItem {
+        void onClick(AdapterView<?> adapterView, View view, int i, long l);
     }
 
     private void setDropdownContent(int spinnerId, int spinnerContentId, onClickDropDownItem clickDropDownItem) {

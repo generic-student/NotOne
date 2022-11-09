@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
 
-        // configure AppBar with burger and title
+        /* configure AppBar with burger and title */
         setSupportActionBar(canvasToolbar);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
                 .setOpenableLayout(mainActivityDrawer) // setDrawerLayout // define burger button for toplevel
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
-        // catch menu clicks for setting actions, forward to navController for destination change
+        /* catch menu clicks for setting actions, forward to navController for destination change */
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
             switch (menuItem.getItemId()) {
                 case R.id.open_file:
@@ -77,13 +77,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Button to hide the toolbar
+        /* Button to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
         fabToolbarVisibility.setOnClickListener(view -> {
-            toogleToolBarVisibility(appBar, fabToolbarVisibility);
+            toggleToolBarVisibility(appBar, fabToolbarVisibility);
         });
 
-        // set Title and Toolbar function by Fragment
+        /* set Title and Toolbar function by Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
             switch (destination.getId()) {
@@ -107,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
                     throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
             }
             mToolbarVisibility = false; // to toggle to right state
-            toogleToolBarVisibility(appBar, fabToolbarVisibility);
+            toggleToolBarVisibility(appBar, fabToolbarVisibility);
         });
     }
 
-    private void toogleToolBarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
+    private void toggleToolBarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
             appBar.animate().translationY(-appBar.getHeight());

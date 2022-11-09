@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import app.notone.R;
 
 class ToolbarFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -27,6 +28,5 @@ class ToolbarFragment extends Fragment {
         Log.d(TAG, "onViewCreated");
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
-
     }
 }
