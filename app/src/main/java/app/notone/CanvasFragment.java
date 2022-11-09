@@ -14,6 +14,7 @@ import android.widget.Spinner;
 import java.util.HashMap;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 public class CanvasFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy, via XML layout inflation.
@@ -55,6 +56,10 @@ public class CanvasFragment extends Fragment {
 
     // This event is triggered soon after onCreateView().
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+    @FunctionalInterface
+    private interface onClickDropDownItem {
+        void onClick(AdapterView adapterView, View view, int i, long l);
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -67,22 +72,24 @@ public class CanvasFragment extends Fragment {
         penColors.put("BLUE", Color.BLUE);
         penColors.put("YELLOW", Color.YELLOW);
         penColors.put("CYAN", Color.CYAN);
-        setDropdownContent(R.id.spinner_pen_colors, R.array.pen_colors, (AdapterView<?> adapterView, View view, int i, long l) ->
+        setDropdownContent(R.id.spinner_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) ->
                 canvasView.setStrokeColor(penColors.get(adapterView.getItemAtPosition(i))));
-        setDropdownContent(R.id.spinner_pen_weights, R.array.pen_weights, (adapterView, view, i, l) ->
+        setDropdownContent(R.id.spinner_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) ->
                 canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
         // Undo Redo activate Eraser Actions
-        Button buttonEraser = getActivity().findViewById(R.id.button_eraser);
+        FragmentActivity fragmentActivity = getActivity();
+        Button buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
+        Button buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
+        Button buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));
-        Button buttonUndo = getActivity().findViewById(R.id.button_undo);
         buttonUndo.setOnClickListener(v -> Log.d(TAG, "onClick: UNDO"));
-        Button buttonRedo = getActivity().findViewById(R.id.button_redo);
         buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));
     }
 
-    private void setDropdownContent(int spinnerId, int spinnerContentId, Runnable method) {
-        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(getActivity(), spinnerContentId, R.layout.spinner_dropdown_pen_field);
+    private void setDropdownContent(int spinnerId, int spinnerContentId, onClickDropDownItem clickDropDownItem) {
+        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(
+                getActivity(), spinnerContentId, R.layout.spinner_dropdown_pen_field);
         Spinner dropdownPenColor = getActivity().findViewById(spinnerId);
 
         dropdownColors.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
@@ -91,7 +98,7 @@ public class CanvasFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
-                method.run();
+                clickDropDownItem.onClick(adapterView, view, i, l);
             }
 
             @Override

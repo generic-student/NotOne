@@ -23,6 +23,10 @@
 
         <SwitchPreferenceCompat
             app:key="sync"
+            app:title="Sync with Cloud" />
+
+        <SwitchPreferenceCompat
+            app:key="sync"
             app:title="@string/sync_title" />
 
         <SwitchPreferenceCompat
