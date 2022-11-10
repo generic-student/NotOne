@@ -1,11 +1,13 @@
 package app.notone;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -21,6 +23,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import static androidx.navigation.Navigation.findNavController;
 
@@ -33,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Main onCreate of the App
      * Set the Main Activity View
-     *  Burger Menu and Title State
-     *  Fragment Navigation
-     *  Toolbar state
+     * Burger Menu and Title State
+     * Fragment Navigation
+     * Toolbar state
      *
      * @param savedInstanceState
      */
@@ -69,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.open_file:
                     Log.i(TAG, "onNavigationItemSelected: Open File");
                     return true;
+                case R.id.save_file:
+                case R.id.export:
+                    return true;
             }
             // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
@@ -77,6 +83,15 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+        Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
+        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+        swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
+        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
+        swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
+        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+
 
         /* Button to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);

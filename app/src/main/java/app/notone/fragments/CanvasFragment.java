@@ -1,5 +1,6 @@
 package app.notone.fragments;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 import app.notone.CanvasView;
 import app.notone.R;
 
@@ -58,6 +60,11 @@ public class CanvasFragment extends Fragment {
         buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));
         buttonUndo.setOnClickListener(v -> Log.d(TAG, "onClick: UNDO"));
         buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));
+
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(fragmentActivity);
+        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
+        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
     }
 
     @FunctionalInterface

@@ -14,9 +14,11 @@
             android:icon="@drawable/ic_launcher_foreground"
             android:title="Open" />
         <item
+            android:id="@+id/save_file"
             android:icon="@drawable/ic_launcher_background"
             android:title="Save as" />
         <item
+            android:id="@+id/export"
             android:icon="@drawable/ic_launcher_background"
             android:title="Export" />
     </group>
@@ -24,11 +26,12 @@
     <group>
 <!-- switches need an action layout -->
         <item
-            android:id="@+id/app_bar_switch"
-            android:title="Auto Save (minutes)"
+            android:id="@+id/drawer_switch_autosave"
+            android:title="Auto Save (seconds)"
             app:actionLayout="@layout/switch_item" />
         <item
-            android:title="OCR"
+            android:id="@+id/drawer_switch_sync"
+            android:title="Server Sync (seconds)"
             app:actionLayout="@layout/switch_item" />
 <!--        <item-->
 <!--            android:title="OPR"-->

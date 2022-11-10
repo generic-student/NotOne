@@ -1,40 +1,70 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <EditTextPreference app:title="\n" />
 
     <PreferenceCategory app:title="Visuals">
 
-        <EditTextPreference
-            app:key="daynightmode"
-            app:title="Day or Night Mode"
-            app:useSimpleSummaryProvider="true" />
+        <!-- set based on system settings, can be overwritten -->
+        <SwitchPreferenceCompat
+            app:key="theme"
+            app:summaryOff="Light Mode"
+            app:summaryOn="Dark Mode"
+            app:title="App Theme"  />
 
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+        <SwitchPreferenceCompat
+            app:key="textmarker"
+            app:summaryOff="Constant Opacity"
+            app:summaryOn="Additive Opacity"
+            app:title="Text Marker Opacity Addition"
+            android:defaultValue="false"/>
+
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Sync with Cloud">
+    <PreferenceCategory app:title="Function">
+
+        <SwitchPreferenceCompat
+            app:key="panning"
+            app:summaryOff="Any Finger Pan"
+            app:summaryOn="Two Finger Pan only"
+            app:title="Panning Mode"
+            android:defaultValue="false"/>
+
+<!-- auto save to the location from which it was opened -->
+        <SwitchPreferenceCompat
+            app:key="autosave"
+            app:title="Autosave the Canvas"
+            android:defaultValue="true"/>
+
+        <EditTextPreference
+            android:dependency="autosave"
+            android:defaultValue="60"
+            android:key="saveintervall"
+            android:selectAllOnFocus="true"
+            android:title="Autosave Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
 
         <SwitchPreferenceCompat
             app:key="sync"
-            app:title="Sync with Cloud" />
+            app:title="Synchronize with Server"
+            android:defaultValue="false"/>
 
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
+        <ListPreference
+            android:dependency="sync"
+            app:entries="@array/servers"
+            app:entryValues="@array/servers"
+            app:key="server"
+            app:title="Sync Server"
+            app:useSimpleSummaryProvider="true" />
 
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
+        <EditTextPreference
+            android:dependency="sync"
+            android:defaultValue="60"
+            android:key="syncintervall"
+            android:selectAllOnFocus="true"
+            android:title="Server Sync Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
 
     </PreferenceCategory>
 
