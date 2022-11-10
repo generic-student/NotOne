@@ -5,9 +5,9 @@
 
     <PreferenceCategory app:title="Visuals">
 
-        <!-- set based on system settings, can be overwritten -->
+        <!-- set based on system settings, can be overwritten default unset -->
         <SwitchPreferenceCompat
-            app:key="theme"
+            app:key="darkmode"
             app:summaryOff="Light Mode"
             app:summaryOn="Dark Mode"
             app:title="App Theme"  />

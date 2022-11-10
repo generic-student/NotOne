@@ -1,6 +1,7 @@
 package app.notone;
 
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
@@ -47,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        /* set theme Preference on first start if it has never been set before */
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+        boolean darkMode = (Configuration.UI_MODE_NIGHT_YES == (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK));
+        if(!sharedPreferences.contains("darkmode"))
+            spEditor.putBoolean("darkmode", darkMode).apply();
+        darkMode = sharedPreferences.getBoolean("darkmode", false);
+        AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
         setContentView(R.layout.activity_main);
 
         DrawerLayout mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
@@ -55,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
         mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
+
+
 
         /* configure AppBar with burger and title */
         setSupportActionBar(canvasToolbar);
@@ -83,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor spEditor = sharedPreferences.edit();
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
         Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));

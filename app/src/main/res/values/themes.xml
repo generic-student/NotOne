@@ -15,7 +15,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="color">@color/white</item>
+        <item name="colorCanvas">@color/white</item>
         <item name="colorTextDayNight">@color/black</item>
     </style>
 </resources>
