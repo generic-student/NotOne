@@ -9,6 +9,10 @@
             android:id="@+id/canvas_fragment"
             android:icon="@android:drawable/ic_menu_edit"
             android:title="Current File" />
+<!--        <item-->
+<!--            android:id="@+id/menu_pick_color"-->
+<!--            android:title="AAAAAAA"-->
+<!--            app:actionLayout="@layout/drawer_expandablelist"/>-->
         <item
             android:id="@+id/open_file"
             android:icon="@drawable/ic_launcher_foreground"
