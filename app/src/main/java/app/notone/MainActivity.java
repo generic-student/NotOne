@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
         /* set theme Preference on first start if it has never been set before */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
@@ -58,16 +60,13 @@ public class MainActivity extends AppCompatActivity {
         darkMode = sharedPreferences.getBoolean("darkmode", false);
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
-        setContentView(R.layout.activity_main);
-
+        /* base layouts for all navigations */
         DrawerLayout mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
         Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // toolbar
         AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
         mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
-
-
 
         /* configure AppBar with burger and title */
         setSupportActionBar(canvasToolbar);
