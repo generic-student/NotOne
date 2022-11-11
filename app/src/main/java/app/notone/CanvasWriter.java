@@ -27,6 +27,8 @@ public class CanvasWriter implements Serializable {
     }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
+    private WriteMode mWritemode = WriteMode.PEN;
+
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
         this.mStrokeColor = mStrokeColor;
@@ -113,13 +115,27 @@ public class CanvasWriter implements Serializable {
         this.mActions = mActions;
     }
 
+    public WriteMode getWritemode() {
+        return mWritemode;
+    }
+
+    public void setWritemode(WriteMode mWritemode) {
+        this.mWritemode = mWritemode;
+    }
+
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
-        if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
-            setDrawState(DrawState.ERASE);
-        } else {
-            setDrawState(DrawState.WRITE);
+        if(getWritemode() == WriteMode.PEN) {
+            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+                setDrawState(DrawState.ERASE);
+            } else {
+                setDrawState(DrawState.WRITE);
+            }
         }
+        else if(mWritemode == WriteMode.ERASER) {
+            setDrawState(DrawState.ERASE);
+        }
+
 
         switch(getDrawState()) {
             case WRITE:
