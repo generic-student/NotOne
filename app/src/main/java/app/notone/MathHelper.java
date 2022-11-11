@@ -62,6 +62,13 @@ public class MathHelper {
         return Math.abs(AB.crossProduct(AC))/2.f;
     }
 
+    /**
+     * Checks if a circle with a given origin and radius intersects a given path at any point
+     * @param path the path containing x and y coordinates
+     * @param center the origin point of the ricle
+     * @param radius the radius of the circle
+     * @return true if the circle intersects the path
+     */
     public static boolean pathIntersectsCircle(@NonNull ArrayList<Float> path, @NonNull Vector2f center, float radius) {
         if(path.size() == 2) {
             return new Vector2f(path.get(0), path.get(1)).distance(center) <= radius;
@@ -78,6 +85,13 @@ public class MathHelper {
         return false;
     }
 
+    /**
+     * Checks if a circle with a given origin and radius intersects a given path at any point
+     * @param path Path Object which points will be approximated
+     * @param center origin of the circle
+     * @param radius radius of the circle
+     * @return true if the circle intersects the line
+     */
     public static boolean pathIntersectsCircle(@NonNull Path path, @NonNull Vector2f center, float radius) {
         float[] points = path.approximate(0.5f);
 

@@ -9,7 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Paths drawn by user
+ * Paths drawn by user.
+ * This includes its color, weight and points
  */
 public class Stroke extends Path implements Serializable {
     private int mColor;
@@ -47,6 +48,9 @@ public class Stroke extends Path implements Serializable {
         this.pathPoints = pathPoints;
     }
 
+    /**
+     * Initializes the Path variable after a Stroke Instance has been restored through a byte stream
+     */
     public void initPathFromPathPoints() {
         reset();
         super.moveTo(pathPoints.get(0), pathPoints.get(1));
