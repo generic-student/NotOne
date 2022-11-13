@@ -15,15 +15,15 @@
 <!--            app:actionLayout="@layout/drawer_expandablelist"/>-->
         <item
             android:id="@+id/open_file"
-            android:icon="@drawable/ic_launcher_foreground"
+            android:icon="@drawable/ic_folder_open_file"
             android:title="Open" />
         <item
             android:id="@+id/save_file"
-            android:icon="@drawable/ic_launcher_background"
+            android:icon="@drawable/ic_save_as"
             android:title="Save as" />
         <item
             android:id="@+id/export"
-            android:icon="@drawable/ic_launcher_background"
+            android:icon="@drawable/ic_export"
             android:title="Export" />
     </group>
 
@@ -32,10 +32,12 @@
         <item
             android:id="@+id/drawer_switch_autosave"
             android:title="Auto Save (seconds)"
+            android:icon="@drawable/ic_autosave"
             app:actionLayout="@layout/switch_item" />
         <item
             android:id="@+id/drawer_switch_sync"
             android:title="Server Sync (seconds)"
+            android:icon="@drawable/ic_sync"
             app:actionLayout="@layout/switch_item" />
 <!--        <item-->
 <!--            android:title="OPR"-->

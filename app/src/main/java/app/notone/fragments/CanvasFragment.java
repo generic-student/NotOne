@@ -38,7 +38,6 @@ public class CanvasFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // maybe move to ToolbarFragment
         // Config Dropdowns for Pen Settings
         CanvasView canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
         HashMap<String, Integer> penColors = new HashMap<>(); // get from res instead
