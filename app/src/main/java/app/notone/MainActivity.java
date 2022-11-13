@@ -1,5 +1,6 @@
 package app.notone;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param savedInstanceState
      */
+    @SuppressLint({"NonConstantResourceId", "UseSwitchCompatOrMaterialCode"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
         Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
