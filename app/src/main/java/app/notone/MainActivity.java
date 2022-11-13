@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     viewPenTools.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
                     tvTitle.setVisibility(View.VISIBLE);
-                    tvTitle.setText(": DOCNAME");
+                    tvTitle.setText(": DOCNAME"); // TODO replace with open document name
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:

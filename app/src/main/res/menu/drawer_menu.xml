@@ -8,7 +8,7 @@
         <item
             android:id="@+id/canvas_fragment"
             android:icon="@android:drawable/ic_menu_edit"
-            android:title="Current File" />
+            android:title="@string/drawer_menu_current_file_item_text" />
 <!--        <item-->
 <!--            android:id="@+id/menu_pick_color"-->
 <!--            android:title="AAAAAAA"-->
@@ -16,27 +16,27 @@
         <item
             android:id="@+id/open_file"
             android:icon="@drawable/ic_folder_open_file"
-            android:title="Open" />
+            android:title="@string/drawer_menu_open_item_text" />
         <item
             android:id="@+id/save_file"
             android:icon="@drawable/ic_save_as"
-            android:title="Save as" />
+            android:title="@string/drawer_menu_save_as_item_text" />
         <item
             android:id="@+id/export"
             android:icon="@drawable/ic_export"
-            android:title="Export" />
+            android:title="@string/drawer_menu_export_item_text" />
     </group>
 
     <group>
 <!-- switches need an action layout -->
         <item
             android:id="@+id/drawer_switch_autosave"
-            android:title="Auto Save (seconds)"
+            android:title="@string/drawer_menu_auto_save_item_text"
             android:icon="@drawable/ic_autosave"
             app:actionLayout="@layout/switch_item" />
         <item
             android:id="@+id/drawer_switch_sync"
-            android:title="Server Sync (seconds)"
+            android:title="@string/drawer_menu_server_sync_item_text"
             android:icon="@drawable/ic_sync"
             app:actionLayout="@layout/switch_item" />
 <!--        <item-->
@@ -50,10 +50,10 @@
         <item
             android:id="@+id/settings_fragment"
             android:icon="@android:drawable/ic_menu_preferences"
-            android:title="Settings" />
+            android:title="@string/drawer_menu_settings_item_text" />
         <item
             android:id="@+id/about_fragment"
             android:icon="@android:drawable/ic_menu_info_details"
-            android:title="About" />
+            android:title="@string/drawer_menu_about_item_text" />
 </group>
 </menu>
