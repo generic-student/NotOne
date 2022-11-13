@@ -53,7 +53,7 @@ public class CanvasFragment extends Fragment {
 
         // Undo Redo activate Eraser Actions
         FragmentActivity fragmentActivity = getActivity();
-        Button buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
+        ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));

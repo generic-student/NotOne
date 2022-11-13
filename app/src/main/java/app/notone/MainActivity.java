@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* set Title and Toolbar function by Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-//            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
             HorizontalScrollView viewPenTools = findViewById(R.id.canvas_tools_pen);
             LinearLayout viewUnRedo = findViewById(R.id.canvas_tools_unredo);
             switch (destination.getId()) {
@@ -119,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
                     viewPenTools.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
-//                    tvTitle.setText("Zeichnen");
+                    tvTitle.setVisibility(View.VISIBLE);
+                    tvTitle.setText(": DOCNAME");
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:
@@ -127,8 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
                     viewPenTools.setVisibility(View.GONE);
                     viewUnRedo.setVisibility(View.GONE);
-//                    tvTitle.setText("Einstellungen");
-//                    tvTitle.setText("About");
+                    tvTitle.setVisibility(View.GONE);
                     break;
                 default:
                     throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
@@ -143,12 +144,12 @@ public class MainActivity extends AppCompatActivity {
             mToolbarVisibility = false;
             appBar.animate().translationY(-appBar.getHeight());
             fabToolbarVisibility.animate().translationY(-appBar.getHeight());
-            fabToolbarVisibility.setImageResource(android.R.drawable.arrow_down_float);
+            fabToolbarVisibility.animate().rotation(0);
         } else {
             mToolbarVisibility = true;
             appBar.animate().translationY(0);
             fabToolbarVisibility.animate().translationY(0);
-            fabToolbarVisibility.setImageResource(android.R.drawable.arrow_up_float); // maybe rotate instead
+            fabToolbarVisibility.animate().rotation(180);
         }
     }
 
