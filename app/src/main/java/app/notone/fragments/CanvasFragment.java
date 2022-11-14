@@ -1,7 +1,9 @@
 package app.notone.fragments;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,10 +13,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -61,7 +68,53 @@ public class CanvasFragment extends Fragment {
         buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));
 
 
+        /* create pen presets */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(fragmentActivity);
+        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+
+        ImageButton buttonAddPen = fragmentActivity.findViewById(R.id.button_add_pen);
+        Spinner spinnerPenColors = fragmentActivity.findViewById(R.id.spinner_pen_colors);
+        Spinner spinnerPenWeight = fragmentActivity.findViewById(R.id.spinner_pen_weights);
+        LinearLayout linearLayout = fragmentActivity.findViewById(R.id.canvas_tools_container);
+
+        AtomicReference<Integer> presetPenNumber = new AtomicReference<>(0);
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+//        ConstraintLayout constraintLayout = (ConstraintLayout) inflater.inflate(R.layout.button_preset_pen, null, false);
+
+        buttonAddPen.setOnClickListener(v -> {
+            // save pen preset
+            Set<String> penPreset = new HashSet<>();
+            String presetPenWeight = spinnerPenWeight.getSelectedItem().toString();
+            String presetPenColor = spinnerPenColors.getSelectedItem().toString();
+            penPreset.add(presetPenWeight);
+            penPreset.add(presetPenColor);
+            spEditor.putStringSet("penpreset_" + presetPenNumber.toString(), penPreset).apply();
+            presetPenNumber.getAndSet(presetPenNumber.get() + 1);
+
+            // add to layout
+            ConstraintLayout penPresetLayout = (ConstraintLayout) inflater.inflate(R.layout.button_preset_pen, null, false);
+            ImageButton imageButton = penPresetLayout.findViewById(R.id.imgbtn_pen_preset);
+            imageButton.setColorFilter(penColors.get(presetPenColor));
+            imageButton.setOnClickListener(v1 -> {
+//                TODO update spinners
+//                spinnerPenColors.setSelection(penColors.get,true);
+                canvasView.setStrokeColor(penColors.get(presetPenColor));
+                canvasView.setStrokeWeight(Float.parseFloat(presetPenWeight));
+            });
+
+            linearLayout.addView(penPresetLayout, 1); // cause of the test button
+
+            Log.d(TAG, "onViewCreated: saved Pen Preset: " + (presetPenNumber.get() - 1) +  penPreset.toString());
+        });
+
+
+        /* remove pen preset */
+        ImageButton buttonSubPen = fragmentActivity.findViewById(R.id.button_del_pen);
+        buttonSubPen.setOnClickListener(v -> {
+            Log.d(TAG, "onViewCreated: delete active pen preset");
+        });
+
+        // Test
         Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
         buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
     }

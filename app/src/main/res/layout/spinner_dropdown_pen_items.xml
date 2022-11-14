@@ -9,3 +9,4 @@
     android:ellipsize="marquee"
     android:textAlignment="center"
     android:textColor="@color/white" />
+<!--customize https://stackoverflow.com/questions/12432553/how-to-use-apply-a-custom-drawable-to-radiobutton-->

@@ -147,12 +147,12 @@ public class MainActivity extends AppCompatActivity {
             mToolbarVisibility = false;
             appBar.animate().translationY(-appBar.getHeight());
             fabToolbarVisibility.animate().translationY(-appBar.getHeight());
-            fabToolbarVisibility.animate().rotation(0);
+            fabToolbarVisibility.animate().rotation(180);
         } else {
             mToolbarVisibility = true;
             appBar.animate().translationY(0);
             fabToolbarVisibility.animate().translationY(0);
-            fabToolbarVisibility.animate().rotation(180);
+            fabToolbarVisibility.animate().rotation(0);
         }
     }
 
