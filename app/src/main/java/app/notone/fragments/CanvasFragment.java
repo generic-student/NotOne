@@ -1,5 +1,7 @@
 package app.notone.fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -25,13 +27,24 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
+
+import org.json.JSONException;
+
 import app.notone.CanvasView;
+import app.notone.CanvasWriter;
 import app.notone.R;
+import app.notone.WriteMode;
+import app.notone.io.CanvasExporter;
+import app.notone.io.CanvasImporter;
 
 public class CanvasFragment extends Fragment {
+    private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
+    private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
+
     // The onCreateView method is called when Fragment should create its View object hierarchy, via XML layout inflation.
     String TAG = "NotOneCanvasFragment";
     View mCanvasFragmentView;
+    private CanvasView canvasView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -46,7 +59,7 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Config Dropdowns for Pen Settings
-        CanvasView canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
+        canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
         HashMap<String, Integer> penColors = new HashMap<>(); // get from res instead
         penColors.put("RED", Color.RED);
         penColors.put("GREEN", Color.GREEN);
@@ -63,9 +76,18 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
-        buttonEraser.setOnClickListener(v -> Log.d(TAG, "onClick: ERASE"));
-        buttonUndo.setOnClickListener(v -> Log.d(TAG, "onClick: UNDO"));
-        buttonRedo.setOnClickListener(v -> Log.d(TAG, "onClick: REDO"));
+        buttonEraser.setOnClickListener(v -> {
+            if(canvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
+                buttonEraser.setBackgroundColor(Color.TRANSPARENT);
+                canvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+            }
+            else {
+                buttonEraser.setBackgroundColor(Color.argb(120, 255, 255, 255));
+                canvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
+            }
+        });
+        buttonUndo.setOnClickListener(v -> canvasView.undo());
+        buttonRedo.setOnClickListener(v -> canvasView.redo());
 
 
         /* create pen presets */
@@ -143,4 +165,66 @@ public class CanvasFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+
+        //load the data from the sharedPrefs
+        String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
+
+        try {
+            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onPause() {
+
+        String jsonString = "";
+        try {
+            jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
+            Log.d(LOG_TAG, jsonString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // Write the byte stream to the preferences
+        editor.putString("lastOpenedCanvasWriter", jsonString);
+
+        // write changes to file
+        editor.commit();
+
+        super.onPause();
+    }
+//
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//
+//        savedInstanceState.putSerializable("CanvasWriter", canvasView.getCanvasWriter());
+//
+//        super.onSaveInstanceState(savedInstanceState);
+//    }
+//
+//
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState) {
+//
+//        super.onRestoreInstanceState(savedInstanceState);
+//
+//        CanvasWriter pen = (CanvasWriter) savedInstanceState.getSerializable("CanvasWriter");
+//        canvasView.setCanvasWriter(pen);
+//
+//
+//    }
 }

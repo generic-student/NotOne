@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 
 public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
+    private static final String LOG_TAG = CanvasWriter.class.getSimpleName();
 
     private transient Paint mPaint;
     private float mStrokeWeight;
@@ -132,8 +134,9 @@ public class CanvasWriter implements Serializable {
                 setDrawState(DrawState.WRITE);
             }
         }
-        else if(mWritemode == WriteMode.ERASER) {
+        else if(getWritemode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
+            Log.d(LOG_TAG, "set writemode to eraser.");
         }
 
 
@@ -178,9 +181,6 @@ public class CanvasWriter implements Serializable {
     }
 
     private boolean handleOnTouchEventErase(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
-        if(event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
-            return false;
-        }
 
         //transform the cursor position using the inverse of the view matrix
         Vector2f pos = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);
