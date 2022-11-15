@@ -16,6 +16,7 @@ import app.notone.io.ObjectSerializer;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName() + "_DEBUG";
+    private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
 
     CanvasView canvasView;
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("NotOneSharedPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
 
         //load the data from the sharedPrefs
         String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Storing data into SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("NotOneSharedPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
 
         // Creating an Editor object to edit(write to the file)
         SharedPreferences.Editor editor = sharedPreferences.edit();
