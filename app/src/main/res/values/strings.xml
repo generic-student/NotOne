@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">NotOne</string>
+    <string name="canvas_toolbar_pencolor_1">Red</string>
+    <string name="canvas_toolbar_pencolor_2">Green</string>
+
+    <string name="open">open drawer</string>
+    <string name="close">close drawer</string>
+    <string name="about_section_title">About</string>
+    <string name="legal_section_title">Licenses and Legal</string>
+    <string name="import_button_text">Import</string>
+    <string name="drawer_menu_current_file_item_text">Current File</string>
+    <string name="drawer_menu_open_item_text">Open</string>
+    <string name="drawer_menu_export_item_text">Export</string>
+    <string name="drawer_menu_auto_save_item_text">Auto Save (seconds)</string>
+    <string name="drawer_menu_server_sync_item_text">Server Sync (seconds)</string>
+    <string name="drawer_menu_settings_item_text">Settings</string>
+    <string name="drawer_menu_about_item_text">About</string>
+    <string name="drawer_menu_save_as_item_text">Save as</string>
 </resources>

@@ -1,0 +1,71 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference app:title="\n" />
+
+    <PreferenceCategory app:title="Visuals">
+
+        <!-- set based on system settings, can be overwritten default unset -->
+        <SwitchPreferenceCompat
+            app:key="darkmode"
+            app:summaryOff="Light Mode"
+            app:summaryOn="Dark Mode"
+            app:title="App Theme"  />
+
+        <SwitchPreferenceCompat
+            app:key="textmarker"
+            app:summaryOff="Constant Opacity"
+            app:summaryOn="Additive Opacity"
+            app:title="Text Marker Opacity Addition"
+            android:defaultValue="false"/>
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Function">
+
+        <SwitchPreferenceCompat
+            app:key="panning"
+            app:summaryOff="Any Finger Pan"
+            app:summaryOn="Two Finger Pan only"
+            app:title="Panning Mode"
+            android:defaultValue="false"/>
+
+<!-- auto save to the location from which it was opened -->
+        <SwitchPreferenceCompat
+            app:key="autosave"
+            app:title="Autosave the Canvas"
+            android:defaultValue="true"/>
+
+        <EditTextPreference
+            android:dependency="autosave"
+            android:defaultValue="60"
+            android:key="saveintervall"
+            android:selectAllOnFocus="true"
+            android:title="Autosave Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:title="Synchronize with Server"
+            android:defaultValue="false"/>
+
+        <ListPreference
+            android:dependency="sync"
+            app:entries="@array/servers"
+            app:entryValues="@array/servers"
+            app:key="server"
+            app:title="Sync Server"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:dependency="sync"
+            android:defaultValue="60"
+            android:key="syncintervall"
+            android:selectAllOnFocus="true"
+            android:title="Server Sync Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

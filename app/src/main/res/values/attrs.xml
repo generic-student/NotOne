@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Theme">
+    <!-- Other values-->
+        <attr name="colorTextDayNight" format="color" />
+        <attr name="colorCanvas" format="color" />
+    </declare-styleable>
+</resources>
