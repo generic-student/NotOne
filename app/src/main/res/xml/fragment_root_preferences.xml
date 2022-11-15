@@ -25,7 +25,7 @@
     <PreferenceCategory app:title="Function">
 
         <SwitchPreferenceCompat
-            app:key="panning"
+            app:key="twofingerpanning"
             app:summaryOff="Any Finger Pan"
             app:summaryOn="Two Finger Pan only"
             app:title="Panning Mode"

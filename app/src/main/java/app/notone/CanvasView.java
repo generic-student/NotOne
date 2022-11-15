@@ -1,6 +1,7 @@
 package app.notone;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -9,6 +10,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+
+import androidx.preference.PreferenceManager;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
@@ -232,17 +235,17 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
-                return true;
-            }
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+            if(sharedPreferences.getBoolean("twofingerpanning", false) && e2.getPointerCount() <= 1)
+                return false; // if two finger panning is required and not fullfilled: dont pan
 
-            if(e2.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
-                return true;
-            }
+
+            if(e2.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS)
+                return false; // dont pan with pen
+
 
             mViewTransform.postTranslate(-distanceX, -distanceY); // slide with finger with negative transform
             invalidate();
-
             return true;
         }
 
