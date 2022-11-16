@@ -31,6 +31,13 @@
             app:title="Panning Mode"
             android:defaultValue="false"/>
 
+        <SwitchPreferenceCompat
+            app:key="drawerswipe"
+            app:summaryOff="cant swipe to open Drawer"
+            app:summaryOn="swipe to open Drawer"
+            app:title="Drawer Swipe open (Restart Required)"
+            android:defaultValue="false"/>
+
 <!-- auto save to the location from which it was opened -->
         <SwitchPreferenceCompat
             app:key="autosave"

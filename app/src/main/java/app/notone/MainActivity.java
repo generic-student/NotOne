@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         /* base layouts for all navigations */
-        DrawerLayout mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
+        NavigationDrawer mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
         Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // toolbar
         AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawer, canvasToolbar, R.string.open, R.string.close); // add burger button for top level
         mainActivityDrawer.addDrawerListener(toggle); // add listener to it
+//        mainActivityDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
