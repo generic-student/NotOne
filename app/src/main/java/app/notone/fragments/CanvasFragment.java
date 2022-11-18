@@ -3,9 +3,7 @@ package app.notone.fragments;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +29,6 @@ import androidx.preference.PreferenceManager;
 import org.json.JSONException;
 
 import app.notone.CanvasView;
-import app.notone.CanvasWriter;
 import app.notone.R;
 import app.notone.WriteMode;
 import app.notone.io.CanvasExporter;
@@ -97,7 +94,7 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonAddPen = fragmentActivity.findViewById(R.id.button_add_pen);
         Spinner spinnerPenColors = fragmentActivity.findViewById(R.id.spinner_pen_colors);
         Spinner spinnerPenWeight = fragmentActivity.findViewById(R.id.spinner_pen_weights);
-        LinearLayout linearLayout = fragmentActivity.findViewById(R.id.canvas_tools_container);
+        LinearLayout linearLayout = fragmentActivity.findViewById(R.id.canvas_pens_container);
 
         AtomicReference<Integer> presetPenNumber = new AtomicReference<>(0);
         LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -137,8 +134,8 @@ public class CanvasFragment extends Fragment {
         });
 
         // Test
-        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
-        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
+//        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
+//        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
     }
 
     @FunctionalInterface

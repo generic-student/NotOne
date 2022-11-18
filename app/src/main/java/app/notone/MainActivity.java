@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -22,7 +21,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         /* base layouts for all navigations */
         NavigationDrawer mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
-        Toolbar canvasToolbar = findViewById(R.id.canavas_toolbar); // toolbar
+        Toolbar canvasToolbar = findViewById(R.id.toolbar); // toolbar
         AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
         mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
@@ -119,21 +117,21 @@ public class MainActivity extends AppCompatActivity {
         /* set Title and Toolbar function by Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
-            HorizontalScrollView viewPenTools = findViewById(R.id.canvas_tools_pen);
+            LinearLayout viewCanvasToolsContainer = findViewById(R.id.canvas_tools_container);
             LinearLayout viewUnRedo = findViewById(R.id.canvas_tools_unredo);
             switch (destination.getId()) {
                 case R.id.canvas_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
-                    viewPenTools.setVisibility(View.VISIBLE);
+                    viewCanvasToolsContainer.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
                     tvTitle.setVisibility(View.VISIBLE);
-                    tvTitle.setText(": DOCNAME"); // TODO replace with open document name
+                    tvTitle.setText("DOCNAME"); // TODO replace with open document name
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:
                 case R.id.about_fragment:
                     findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
-                    viewPenTools.setVisibility(View.GONE);
+                    viewCanvasToolsContainer.setVisibility(View.GONE);
                     viewUnRedo.setVisibility(View.GONE);
                     tvTitle.setVisibility(View.GONE);
                     break;
