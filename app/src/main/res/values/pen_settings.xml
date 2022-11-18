@@ -8,6 +8,13 @@
         <item>YELLOW</item>
         <item>CYAN</item>
     </string-array>
+    <array name="pen_color_values">
+        <item>@color/red_900</item>
+        <item>@android:color/holo_green_light</item>
+        <item>@android:color/holo_blue_light</item>
+        <item>@android:color/holo_orange_light</item>
+        <item>@android:color/holo_blue_bright</item>
+    </array>
     <string-array
         name="pen_weights">
         <item>1</item>
