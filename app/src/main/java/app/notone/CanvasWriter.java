@@ -1,18 +1,14 @@
 package app.notone;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
@@ -30,12 +26,15 @@ public class CanvasWriter implements Serializable {
 
     private Vector2f previousTouchPoint = new Vector2f(0, 0);
 
+    /*  draw state is whats currently happening, write mode determines what can happen */
     public enum DrawState {
         WRITE, ERASE
     }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
     private WriteMode mWritemode = WriteMode.PEN;
+
+    private double mLinearRegressionBound = 0.7;
 
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
@@ -131,16 +130,21 @@ public class CanvasWriter implements Serializable {
         this.mWritemode = mWritemode;
     }
 
+    public void setLinearRegressorBound(double bound) {
+        this.mLinearRegressionBound = bound;
+    }
+
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
-        if(getWritemode() == WriteMode.PEN) {
+
+        // Set Draw State based on Write Mode
+        if(getWritemode() == WriteMode.PEN || getWritemode() == WriteMode.PATTERN) {
             if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.WRITE);
             }
-        }
-        else if(getWritemode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
+        } else if(getWritemode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
         }
 
@@ -152,6 +156,7 @@ public class CanvasWriter implements Serializable {
             previousTouchPoint = currentTouchPoint;
         }
 
+        // handle touch event based on draw state
         boolean result = false;
         switch(getDrawState()) {
             case WRITE:
@@ -184,6 +189,20 @@ public class CanvasWriter implements Serializable {
                 }
                 //delete the strokes that come after the currentStrokeIndex
                 clearUndoneStrokes();
+                // check if the current stroke was a line
+                setWritemode(WriteMode.PATTERN);
+                 if(getWritemode() == WriteMode.PATTERN) {
+                     double r2 = LinearRegressor.getRsquared(mCurrentStroke.getPathPoints());
+                     if (r2 > mLinearRegressionBound) {
+                         ArrayList<Float> straightStroke = new ArrayList<>();
+                         straightStroke.add(mCurrentStroke.getPathPoints().get(0));
+                         straightStroke.add(mCurrentStroke.getPathPoints().get(1));
+                         straightStroke.add(mCurrentStroke.getPathPoints().get(mCurrentStroke.getPathPoints().size() - 2));
+                         straightStroke.add(mCurrentStroke.getPathPoints().get(mCurrentStroke.getPathPoints().size() - 1));
+                         mCurrentStroke.setPathPoints(straightStroke);
+                         mCurrentStroke.initPathFromPathPoints();
+                     }
+                 }
                 //add the current stroke to the list of strokes
                 mStrokes.add(mCurrentStroke);
                 //add the action the the list

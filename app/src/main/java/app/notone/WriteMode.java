@@ -4,5 +4,6 @@ public enum WriteMode {
     ERASER,
     PEN,
     MARKER,
-    SELECTOR
+    SELECTOR,
+    PATTERN
 }
