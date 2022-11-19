@@ -235,9 +235,6 @@ public class CanvasWriter implements Serializable {
         m.mapRect(rect);
         m.mapPoints(rectPts);
 
-        Log.d(LOG_TAG, rect.toString());
-        Log.d(LOG_TAG, inverseViewMatrix.toString());
-
         ArrayList<Float> f = new ArrayList<>();
         for(float fl : rectPts) {
             f.add(fl);
