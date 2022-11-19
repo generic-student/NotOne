@@ -60,6 +60,32 @@ public class Vector2f {
         return new Vector2f(x + other.y, y + other.y);
     }
 
+    public Vector2f divide(float value) {
+        return new Vector2f(x/value, y/value);
+    }
+
+    public Vector2f multiply(float value) {
+        return new Vector2f(x * value, y * value);
+    }
+
+    public float length() {
+        return (float)Math.hypot(x, y);
+    }
+
+    public Vector2f unitVector() {
+        return this.divide(this.length());
+    }
+
+    public float angle(Vector2f other) {
+        float angle = (float) (Math.atan2(other.y - y, other.x - x));
+
+        if(angle < 0){
+            angle += 360;
+        }
+
+        return angle;
+    }
+
     /**
      * multiplies the vector by a given 2x2 matrix
      * @param mat
