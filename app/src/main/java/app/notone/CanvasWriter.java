@@ -37,8 +37,6 @@ public class CanvasWriter implements Serializable {
 
     private WriteMode mWritemode = WriteMode.PEN;
 
-    private Stroke eraserRectIGuess = new Stroke(Color.WHITE, 1);
-
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
         this.mStrokeColor = mStrokeColor;
@@ -144,7 +142,6 @@ public class CanvasWriter implements Serializable {
         }
         else if(getWritemode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
-            Log.d(LOG_TAG, "set writemode to eraser.");
         }
 
         //transform the cursor position using the inverse of the view matrix
@@ -235,15 +232,6 @@ public class CanvasWriter implements Serializable {
         m.mapRect(rect);
         m.mapPoints(rectPts);
 
-        ArrayList<Float> f = new ArrayList<>();
-        for(float fl : rectPts) {
-            f.add(fl);
-        }
-        f.add(rectPts[0]);
-        f.add(rectPts[1]);
-        eraserRectIGuess.setPathPoints(f);
-        eraserRectIGuess.initPathFromPathPoints();
-
         int strokesErased = 0;
 
         for(int i = 0; i < mStrokes.size(); i++) {
@@ -259,29 +247,7 @@ public class CanvasWriter implements Serializable {
             }
         }
 
-        return 1;
-
-
-//        int strokesErased = 0;
-//        RectF bounds = new RectF();
-//
-//        //check if the current cursor position intersects the bounds of one of the strokes and remove it
-//        for(int i = 0; i < mStrokes.size(); i++) {
-//            mStrokes.get(i).computeBounds(bounds, true);
-//
-//            boolean skipBoundsCheck = (bounds.width() < mStrokes.get(i).getWeight() || bounds.height() < mStrokes.get(i).getWeight());
-//
-//            //check if the outer bounds that encompass the entire path intersects with the cursor
-//            if(bounds.isEmpty() || skipBoundsCheck || bounds.contains(eraserPosition.x, eraserPosition.y)) {
-//                if(MathHelper.pathIntersectsCircle(mStrokes.get(i).getPathPoints(), eraserPosition, eraserRadius)) {
-//                    Stroke erasedStroke = mStrokes.remove(i);
-//                    mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
-//                    strokesErased++;
-//                }
-//            }
-//        }
-//
-//        return strokesErased;
+        return strokesErased;
     }
 
     public void renderStrokes(Canvas canvas) {
@@ -293,10 +259,6 @@ public class CanvasWriter implements Serializable {
         mPaint.setColor(mCurrentStroke.getColor());
         mPaint.setStrokeWidth(mCurrentStroke.getWeight());
         canvas.drawPath(mCurrentStroke, mPaint);
-
-        mPaint.setStrokeWidth(eraserRectIGuess.getWeight());
-        mPaint.setColor(eraserRectIGuess.getColor());
-        canvas.drawPath(eraserRectIGuess, mPaint);
     }
 
     private void clearUndoneStrokes() {
