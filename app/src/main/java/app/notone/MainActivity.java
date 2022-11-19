@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
     boolean mToolbarVisibility = true;
-
+    NavigationDrawer mmainActivityDrawer;
     /**
      * Main onCreate of the App
      * Set the Main Activity View
@@ -63,21 +65,20 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         /* base layouts for all navigations */
-        NavigationDrawer mainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
+        mmainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
-        Toolbar canvasToolbar = findViewById(R.id.toolbar); // toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar); // toolbar
         AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
         mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
 
         /* configure AppBar with burger and title */
-        setSupportActionBar(canvasToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
-                .setOpenableLayout(mainActivityDrawer) // setDrawerLayout // define burger button for toplevel
+                .setOpenableLayout(mmainActivityDrawer) // setDrawerLayout // define burger button for toplevel
                 .build();
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mainActivityDrawer, canvasToolbar, R.string.open, R.string.close); // add burger button for top level
-        mainActivityDrawer.addDrawerListener(toggle); // add listener to it
-//        mainActivityDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
                 navGraphController.navigate(menuItem.getItemId());
-                mainActivityDrawer.closeDrawers();
+                mmainActivityDrawer.closeDrawers();
             }
             return true;
         });
@@ -161,13 +162,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         Log.d(TAG, "onSupportNavigateUp");
         NavController navGraphController = findNavController(this, R.id.nav_main_host_fragment);
+        switch (navGraphController.getCurrentDestination().getId()) {
+            case R.id.settings_fragment:
+            case R.id.about_fragment:
+                Log.d(TAG, "onOptionsItemSelected: Navigate Up");
+                navGraphController.navigateUp();
+                return true;
+
+            case R.id.canvas_fragment:
+                mmainActivityDrawer.openDrawer(GravityCompat.START);
+        }
         return navGraphController.navigateUp() || super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
         Log.d(TAG, "onOptionsItemSelected");
+        NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
 }
