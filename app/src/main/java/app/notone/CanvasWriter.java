@@ -4,9 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -178,7 +176,7 @@ public class CanvasWriter implements Serializable {
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 moveTo(mCurrentStroke, pos);
-                break;
+                return false;
 
             case MotionEvent.ACTION_MOVE:
                 lineTo(mCurrentStroke, pos);
@@ -188,27 +186,33 @@ public class CanvasWriter implements Serializable {
                 if(mCurrentStroke.isEmpty()) {
                     return false;
                 }
-                //delete the strokes that come after the currentStrokeIndex
-                clearUndoneStrokes();
-                // check if the current stroke was a line
-                setWritemode(WriteMode.PATTERN);
-                if(getWritemode() == WriteMode.PATTERN) {
-                    if (mLinearRegressionBound < LinearRegressor.getRsquared(mCurrentStroke.getPathPoints())) {
-                         mCurrentStroke.setPathPoints(LinearRegressor.getStraight(mCurrentStroke));
-                         mCurrentStroke.initPathFromPathPoints();
-                    }
-                }
-                //add the current stroke to the list of strokes
-                mStrokes.add(mCurrentStroke);
-                //add the action the the list
-                mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, mCurrentStroke));
-                //reset the current stroke
-                mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
+                break;
 
-                return true;
+            default:
+                return false;
         }
 
-        return false;
+        //delete the strokes that come after the currentStrokeIndex
+        clearUndoneStrokes();
+        // check if the current stroke was a line
+        setWritemode(WriteMode.PATTERN);
+        if(getWritemode() == WriteMode.PATTERN) {
+            if (PatternRecognizer.isLine(mLinearRegressionBound, mCurrentStroke.getPathPoints())) {
+                mCurrentStroke.setPathPoints(PatternRecognizer.getStraight(mCurrentStroke));
+                mCurrentStroke.initPathFromPathPoints();
+            } else if (PatternRecognizer.isSquare(mLinearRegressionBound, mCurrentStroke.getPathPoints())) {
+                mCurrentStroke.setPathPoints(PatternRecognizer.getSquare(mCurrentStroke));
+                mCurrentStroke.initPathFromPathPoints();
+            }
+        }
+        //add the current stroke to the list of strokes
+        mStrokes.add(mCurrentStroke);
+        //add the action the the list
+        mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, mCurrentStroke));
+        //reset the current stroke
+        mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
+
+        return true;
     }
 
     private boolean handleOnTouchEventErase(MotionEvent event, Vector2f pos, Matrix inverseViewMatrix) {
