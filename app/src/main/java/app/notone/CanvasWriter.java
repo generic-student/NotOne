@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -191,18 +192,12 @@ public class CanvasWriter implements Serializable {
                 clearUndoneStrokes();
                 // check if the current stroke was a line
                 setWritemode(WriteMode.PATTERN);
-                 if(getWritemode() == WriteMode.PATTERN) {
-                     double r2 = LinearRegressor.getRsquared(mCurrentStroke.getPathPoints());
-                     if (r2 > mLinearRegressionBound) {
-                         ArrayList<Float> straightStroke = new ArrayList<>();
-                         straightStroke.add(mCurrentStroke.getPathPoints().get(0));
-                         straightStroke.add(mCurrentStroke.getPathPoints().get(1));
-                         straightStroke.add(mCurrentStroke.getPathPoints().get(mCurrentStroke.getPathPoints().size() - 2));
-                         straightStroke.add(mCurrentStroke.getPathPoints().get(mCurrentStroke.getPathPoints().size() - 1));
-                         mCurrentStroke.setPathPoints(straightStroke);
+                if(getWritemode() == WriteMode.PATTERN) {
+                    if (mLinearRegressionBound < LinearRegressor.getRsquared(mCurrentStroke.getPathPoints())) {
+                         mCurrentStroke.setPathPoints(LinearRegressor.getStraight(mCurrentStroke));
                          mCurrentStroke.initPathFromPathPoints();
-                     }
-                 }
+                    }
+                }
                 //add the current stroke to the list of strokes
                 mStrokes.add(mCurrentStroke);
                 //add the action the the list

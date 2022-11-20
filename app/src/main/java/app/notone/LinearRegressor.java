@@ -3,59 +3,49 @@ package app.notone;
 import java.util.ArrayList;
 
 class LinearRegressor {
-    public static double getRsquared(ArrayList<Float> xyList) {
-        float[] x = new float[xyList.size()/2];
-        float[] y = new float[xyList.size()/2];
-        int i = 0;
-        int jx = 0;
-        int jy = 0;
-        for (float v: xyList) {
-            if((i & 1) == 0 ) {
-                x[jx] = v;
-                jx++;
-            }
-            else {
-                y[jy] = v;
-                jy++;
-            }
-            i++;
-        }
-
-        if (x.length != y.length) {
+    public static double getRsquared(ArrayList<Float> xy) {
+        if (xy.size() % 2 != 0) {
             throw new IllegalArgumentException("array lengths are not equal");
         }
-        int n = x.length;
+        int n = xy.size()/2;
 
-        // first pass
-        double sumx = 0.0, sumy = 0.0, sumx2 = 0.0;
-        for (i = 0; i < n; i++) {
-            sumx  += x[i];
-            sumx2 += x[i]*x[i];
-            sumy  += y[i];
+        double  sum_x = 0.0,
+                sum_y = 0.0;
+        for (int i = 0; i < n; i+=2) {
+            sum_x  += xy.get(i);
+            sum_y  += xy.get(i+1);
         }
-        double xbar = sumx / n;
-        double ybar = sumy / n;
+        double average_x = sum_x / n;
+        double average_y = sum_y / n;
 
-        // second pass: compute summary statistics
-        double xxbar = 0.0, yybar = 0.0, xybar = 0.0;
-        for (i = 0; i < n; i++) {
-            xxbar += (x[i] - xbar) * (x[i] - xbar);
-            yybar += (y[i] - ybar) * (y[i] - ybar);
-            xybar += (x[i] - xbar) * (y[i] - ybar);
+        double  sum_sq_av_dif_x = 0.0,
+                sum_sq_av_dif_y = 0.0,
+                sum_sq_av_dif_xy = 0.0;
+        for (int i = 0; i < n; i+=2) {
+            sum_sq_av_dif_x += (xy.get(i) - average_x) * (xy.get(i) - average_x);
+            sum_sq_av_dif_y += (xy.get(i+1) - average_y) * (xy.get(i+1) - average_y);
+            sum_sq_av_dif_xy += (xy.get(i) - average_x) * (xy.get(i+1) - average_y);
         }
-        double slope  = xybar / xxbar;
-        double intercept = ybar - slope * xbar;
+        double a = sum_sq_av_dif_xy / sum_sq_av_dif_x;
+        double b = average_y - a * average_x;
+        // y = a * x + b
 
-        // more statistical analysis
-        double rss = 0.0;      // residual sum of squares
         double ssr = 0.0;      // regression sum of squares
-        for (i = 0; i < n; i++) {
-            double fit = slope*x[i] + intercept;
-            rss += (fit - y[i]) * (fit - y[i]);
-            ssr += (fit - ybar) * (fit - ybar);
+        for (int i = 0; i < n; i+=2) {
+            double fit = a * xy.get(i) + b;
+            ssr += (fit - average_y) * (fit - average_y);
         }
 
-        double r2 = ssr / yybar;
-        return r2;
+        double r_sq = ssr / sum_sq_av_dif_y;
+        return r_sq;
+    }
+
+    public static ArrayList<Float> getStraight(Stroke currentStroke) {
+        ArrayList<Float> straight = new ArrayList<>();
+        straight.add(currentStroke.getPathPoints().get(0));
+        straight.add(currentStroke.getPathPoints().get(1));
+        straight.add(currentStroke.getPathPoints().get(currentStroke.getPathPoints().size() - 2));
+        straight.add(currentStroke.getPathPoints().get(currentStroke.getPathPoints().size() - 1));
+        return straight;
     }
 }
