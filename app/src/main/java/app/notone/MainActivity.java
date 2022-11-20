@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -16,8 +15,9 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONException;
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
@@ -28,6 +28,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+import app.notone.io.CanvasExporter;
 import app.notone.views.NavigationDrawer;
 
 import static androidx.navigation.Navigation.findNavController;
@@ -89,8 +90,17 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.open_file:
                     Log.i(TAG, "onNavigationItemSelected: Open File");
                     return true;
-                case R.id.save_file:
+                case R.id.save_file_as:
+                    Log.i(TAG, "onNavigationItemSelected: Save File as JSON to shared prefs");
+                    try {
+                        CanvasExporter.canvasViewToJSON(findViewById(R.id.canvasView), true);
+                        CanvasExporter.createFile(this);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
                 case R.id.export:
+                    Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
             }
             // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event

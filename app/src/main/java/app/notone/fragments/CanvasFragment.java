@@ -198,7 +198,7 @@ public class CanvasFragment extends Fragment {
         String jsonString = "";
         try {
             jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
-            Log.d(LOG_TAG, jsonString);
+//            Log.d(LOG_TAG, jsonString);
         } catch (JSONException e) {
             e.printStackTrace();
         }

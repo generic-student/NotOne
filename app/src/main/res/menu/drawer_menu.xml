@@ -18,7 +18,7 @@
             android:icon="@drawable/ic_folder_open_file"
             android:title="@string/drawer_menu_open_item_text" />
         <item
-            android:id="@+id/save_file"
+            android:id="@+id/save_file_as"
             android:icon="@drawable/ic_save_as"
             android:title="@string/drawer_menu_save_as_item_text" />
         <item

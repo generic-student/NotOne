@@ -1,11 +1,21 @@
 package app.notone.io;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+
 import androidx.annotation.NonNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -108,4 +118,47 @@ public class CanvasExporter {
 
         return json;
     }
+
+    public void saveJSONtoFileStorage(){
+
+    }
+
+    private static final int CREATE_FILE = 1;
+
+    public static void createFile(Activity activity, Uri pickerInitialUri) {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, "invoice.pdf");
+        final int takeFlags = intent.getFlags()
+                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+// Check for the freshest data.
+        activity.getContentResolver().takePersistableUriPermission(pickerInitialUri, takeFlags);
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker when your app creates the document.
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+
+        activity.startActivityForResult(intent, CREATE_FILE);
+    }
+    private void alterDocument(Activity activity, Uri uri, String json) {
+        try {
+            ParcelFileDescriptor pfd = activity.getContentResolver().
+                    openFileDescriptor(uri, "w");
+            FileOutputStream fileOutputStream =
+                    new FileOutputStream(pfd.getFileDescriptor());
+            fileOutputStream.write(("Overwritten at " + System.currentTimeMillis() +
+                    "\n" + json).getBytes());
+            // Let the document provider know you're done by closing the stream.
+            fileOutputStream.close();
+            pfd.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+// https://developer.android.com/training/data-storage/shared/documents-files#java
+
 }
