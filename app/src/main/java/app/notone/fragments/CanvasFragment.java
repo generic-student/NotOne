@@ -174,13 +174,6 @@ public class CanvasFragment extends Fragment {
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
 
-
-        /* remove pen preset */
-        ImageButton buttonSubPen = fragmentActivity.findViewById(R.id.button_del_pen);
-        buttonSubPen.setOnClickListener(v -> {
-            Log.d(TAG, "onViewCreated: delete active pen preset");
-        });
-
         /* insert button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
