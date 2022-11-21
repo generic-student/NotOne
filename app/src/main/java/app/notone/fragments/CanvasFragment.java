@@ -42,6 +42,42 @@ public class CanvasFragment extends Fragment {
     View mCanvasFragmentView;
     private CanvasView canvasView;
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+        //load the data from the sharedPrefs
+        String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
+
+        try {
+            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onPause() {
+
+        String jsonString = "";
+        try {
+            jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
+//            Log.d(LOG_TAG, jsonString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        // Write the byte stream to the preferences
+        editor.putString("lastOpenedCanvasWriter", jsonString);
+        // write changes to file
+        editor.commit();
+        super.onPause();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
@@ -56,10 +92,8 @@ public class CanvasFragment extends Fragment {
         /* Config Dropdowns for Pen Settings */
         canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
         int[] colors = getResources().getIntArray(R.array.pen_color_values);
-        setDropdownContent(R.id.spinner_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) ->
-                canvasView.setStrokeColor(colors[i]));
-        setDropdownContent(R.id.spinner_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) ->
-                canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        setDropdownContent(R.id.spinner_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> canvasView.setStrokeColor(colors[i]));
+        setDropdownContent(R.id.spinner_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
         /* Undo Redo activate Eraser Actions */
         FragmentActivity fragmentActivity = getActivity();
@@ -157,8 +191,7 @@ public class CanvasFragment extends Fragment {
     }
 
     private void setDropdownContent(int spinnerId, int spinnerContentId, onClickDropDownItem clickDropDownItem) {
-        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(
-                getActivity(), spinnerContentId, R.layout.spinner_dropdown_pen_field);
+        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(getActivity(), spinnerContentId, R.layout.spinner_dropdown_pen_field);
         Spinner dropdownPenColor = getActivity().findViewById(spinnerId);
 
         dropdownColors.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
@@ -174,48 +207,6 @@ public class CanvasFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
-
-        //load the data from the sharedPrefs
-        String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
-
-        try {
-            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void onPause() {
-
-        String jsonString = "";
-        try {
-            jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
-//            Log.d(LOG_TAG, jsonString);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        // Storing data into SharedPreferences
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
-
-        // Creating an Editor object to edit(write to the file)
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        // Write the byte stream to the preferences
-        editor.putString("lastOpenedCanvasWriter", jsonString);
-
-        // write changes to file
-        editor.commit();
-
-        super.onPause();
     }
 
     private boolean toggleActive(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean toogleable) {

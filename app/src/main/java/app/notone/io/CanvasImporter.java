@@ -1,5 +1,7 @@
 package app.notone.io;
 
+import android.net.Uri;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +38,9 @@ public class CanvasImporter {
         view.getInverseViewTransform().setValues(inverseViewTransformData);
         view.setCanvasWriter(writer);
 
+        // import uri
+        String uri = json.getString("uri");
+        view.setUri(Uri.parse(uri));
     }
 
     public static CanvasWriter canvasWriterFromJSON(JSONObject json, boolean loadUndoTree) throws JSONException {

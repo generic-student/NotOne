@@ -14,12 +14,16 @@
 <!--            android:title="AAAAAAA"-->
 <!--            app:actionLayout="@layout/drawer_expandablelist"/>-->
         <item
+            android:id="@+id/new_file"
+            android:icon="@drawable/ic_save_as"
+            android:title="@string/drawer_menu_new_item_text" />
+        <item
             android:id="@+id/open_file"
             android:icon="@drawable/ic_folder_open_file"
             android:title="@string/drawer_menu_open_item_text" />
         <item
-            android:id="@+id/save_file_as"
-            android:icon="@drawable/ic_save_as"
+            android:id="@+id/save_file"
+            android:icon="@drawable/ic_save"
             android:title="@string/drawer_menu_save_as_item_text" />
         <item
             android:id="@+id/export"

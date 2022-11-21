@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -17,6 +18,7 @@ public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
     private final float MAX_SCALE = 5.f;
     private final float MIN_SCALE = 0.01f;
+    public Uri mCurrentURI = null;
 
     private CanvasWriter mCanvasWriter;
 
@@ -154,6 +156,13 @@ public class CanvasView extends View {
         return invalidated;
     }
 
+    public Uri getCurrentURI() {
+        return mCurrentURI;
+    }
+
+    public void setUri(Uri uri) {
+        this.mCurrentURI = uri;
+    }
 
     /**
      * Scaling
