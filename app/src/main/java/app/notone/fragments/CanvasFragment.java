@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -170,6 +171,7 @@ public class CanvasFragment extends Fragment {
             linearLayout.addView(buttonPresetPen, 1); // cause of the test button put 1
 
             Log.d(TAG, "onViewCreated: saved Pen Preset: " + (presetPenNumber.get() - 1) + penPreset.toString());
+            Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
 
 

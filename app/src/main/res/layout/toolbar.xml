@@ -96,30 +96,13 @@
                             android:contentDescription="ERASER"
                             app:tint="@color/white"/>
 
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent">
 
-                            <ImageButton
-                                android:id="@+id/button_del_pen"
-                                android:layout_width="wrap_content"
-                                android:paddingHorizontal="20dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:scaleX="1.2"
-                                android:scaleY="1.2"
-                                android:src="@drawable/ic_sub_pen"
-                                android:background="@android:color/transparent"
-                                android:foreground="?android:attr/selectableItemBackground"
-                                android:contentDescription="Remove Pen Preset"
-                                app:tint="@color/white"/>
 
                             <ImageButton
                                 android:id="@+id/button_add_pen"
                                 android:layout_width="wrap_content"
                                 android:paddingHorizontal="20dp"
-                                android:layout_height="0dp"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:scaleX="1.2"
                                 android:scaleY="1.2"
@@ -128,7 +111,6 @@
                                 android:foreground="?android:attr/selectableItemBackground"
                                 android:contentDescription="Add a Pen Config"
                                 app:tint="@color/white"/>
-                        </LinearLayout>
 
                         <Spinner
                             android:id="@+id/spinner_pen_colors"
