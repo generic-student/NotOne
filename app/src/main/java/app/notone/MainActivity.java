@@ -7,6 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -132,6 +136,48 @@ public class MainActivity extends AppCompatActivity {
                 mmainActivityDrawer.closeDrawers();
             }
             return true;
+        });
+
+        Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
+        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+        swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
+        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
+        swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
+        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+
+
+        /* Button to hide the toolbar */
+        FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
+        fabToolbarVisibility.setOnClickListener(view -> {
+            toggleToolBarVisibility(appBar, fabToolbarVisibility);
+        });
+
+        /* set Title and Toolbar function by Fragment */
+        navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+            LinearLayout viewCanvasToolsContainer = findViewById(R.id.canvas_tools_container);
+            LinearLayout viewUnRedo = findViewById(R.id.canvas_tools_unredo);
+            switch (destination.getId()) {
+                case R.id.canvas_fragment:
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.VISIBLE);
+                    viewCanvasToolsContainer.setVisibility(View.VISIBLE);
+                    viewUnRedo.setVisibility(View.VISIBLE);
+                    tvTitle.setVisibility(View.VISIBLE);
+                    tvTitle.setText("DOCNAME"); // TODO replace with open document name
+                    return; // dont reset toolbar
+
+                case R.id.settings_fragment:
+                case R.id.about_fragment:
+                    findViewById(R.id.button_toggle_toolbar).setVisibility(View.GONE);
+                    viewCanvasToolsContainer.setVisibility(View.GONE);
+                    viewUnRedo.setVisibility(View.GONE);
+                    tvTitle.setVisibility(View.GONE);
+                    break;
+                default:
+                    throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
+            }
+            mToolbarVisibility = false; // to toggle to right state
+            toggleToolBarVisibility(appBar, fabToolbarVisibility);
         });
     }
 
