@@ -13,19 +13,40 @@ import java.io.IOException;
 
 public class CanvasPdfDocument {
     private static final String LOG_TAG = CanvasPdfDocument.class.getSimpleName();
-    public Bitmap[] pages = {};
+    private Bitmap[] pages = {};
+    private float scaling = 2.f;
 
-    public CanvasPdfDocument() {
+    public Bitmap getPage(int value) {
+        return pages[value];
+    }
 
+    public Bitmap[] getPages() {
+        return pages;
+    }
+
+    public void setPages(Bitmap[] pages) {
+        this.pages = pages;
+    }
+
+    public float getScaling() {
+        return scaling;
+    }
+
+    public void setScaling(float scaling) {
+        this.scaling = scaling;
+    }
+
+    public CanvasPdfDocument(float baseScaling) {
+        setScaling(baseScaling);
     }
 
     public void loadFromStorage(Context context, Uri uri) {
         try {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
             PdfRenderer renderer = new PdfRenderer(fileDescriptor);
-            Log.d(LOG_TAG, "Number of pages: " + renderer.getPageCount());
-            final int scaling = 2;
+
             Matrix transform = new Matrix();
+            final float scaling = getScaling();
             transform.setScale(scaling, scaling);
 
             final int amtPages = renderer.getPageCount();

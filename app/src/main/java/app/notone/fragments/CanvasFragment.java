@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -20,6 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -41,6 +46,16 @@ public class CanvasFragment extends Fragment {
     String TAG = "NotOneCanvasFragment";
     View mCanvasFragmentView;
     public CanvasView canvasView;
+
+    ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri uri) {
+                    canvasView.resetViewMatrices();
+                    canvasView.getPdfDocument().loadFromStorage(getContext(), uri);
+                    canvasView.invalidate();
+                }
+            });
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -132,9 +147,17 @@ public class CanvasFragment extends Fragment {
             Log.d(TAG, "onViewCreated: delete active pen preset");
         });
 
+        //import pdf
+        ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
+        buttonInsert.setOnClickListener(v -> {
+            mGetPdfDocument.launch("application/pdf");
+        });
+
         // Test
-        //Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
-        //buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
+        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
+        buttonTest.setOnClickListener(v -> {
+            canvasView.reset();
+        });
     }
 
     @FunctionalInterface

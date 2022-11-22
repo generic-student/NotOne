@@ -125,6 +125,12 @@ public class CanvasWriter implements Serializable {
         this.mWriteMode = mWriteMode;
     }
 
+    public void reset() {
+        mUndoneActions.clear();
+        mActions.clear();
+        mStrokes.clear();
+    }
+
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
         if(getWriteMode() == WriteMode.PEN) {
@@ -161,6 +167,8 @@ public class CanvasWriter implements Serializable {
 
         return result;
     }
+
+
 
     private boolean handleOnTouchEventWrite(MotionEvent event, Vector2f pos) {
         switch (event.getAction()){

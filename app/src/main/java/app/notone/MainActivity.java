@@ -61,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Button buttonTest = findViewById(R.id.button_test);
-        buttonTest.setOnClickListener(v -> loadfile());
-
         /* set theme Preference on first start if it has never been set before */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
@@ -178,33 +175,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
         Log.d(TAG, "onOptionsItemSelected");
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
-    }
-
-    public void loadfile()
-    {
-        if(this.checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] {Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 0);
-        }
-
-        Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-        intent.setType("application/pdf");
-
-        startActivityForResult(intent, 12);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 12 && resultCode == RESULT_OK && data != null) {
-            Uri uploadFileUri = data.getData();
-
-            CanvasView view = (CanvasView)findViewById(R.id.canvasView);
-            view.resetViewMatrices();
-            view.doc.loadFromStorage(this, uploadFileUri);
-            view.invalidate();
-        }
     }
 
 }
