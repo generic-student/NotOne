@@ -1,5 +1,6 @@
 package app.notone;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -29,6 +30,9 @@ public class CanvasWriter implements Serializable {
     private Stroke mCurrentStroke; //the path that the user is currently drawing
 
     private Vector2f previousTouchPoint = new Vector2f(0, 0);
+
+
+
 
     public enum DrawState {
         WRITE, ERASE

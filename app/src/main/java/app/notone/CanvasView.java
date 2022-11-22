@@ -1,10 +1,15 @@
 package app.notone;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -25,6 +30,8 @@ public class CanvasView extends View {
     private Matrix mInverseViewTransform;
     private float mScale    = 1.f;
 
+    public CanvasPdfDocument doc;
+
     /**
      * Constructor
      * initializes vars for Paths and Transforms
@@ -40,6 +47,8 @@ public class CanvasView extends View {
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
+
+        doc = new CanvasPdfDocument();
     }
 
     /**
@@ -94,6 +103,11 @@ public class CanvasView extends View {
         this.mCanvasWriter = mCanvasWriter;
     }
 
+    public void resetViewMatrices() {
+        mViewTransform = new Matrix();
+        mViewTransform.invert(mInverseViewTransform);
+    }
+
     /**
      * called when canvas is updated or invalidated
      * @param canvas current Canvas
@@ -101,6 +115,40 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
+
+
+        Paint borderPaint = new Paint();
+        borderPaint.setStrokeWidth(3);
+        borderPaint.setColor(Color.BLACK);
+        borderPaint.setStyle(Paint.Style.STROKE);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+
+        final RectF viewSpace = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        final float scaling = 2;
+        final int padding = 20;
+        Matrix pdfMat = new Matrix();
+        for(int i = 0; i < doc.pages.length; i++) {
+            Rect source = new Rect(0, 0, doc.pages[i].getWidth(), doc.pages[i].getHeight());
+            RectF dest = new RectF(0, 0, doc.pages[i].getWidth() * scaling, doc.pages[i].getHeight() * scaling);
+            pdfMat.mapRect(dest);
+            pdfMat.postTranslate(0, doc.pages[i].getHeight() * scaling + padding);
+
+            RectF transformedDest = new RectF();
+            mViewTransform.mapRect(transformedDest, dest);
+            if(transformedDest.intersect(viewSpace) == false) {
+                continue;
+            }
+
+
+            canvas.drawBitmap(doc.pages[i], source, dest, paint);
+            canvas.drawRect(dest, borderPaint);
+        }
+
         mCanvasWriter.renderStrokes(canvas);
         super.onDraw(canvas);
     }

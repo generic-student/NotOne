@@ -44,7 +44,7 @@ public class CanvasFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy, via XML layout inflation.
     String TAG = "NotOneCanvasFragment";
     View mCanvasFragmentView;
-    private CanvasView canvasView;
+    public CanvasView canvasView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -137,8 +137,8 @@ public class CanvasFragment extends Fragment {
         });
 
         // Test
-        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
-        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
+        //Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
+        //buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
     }
 
     @FunctionalInterface
@@ -206,6 +206,8 @@ public class CanvasFragment extends Fragment {
 
         super.onPause();
     }
+
+
 //
 //    @Override
 //    public void onSaveInstanceState(Bundle savedInstanceState) {
