@@ -8,7 +8,7 @@ import java.util.Collections;
 
 public class SAT {
     public static boolean rectangleRectangleIntersection(@NonNull float[] r1, @NonNull float[] r2) {
-        if(r1.length != 8 || r2.length != 8) {
+        if (r1.length != 8 || r2.length != 8) {
             throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements.");
         }
 
@@ -19,7 +19,7 @@ public class SAT {
                 new Vector2f(r2[2], r2[3]).subtract(new Vector2f(r2[4], r2[5]))
         };
 
-        for(Vector2f axis : axes) {
+        for (Vector2f axis : axes) {
             //find the min and max for rect1
             float projectionsRect1[] = {
                     new Vector2f(r1[0], r1[1]).dotProduct(axis),
@@ -38,7 +38,7 @@ public class SAT {
             };
             Arrays.sort(projectionsRect2);
 
-            if(projectionsRect1[3] < projectionsRect2[0] || projectionsRect2[3] < projectionsRect2[0]) {
+            if (projectionsRect1[3] < projectionsRect2[0] || projectionsRect2[3] < projectionsRect2[0]) {
                 return false;
             }
         }
@@ -46,8 +46,8 @@ public class SAT {
         return true;
     }
 
-    public static boolean LineRectangleIntersection(@NonNull float[] p, @NonNull float[] r) {
-        if(r.length != 8 || p.length != 4) {
+    public static boolean lineRectangleIntersection(@NonNull float[] p, @NonNull float[] r) {
+        if (r.length != 8 || p.length != 4) {
             throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements and the path requires 4 elements.");
         }
 
@@ -57,7 +57,7 @@ public class SAT {
                 new Vector2f(p[0], p[1]).subtract(new Vector2f(p[2], p[3]))
         };
 
-        for(Vector2f axis : axes) {
+        for (Vector2f axis : axes) {
             //find the min and max for rect1
             float projectionsRect[] = {
                     new Vector2f(r[0], r[1]).dotProduct(axis),
@@ -74,7 +74,7 @@ public class SAT {
             };
             Arrays.sort(projectionsLine);
 
-            if(projectionsLine[1] < projectionsRect[0] || projectionsRect[3] < projectionsLine[0]) {
+            if (projectionsLine[1] < projectionsRect[0] || projectionsRect[3] < projectionsLine[0]) {
                 return false;
             }
         }
@@ -82,19 +82,30 @@ public class SAT {
         return true;
     }
 
-    public static boolean LinesRectangleIntersection(@NonNull ArrayList<Float> p, @NonNull float[] r) {
-        if(r.length != 8 || p.size() < 4) {
-            throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements and the path requires 4 elements.");
+    public static boolean rectangularPointRectangleIntersection(float x, float y, float sideLength, @NonNull float[] r) {
+        return rectangleRectangleIntersection(r, new float[] {
+                x - sideLength / 2, y - sideLength / 2,
+                x + sideLength / 2, y - sideLength / 2,
+                x + sideLength / 2, y + sideLength / 2,
+                x - sideLength / 2, y + sideLength / 2
+        });
+    }
+
+    public static boolean linesRectangleIntersection(@NonNull ArrayList<Float> p, @NonNull float[] r) {
+        if (r.length != 8 || p.size() < 4) {
+            throw new IllegalArgumentException(
+                    String.format("The list representing the rectangle require 8 and the path require at least 4 elements. But the rectangle contains %d and the path %d elements.", r.length, p.size())
+            );
         }
 
         ArrayList<Vector2f> axes = new ArrayList<>();
         axes.add(new Vector2f(r[0], r[1]).subtract(new Vector2f(r[2], r[3])));
         axes.add(new Vector2f(r[2], r[3]).subtract(new Vector2f(r[4], r[5])));
-        for(int i = 0; i < p.size() - 2; i+=2) {
-            axes.add(new Vector2f(p.get(i), p.get(i+1)).subtract(new Vector2f(p.get(i+2), p.get(i+3))));
+        for (int i = 0; i < p.size() - 2; i += 2) {
+            axes.add(new Vector2f(p.get(i), p.get(i + 1)).subtract(new Vector2f(p.get(i + 2), p.get(i + 3))));
         }
 
-        for(Vector2f axis : axes) {
+        for (Vector2f axis : axes) {
             //find the min and max for rect1
             float projectionsRect[] = {
                     new Vector2f(r[0], r[1]).dotProduct(axis),
@@ -106,12 +117,12 @@ public class SAT {
 
             //find the min and max for rect2
             ArrayList<Float> projectionsLine = new ArrayList<>();
-            for(int i = 0; i < p.size(); i+=2) {
-                projectionsLine.add(new Vector2f(p.get(i), p.get(i+1)).dotProduct(axis));
+            for (int i = 0; i < p.size(); i += 2) {
+                projectionsLine.add(new Vector2f(p.get(i), p.get(i + 1)).dotProduct(axis));
             }
             Collections.sort(projectionsLine);
 
-            if(projectionsLine.get(projectionsLine.size() - 1) < projectionsRect[0] || projectionsRect[3] < projectionsLine.get(0)) {
+            if (projectionsLine.get(projectionsLine.size() - 1) < projectionsRect[0] || projectionsRect[3] < projectionsLine.get(0)) {
                 return false;
             }
         }

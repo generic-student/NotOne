@@ -1,19 +1,13 @@
 package app.notone;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
@@ -243,7 +237,14 @@ public class CanvasWriter implements Serializable {
             float boundsPts[] = MathHelper.rectToFloatArray(bounds);
 
             if(SAT.rectangleRectangleIntersection(rectPts, boundsPts)) {
-                if(SAT.LinesRectangleIntersection(mStrokes.get(i).getPathPoints(), rectPts)) {
+
+                ArrayList<Float> points = mStrokes.get(i).getPathPoints();
+                final boolean intersects = (mStrokes.get(i).getPathPoints().size() == 2) ?
+                        SAT.rectangularPointRectangleIntersection(points.get(0), points.get(1), mStrokes.get(i).getWeight(), rectPts) :
+                        SAT.linesRectangleIntersection(points, rectPts);
+
+
+                if(intersects) {
                     Stroke erasedStroke = mStrokes.remove(i);
                     mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
                     strokesErased++;
