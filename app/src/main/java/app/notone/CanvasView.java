@@ -17,8 +17,8 @@ import android.view.View;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
-    private final float MAX_SCALE = 5.f;
-    private final float MIN_SCALE = 0.01f;
+    private final float MAX_SCALE = 10.f;
+    private final float MIN_SCALE = 0.1f;
 
     private CanvasWriter mCanvasWriter;
 
@@ -129,7 +129,7 @@ public class CanvasView extends View {
 
         final RectF viewSpace = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        final float scaling = 2;
+        final float scaling = 0.5f;
         final int padding = 20;
         Matrix pdfMat = new Matrix();
         for(int i = 0; i < doc.pages.length; i++) {
