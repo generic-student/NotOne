@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.core.util;
 
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -7,6 +7,8 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+
+import app.notone.core.Vector2f;
 
 /**
  * Helper class for various math functions

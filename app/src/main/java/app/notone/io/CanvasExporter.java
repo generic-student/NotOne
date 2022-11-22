@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import app.notone.CanvasView;
-import app.notone.CanvasWriter;
-import app.notone.CanvasWriterAction;
-import app.notone.Stroke;
+import app.notone.core.CanvasView;
+import app.notone.core.CanvasWriter;
+import app.notone.core.CanvasWriterAction;
+import app.notone.core.Stroke;
 
 public class CanvasExporter {
     private static final String LOG_TAG = CanvasExporter.class.getSimpleName();

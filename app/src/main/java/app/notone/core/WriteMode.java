@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.core;
 
 public enum WriteMode {
     ERASER,

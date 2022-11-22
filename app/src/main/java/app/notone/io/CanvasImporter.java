@@ -6,10 +6,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import app.notone.CanvasView;
-import app.notone.CanvasWriter;
-import app.notone.CanvasWriterAction;
-import app.notone.Stroke;
+import app.notone.core.CanvasView;
+import app.notone.core.CanvasWriter;
+import app.notone.core.CanvasWriterAction;
+import app.notone.core.Stroke;
 
 public class CanvasImporter {
     public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException {

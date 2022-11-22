@@ -1,10 +1,12 @@
-package app.notone;
+package app.notone.core.util;
 
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+
+import app.notone.core.Vector2f;
 
 public class SAT {
     public static boolean rectangleRectangleIntersection(@NonNull float[] r1, @NonNull float[] r2) {

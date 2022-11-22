@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.core;
 
 import android.graphics.Path;
 

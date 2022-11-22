@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.core;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -8,6 +8,9 @@ import android.view.MotionEvent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import app.notone.core.util.MathHelper;
+import app.notone.core.util.SAT;
 
 public class CanvasWriter implements Serializable {
     private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
@@ -33,7 +36,7 @@ public class CanvasWriter implements Serializable {
     }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
-    private WriteMode mWritemode = WriteMode.PEN;
+    private WriteMode mWriteMode = WriteMode.PEN;
 
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
@@ -48,13 +51,6 @@ public class CanvasWriter implements Serializable {
         mActions = new ArrayList<>();
         mUndoneActions = new ArrayList<>();
         mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
-    }
-
-    public void initDefaultPaint() {
-        this.mPaint = new Paint();
-        this.mPaint.setStyle(Paint.Style.STROKE);
-        this.mPaint.setStrokeJoin(Paint.Join.ROUND);
-        this.mPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
     public Paint getPaint() {
@@ -121,24 +117,24 @@ public class CanvasWriter implements Serializable {
         this.mActions = mActions;
     }
 
-    public WriteMode getWritemode() {
-        return mWritemode;
+    public WriteMode getWriteMode() {
+        return mWriteMode;
     }
 
-    public void setWritemode(WriteMode mWritemode) {
-        this.mWritemode = mWritemode;
+    public void setWriteMode(WriteMode mWriteMode) {
+        this.mWriteMode = mWriteMode;
     }
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
-        if(getWritemode() == WriteMode.PEN) {
+        if(getWriteMode() == WriteMode.PEN) {
             if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.WRITE);
             }
         }
-        else if(getWritemode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
+        else if(getWriteMode() == WriteMode.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
         }
 

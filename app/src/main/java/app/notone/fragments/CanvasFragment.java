@@ -3,9 +3,7 @@ package app.notone.fragments;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -30,10 +27,9 @@ import androidx.preference.PreferenceManager;
 
 import org.json.JSONException;
 
-import app.notone.CanvasView;
-import app.notone.CanvasWriter;
+import app.notone.core.CanvasView;
 import app.notone.R;
-import app.notone.WriteMode;
+import app.notone.core.WriteMode;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
 
@@ -77,13 +73,13 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
-            if(canvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
+            if(canvasView.getCanvasWriter().getWriteMode() == WriteMode.ERASER) {
                 buttonEraser.setBackgroundColor(Color.TRANSPARENT);
-                canvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+                canvasView.getCanvasWriter().setWriteMode(WriteMode.PEN);
             }
             else {
                 buttonEraser.setBackgroundColor(Color.argb(120, 255, 255, 255));
-                canvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
+                canvasView.getCanvasWriter().setWriteMode(WriteMode.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> canvasView.undo());
