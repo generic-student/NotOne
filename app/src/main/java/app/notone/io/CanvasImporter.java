@@ -1,11 +1,16 @@
 package app.notone.io;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import app.notone.core.CanvasPdfDocument;
 import app.notone.core.CanvasView;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
@@ -31,10 +36,13 @@ public class CanvasImporter {
 
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
+        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
+
         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
         view.getInverseViewTransform().setValues(inverseViewTransformData);
         view.setCanvasWriter(writer);
+        view.setPdfDocument(document);
 
     }
 
@@ -109,5 +117,28 @@ public class CanvasImporter {
         CanvasWriterAction action = new CanvasWriterAction(type, stroke);
 
         return action;
+    }
+
+    public static CanvasPdfDocument canvasPdfDocumentFromJson(JSONObject json) throws JSONException {
+        final float scaling = (float) json.getDouble("scaling");
+        JSONArray pagesJSON = json.getJSONArray("pages");
+        Bitmap[] pages = new Bitmap[pagesJSON.length()];
+        for (int i = 0; i < pagesJSON.length(); i++) {
+            JSONObject bitmapJSON = pagesJSON.getJSONObject(i);
+            pages[i] = bitmapFromJSON(bitmapJSON);
+        }
+
+        CanvasPdfDocument document = new CanvasPdfDocument(scaling);
+        document.setPages(pages);
+
+        return document;
+    }
+
+    public static Bitmap bitmapFromJSON(JSONObject json) throws JSONException {
+        String encodedImage = json.getString("data");
+        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        return decodedByte;
     }
 }
