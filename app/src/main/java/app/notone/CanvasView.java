@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -157,6 +158,10 @@ public class CanvasView extends View {
     }
 
     public Uri getCurrentURI() {
+        if(mCurrentURI == null) {
+            Log.e(LOG_TAG, "getCurrentURI: URI is not yet set, save the document");
+            return Uri.parse("");
+        }
         return mCurrentURI;
     }
 

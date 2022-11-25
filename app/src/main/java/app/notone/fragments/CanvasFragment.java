@@ -12,24 +12,23 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 import app.notone.CanvasView;
+import app.notone.CanvasWriter;
 import app.notone.R;
 import app.notone.WriteMode;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
+import app.notone.views.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -39,10 +38,9 @@ public class CanvasFragment extends Fragment {
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
 
     String TAG = "NotOneCanvasFragment";
-    ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>();
+    ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
     View mCanvasFragmentView;
-    private CanvasView canvasView;
-
+    private CanvasView mCanvasView;
 
     @Override
     public void onStart() {
@@ -52,7 +50,7 @@ public class CanvasFragment extends Fragment {
         String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
 
         try {
-            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
+            CanvasImporter.initCanvasViewFromJSON(data, mCanvasView, true);
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
         }
@@ -63,7 +61,7 @@ public class CanvasFragment extends Fragment {
 
         String jsonString = "";
         try {
-            jsonString = CanvasExporter.canvasViewToJSON(canvasView, true).toString(1);
+            jsonString = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString(1);
 //            Log.d(LOG_TAG, jsonString);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -90,91 +88,61 @@ public class CanvasFragment extends Fragment {
     // This event is triggered soon after onCreateView()
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        FragmentActivity fragmentActivity = getActivity();
+
         /* Config Dropdowns for Pen Settings */
-        canvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
-        int[] colors = getResources().getIntArray(R.array.pen_color_values);
-        setDropdownContent(R.id.spinner_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> canvasView.setStrokeColor(colors[i]));
-        setDropdownContent(R.id.spinner_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> canvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
+        int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
+        setddownContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));
+        setddownContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> mCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
         /* Undo Redo activate Eraser Actions */
-        FragmentActivity fragmentActivity = getActivity();
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
-        mImageButtonPenToolGroup.add(buttonEraser);
         buttonEraser.setOnClickListener(v -> {
-            if (canvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
-                setActiveState(mImageButtonPenToolGroup, buttonEraser, false);
-                canvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+            if (mCanvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
+                setSelection(mImageButtonPenToolGroup, buttonEraser, false);
+                mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
             } else {
-                setActiveState(mImageButtonPenToolGroup, buttonEraser, true);
-                canvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
+                setSelection(mImageButtonPenToolGroup, buttonEraser, true);
+                mCanvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
             }
         });
-        buttonUndo.setOnClickListener(v -> canvasView.undo());
-        buttonRedo.setOnClickListener(v -> canvasView.redo());
+        buttonUndo.setOnClickListener(v -> mCanvasView.undo());
+        buttonRedo.setOnClickListener(v -> mCanvasView.redo());
+
+        mImageButtonPenToolGroup.add(buttonEraser);
 
         /* create pen presets */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(fragmentActivity);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
 
-        ImageButton buttonAddPen = fragmentActivity.findViewById(R.id.button_add_pen);
-        Spinner spinnerPenColors = fragmentActivity.findViewById(R.id.spinner_pen_colors);
-        Spinner spinnerPenWeight = fragmentActivity.findViewById(R.id.spinner_pen_weights);
-        LinearLayout linearLayout = fragmentActivity.findViewById(R.id.canvas_pens_container);
-
-        AtomicReference<Integer> presetPenNumber = new AtomicReference<>(0);
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        mImageButtonPenToolGroup.add(buttonAddPen);
-
-        buttonAddPen.setOnClickListener(v -> {
-            // save pen preset
-            Set<String> penPreset = new HashSet<>();
-            String presetPenWeight = spinnerPenWeight.getSelectedItem().toString();
-            int presetPenWeightIndex = spinnerPenWeight.getSelectedItemPosition();
-            String presetPenColor = spinnerPenColors.getSelectedItem().toString();
-            int presetPenColorIndex = spinnerPenColors.getSelectedItemPosition();
-            penPreset.add(presetPenWeight);
-            penPreset.add(presetPenColor);
-            spEditor.putStringSet("penpreset_" + presetPenNumber.toString(), penPreset).apply();
-            presetPenNumber.getAndSet(presetPenNumber.get() + 1);
-
-            // add to layout
-            ConstraintLayout penPresetLayout = (ConstraintLayout) inflater.inflate(R.layout.button_preset_pen, null, false);
-            ImageButton buttonPresetPen = penPresetLayout.findViewById(R.id.imgbtn_pen_preset);
-            penPresetLayout.removeAllViews();
-            buttonPresetPen.setColorFilter(colors[presetPenColorIndex]);
-            float scale = (float) ((2 - 2 * Math.exp(-Double.parseDouble(presetPenWeight) / 8)));
-            scale = scale < 0.5 ? 1 : scale;
-            buttonPresetPen.setScaleX(scale);
-            buttonPresetPen.setScaleY(scale);
-            Log.d(TAG, "onViewCreated: Scaled to: " + scale);
-            mImageButtonPenToolGroup.add(buttonPresetPen);
+        ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
+        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_container);
+        buttonAddPresetPen.setOnClickListener(v -> {
+            PresetPenButton buttonPresetPen = new PresetPenButton(
+                    getContext(), fragmentActivity,
+                    mCanvasView, R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
+                    penColorValues);
             buttonPresetPen.setOnClickListener(v1 -> {
-                // update spinners
-                spinnerPenColors.setSelection(presetPenColorIndex, true);
-                spinnerPenWeight.setSelection(presetPenWeightIndex, true);
-
-                // activate pen
-                canvasView.setStrokeColor(colors[presetPenColorIndex]);
-                canvasView.setStrokeWeight(Float.parseFloat(presetPenWeight));
-                canvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
-
-                // show active in ui
-                toggleActive(mImageButtonPenToolGroup, buttonPresetPen, false);
+                buttonPresetPen.mDdownmColor.setSelection(buttonPresetPen.mddownColorIndex, true);
+                buttonPresetPen.mDdownmWeight.setSelection(buttonPresetPen.mddownWeightIndex, true);
+                mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+                setOrToggleSelection(buttonPresetPen, false);
             });
-            buttonPresetPen.setOnLongClickListener(v1 -> {
-                linearLayout.removeView(buttonPresetPen);
+            buttonPresetPen.setOnLongClickListener(view1 -> {
+                llayoutPenContainer.removeView(buttonPresetPen);
                 return true;
             });
 
-            linearLayout.addView(buttonPresetPen, 1); // cause of the test button put 1
-
-            Log.d(TAG, "onViewCreated: saved Pen Preset: " + (presetPenNumber.get() - 1) + penPreset.toString());
+            llayoutPenContainer.addView(buttonPresetPen, 0); // cause of the test button put 1
+            mImageButtonPenToolGroup.add((ImageButton) buttonPresetPen);
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
 
-        /* insert button */
+        /* insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
             Log.d(TAG, "onViewCreated: Insert Pdf");
@@ -185,34 +153,69 @@ public class CanvasFragment extends Fragment {
 //        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
     }
 
-    private void setDropdownContent(int spinnerId, int spinnerContentId, onClickDropDownItem clickDropDownItem) {
-        ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(getActivity(), spinnerContentId, R.layout.spinner_dropdown_pen_field);
-        Spinner dropdownPenColor = getActivity().findViewById(spinnerId);
+    private void setddownContent(int spinnerId, int spinnerContentArrayId, onClickDropDownItem onClickDropDownItem) {
+        // ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(getActivity(), spinnerContentArrayId, R.layout.spinner_dropdown_pen_field);
+        ArrayAdapter<CharSequence> ddownmContentAA = new ArrayAdapter<CharSequence>(getActivity(), R.layout.spinner_dropdown_pen_field, getResources().getStringArray(spinnerContentArrayId)) {
+            @Override
+            public boolean isEnabled(int position){
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color of the first element gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.WHITE);
+                }
+                return view;
+            }
+        };
 
-        dropdownColors.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
-        dropdownPenColor.setAdapter(dropdownColors); // set to spinner
-        dropdownPenColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        Spinner ddownm = getActivity().findViewById(spinnerId);
+        ddownmContentAA.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
+        ddownm.setAdapter(ddownmContentAA);
+        ddownm.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d(TAG, "onItemSelected: " + adapterView.getItemAtPosition(i));
-                clickDropDownItem.onClick(adapterView, view, i, l);
+                onClickDropDownItem.onClick(adapterView, view, i, l);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
+        ddownm.setSelection(1, false);
     }
 
-    private boolean toggleActive(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean toogleable) {
-        for (ImageButton imageButton : imageButtonGroup) {
+    /**
+     * selects a button and deselects all others
+     * if toggle is true it can be turned on and of by clicking again
+     * @param activeButton
+     * @param toggleable
+     * @return state of the clicked button
+     */
+    private boolean setOrToggleSelection(ImageButton activeButton, boolean toggleable) {
+        boolean result = true;
+        for (ImageButton imageButton : mImageButtonPenToolGroup) {
             if (imageButton != activeButton) { // if non active button
                 // deselect all else
                 imageButton.setSelected(false);
                 imageButton.setBackgroundColor(Color.TRANSPARENT);
                 continue;
             }
-            if (!toogleable) { // if not toggleable
+            if (!toggleable) { // if not toggleable
                 // select
                 imageButton.setSelected(true);
                 imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
@@ -220,6 +223,7 @@ public class CanvasFragment extends Fragment {
             }
             if (imageButton.isSelected()) { // if toggleable and selected
                 // deselect
+                result = false;
                 imageButton.setSelected(false);
                 imageButton.setBackgroundColor(Color.TRANSPARENT);
                 continue;
@@ -229,11 +233,11 @@ public class CanvasFragment extends Fragment {
             imageButton.setSelected(true);
             imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
         }
-        return false;
+        return result;
     }
 
-    private void setActiveState(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
-        if (enabled) { // if non active button
+    private void setSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
+        if (enabled) { // if selected
             for (ImageButton imageButton : imageButtonGroup) {
                 if (imageButton != activeButton) { // if non active button
                     // deselect all else

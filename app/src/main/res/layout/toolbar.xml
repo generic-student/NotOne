@@ -74,13 +74,25 @@
                         android:orientation="horizontal"
                         android:layout_gravity="end">
 
-                        <Button
-                            android:id="@+id/button_test"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:maxLines="1"
-                            android:layout_marginHorizontal="150dp"
-                            android:text="TEST" />
+<!--                        <Button-->
+<!--                            android:id="@+id/button_test"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="match_parent"-->
+<!--                            android:maxLines="1"-->
+<!--                            android:layout_marginHorizontal="150dp"-->
+<!--                            android:text="TEST" />-->
+
+<!--                        <app.notone.views.PresetPenButton-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="match_parent"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:background="@android:color/transparent"-->
+<!--                            android:foreground="?android:attr/selectableItemBackground"-->
+<!--                            android:padding="10dp"-->
+<!--                            android:scaleX="1.2"-->
+<!--                            android:scaleY="1.2"-->
+<!--                            android:src="@drawable/ic_pen"-->
+<!--                            app:tint="@color/white" />-->
 
                         <ImageButton
                             android:id="@+id/button_eraser"
@@ -113,14 +125,14 @@
                                 app:tint="@color/white"/>
 
                         <Spinner
-                            android:id="@+id/spinner_pen_colors"
+                            android:id="@+id/ddownm_pen_colors"
                             android:layout_width="80dp"
                             android:layout_height="match_parent"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:background="@drawable/spinner_background"/>
 
                         <Spinner
-                            android:id="@+id/spinner_pen_weights"
+                            android:id="@+id/ddownm_pen_weights"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:background="@drawable/spinner_background"
                             android:layout_width="60dp"

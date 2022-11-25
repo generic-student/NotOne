@@ -2,6 +2,7 @@
 <resources>
     <string-array
         name="pen_colors">
+        <item>Color</item>
         <item>RED</item>
         <item>GREEN</item>
         <item>BLUE</item>
@@ -9,6 +10,7 @@
         <item>CYAN</item>
     </string-array>
     <array name="pen_color_values">
+        <item>@color/black</item>
         <item>@color/red_900</item>
         <item>@android:color/holo_green_light</item>
         <item>@android:color/holo_blue_light</item>
