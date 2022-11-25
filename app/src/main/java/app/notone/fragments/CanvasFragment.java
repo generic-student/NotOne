@@ -19,6 +19,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -39,6 +40,7 @@ public class CanvasFragment extends Fragment {
 
     String TAG = "NotOneCanvasFragment";
     ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
+    ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<>();
     View mCanvasFragmentView;
     private CanvasView mCanvasView;
 
@@ -66,6 +68,8 @@ public class CanvasFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        String presetPenJson = "";
+
         // Storing data into SharedPreferences
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         // Creating an Editor object to edit(write to the file)
@@ -116,31 +120,20 @@ public class CanvasFragment extends Fragment {
         mImageButtonPenToolGroup.add(buttonEraser);
 
         /* create pen presets */
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(fragmentActivity);
-        SharedPreferences.Editor spEditor = sharedPreferences.edit();
-
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_container);
+        mPresetPenButtons.forEach(presetPenButton -> { // readd old ones
+
+        });
         buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = new PresetPenButton(
-                    getContext(), fragmentActivity,
-                    mCanvasView, R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
-                    penColorValues);
-            buttonPresetPen.setOnClickListener(v1 -> {
-                buttonPresetPen.mDdownmColor.setSelection(buttonPresetPen.mddownColorIndex, true);
-                buttonPresetPen.mDdownmWeight.setSelection(buttonPresetPen.mddownWeightIndex, true);
-                mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
-                setOrToggleSelection(buttonPresetPen, false);
-            });
-            buttonPresetPen.setOnLongClickListener(view1 -> {
-                llayoutPenContainer.removeView(buttonPresetPen);
-                return true;
-            });
+            PresetPenButton buttonPresetPen = generatePresetPenButton(fragmentActivity, penColorValues, llayoutPenContainer);
 
             llayoutPenContainer.addView(buttonPresetPen, 0); // cause of the test button put 1
             mImageButtonPenToolGroup.add((ImageButton) buttonPresetPen);
+            mPresetPenButtons.add(buttonPresetPen);
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
+
 
         /* insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
@@ -151,6 +144,26 @@ public class CanvasFragment extends Fragment {
         // Test
 //        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
 //        buttonTest.setOnClickListener(v -> Log.d(TAG, sharedPreferences.getAll().toString()));
+    }
+
+    @NonNull
+    private PresetPenButton generatePresetPenButton(FragmentActivity fragmentActivity, int[] penColorValues, LinearLayout llayoutPenContainer) {
+        PresetPenButton buttonPresetPen = new PresetPenButton(
+                getContext(), fragmentActivity,
+                mCanvasView, R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
+                penColorValues);
+        buttonPresetPen.setOnClickListener(v1 -> {
+            buttonPresetPen.mDdownmColor.setSelection(buttonPresetPen.mddownColorIndex, true);
+            buttonPresetPen.mDdownmWeight.setSelection(buttonPresetPen.mddownWeightIndex, true);
+            mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+            setOrToggleSelection(buttonPresetPen, false);
+        });
+        buttonPresetPen.setOnLongClickListener(view1 -> {
+            llayoutPenContainer.removeView(buttonPresetPen);
+            mPresetPenButtons.remove(buttonPresetPen);
+            return true;
+        });
+        return buttonPresetPen;
     }
 
     private void setddownContent(int spinnerId, int spinnerContentArrayId, onClickDropDownItem onClickDropDownItem) {
