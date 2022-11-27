@@ -16,15 +16,12 @@ import app.notone.CanvasView;
 import app.notone.R;
 
 public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageButton {
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "NotOnePresetPenButton";
     public Spinner mDdownmColor;
     public Spinner mDdownmWeight;
     public int mddownColorIndex;
     public int mddownWeightIndex;
     private float mddownmWeight;
-    private int[] mColorIndexMap;
-
-    private CanvasView mCanvasView;
 
     public PresetPenButton(@NonNull Context context) {
         super(context);
@@ -41,29 +38,43 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
     /**
      * @param context
      * @param fragmentActivity
-     * @param canvasView
      * @param ddownm_pen_colors
      * @param ddownm_pen_weights
      * @param colorIndexMap      maps the index of the ddownmcolors (from R.array.pen_colors) to actual colors (from R.array.pen_color_values)
      */
-    public PresetPenButton(Context context, FragmentActivity fragmentActivity, CanvasView canvasView, int ddownm_pen_colors, int ddownm_pen_weights, int[] colorIndexMap) {
+    public PresetPenButton(Context context, FragmentActivity fragmentActivity, int ddownm_pen_colors, int ddownm_pen_weights, int[] colorIndexMap) {
         super(context);
-        this.mCanvasView = canvasView;
         this.mDdownmColor = fragmentActivity.findViewById(ddownm_pen_colors);
         this.mDdownmWeight = fragmentActivity.findViewById(ddownm_pen_weights);
-        this.mColorIndexMap = colorIndexMap;
 
         this.mddownColorIndex = mDdownmColor.getSelectedItemPosition();
         this.mddownWeightIndex = mDdownmWeight.getSelectedItemPosition();
         this.mddownmWeight = Float.parseFloat(mDdownmWeight.getSelectedItem().toString());
 
+        set(context, colorIndexMap);
+    }
+
+    public PresetPenButton(Context context, FragmentActivity fragmentActivity, int ddownm_pen_colors, int ddownm_pen_weights, int[] colorIndexMap, int mddownColorIndex, int mmdownWeightindex, float mddownmWeight){
+        super(context);
+        Log.d(TAG, "PresetPenButton: Generating Button");
+        this.mDdownmColor = fragmentActivity.findViewById(ddownm_pen_colors);
+        this.mDdownmWeight = fragmentActivity.findViewById(ddownm_pen_weights);
+
+        this.mddownColorIndex = mddownColorIndex;
+        this.mddownWeightIndex = mmdownWeightindex;
+        this.mddownmWeight = mddownmWeight;
+
+        set(context, colorIndexMap);
+    }
+
+    public void set(Context context, int[] colorIndexMap) {
         // visuals
         // position
         float scale = (float) ((2 - 2 * Math.exp(-mddownmWeight / 8)));
         scale = scale < 0.5 ? 1 : scale;
         setScaleX(scale);
         setScaleY(scale);
-//        setPadding(0,0,0,0);
+        // setPadding(0,0,0,0);
         Log.d(TAG, "PresetPenButton: " + (100/scale));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)(100/scale), LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;

@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"NonConstantResourceId", "UseSwitchCompatOrMaterialCode"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate Main");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
