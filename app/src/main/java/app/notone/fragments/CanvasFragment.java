@@ -37,62 +37,52 @@ import static android.content.Context.MODE_PRIVATE;
 public class CanvasFragment extends Fragment {
 
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
-    private final String TAG = "NotOneCanvasFragment";
+    private static final String TAG = "NotOneCanvasFragment";
     private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
-    private final String PREF_KEY_CANVAS_STORAGE = "lastOpenedCanvasWriter";
-    private final String PREF_KEY_PEN_PRESETS = "penpresets";
+    private static final String PREF_KEY_CANVAS_STORAGE = "lastOpenedCanvasWriter";
+    private static final String PREF_KEY_PEN_PRESETS = "penpresets";
 
-    private ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
-    private ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
-    private View mCanvasFragmentView;
     private CanvasView mCanvasView;
+    private View mCanvasFragmentView;
+    private ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
+    /**
+     * Store Data in Shared Prefs to enable persistence
+     */
     @Override
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart: RELOADING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
-        String data = sharedPreferences.getString(PREF_KEY_CANVAS_STORAGE, "");
+        String canvasdata = sharedPreferences.getString(PREF_KEY_CANVAS_STORAGE, "");
 
+        /* restore canvas */
         try {
-            CanvasImporter.initCanvasViewFromJSON(data, mCanvasView, true);
+            CanvasImporter.initCanvasViewFromJSON(canvasdata, mCanvasView, true);
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
         }
 
+        /* restore old pens */
+        ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
         String pendata = sharedPreferences.getString(PREF_KEY_PEN_PRESETS, "");
-//        R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
-        getActivity().findViewById(R.id.ddownm_pen_colors);
-        getActivity().findViewById(R.id.ddownm_pen_weights);
         try {
-            mPresetPenButtons = PenPorter.penPresetsFromJSON(getContext(), getActivity(),
+            mPresetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
                     pendata);
             Log.d(TAG, "onStart: got old preset pens " + mPresetPenButtons);
         } catch (JSONException e) {
             Log.e(TAG, "onStart: failed to extract Pens from json", e);
             e.printStackTrace();
         }
-
+        // add pen to container
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
-        /* restore old pens */
         if(llayoutPenContainer.getChildCount() == 0) {
-            Log.d(TAG, "onViewCreated: restore old pens " + mPresetPenButtons);
-            mPresetPenButtons.forEach(presetPenButton -> { // readd old ones
+            Log.d(TAG, "onViewCreated: restoring old pens " + mPresetPenButtons);
+            mPresetPenButtons.forEach(presetPenButton -> {
                 Log.d(TAG, "restore old pen ");
-                presetPenButton.setOnClickListener(v1 -> {
-                    presetPenButton.mDdownmColor.setSelection(presetPenButton.mddownColorIndex, true);
-                    presetPenButton.mDdownmWeight.setSelection(presetPenButton.mddownWeightIndex, true);
-                    mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
-                    setOrToggleSelection(presetPenButton, false);
-                });
-                presetPenButton.setOnLongClickListener(view1 -> {
-                    llayoutPenContainer.removeView(presetPenButton);
-                    mPresetPenButtons.remove(presetPenButton);
-                    return true;
-                });
-                //            llayoutPenContainer.removeView(presetPenButton);
-                llayoutPenContainer.addView(presetPenButton, 0); // cause of the test button put 1
+                setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
+                llayoutPenContainer.addView(presetPenButton, 0);
                 mImageButtonPenToolGroup.add((ImageButton) presetPenButton);
             });
         } else {
@@ -103,39 +93,36 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onPause() {
         Log.d(TAG, "onPause: STORING DATA");
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        /* export canvas */
         String jsonString = "";
         try {
             jsonString = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString(1);
-//            Log.d(LOG_TAG, jsonString);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        editor.putString(PREF_KEY_CANVAS_STORAGE, jsonString);
 
+        /* export presetpens */
+        ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
-        mPresetPenButtons = new ArrayList<PresetPenButton>();
-        for(int i = 0; i < llayoutPenContainer.getChildCount(); i++) {
+        for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
             mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
         }
-
         String presetPenJson = "";
         try {
-            presetPenJson = PenPorter.penPresetsToJSON(mPresetPenButtons).toString();
+            presetPenJson = PenPorter.presetPensToJSON(mPresetPenButtons).toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        // Storing data into SharedPreferences
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
-        // Creating an Editor object to edit(write to the file)
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        // Write the byte stream to the preferences
-        editor.putString(PREF_KEY_CANVAS_STORAGE, jsonString);
         editor.putString(PREF_KEY_PEN_PRESETS, presetPenJson);
-//        editor.putString(PREF_KEY_PEN_PRESETS, "");
 
         // write changes to file
-        editor.commit();
+        editor.apply();
         super.onPause();
+        Toast.makeText(getActivity(), "exported persistence data", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -145,68 +132,43 @@ public class CanvasFragment extends Fragment {
         return mCanvasFragmentView;
     }
 
-    // This event is triggered soon after onCreateView()
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated");
         FragmentActivity fragmentActivity = getActivity();
+        mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
 
         /* Config Dropdowns for Pen Settings */
-        mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
-        setddownContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));
-        setddownContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> mCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));
+        setddMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> mCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
-        /* Undo Redo activate Eraser Actions */
+        /* Undo, Redo, activate Eraser Actions */
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
             if (mCanvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
-                setSelection(mImageButtonPenToolGroup, buttonEraser, false);
+                setToolSelection(mImageButtonPenToolGroup, buttonEraser, false);
                 mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
             } else {
-                setSelection(mImageButtonPenToolGroup, buttonEraser, true);
+                setToolSelection(mImageButtonPenToolGroup, buttonEraser, true);
                 mCanvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> mCanvasView.undo());
         buttonRedo.setOnClickListener(v -> mCanvasView.redo());
-
         mImageButtonPenToolGroup.add(buttonEraser);
 
-        /* create pen presets */
+        /* create pen presets  */
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
-        /* restore old pens */
-//        Log.d(TAG, "onViewCreated: restore old pens " + mPresetPenButtons);
-//        mPresetPenButtons.forEach(presetPenButton -> { // readd old ones
-//            Log.d(TAG, "restore old pen ");
-//            presetPenButton.setOnClickListener(v1 -> {
-//                presetPenButton.mDdownmColor.setSelection(presetPenButton.mddownColorIndex, true);
-//                presetPenButton.mDdownmWeight.setSelection(presetPenButton.mddownWeightIndex, true);
-//                mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
-//                setOrToggleSelection(presetPenButton, false);
-//            });
-//            presetPenButton.setOnLongClickListener(view1 -> {
-//                llayoutPenContainer.removeView(presetPenButton);
-//                mPresetPenButtons.remove(presetPenButton);
-//                return true;
-//            });
-//            llayoutPenContainer.removeView(presetPenButton);
-//            llayoutPenContainer.addView(presetPenButton, 0); // cause of the test button put 1
-//            mImageButtonPenToolGroup.add((ImageButton) presetPenButton);
-//        });
-
         buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = generatePresetPenButton(fragmentActivity, penColorValues, llayoutPenContainer);
-
-            mPresetPenButtons.add(buttonPresetPen);
+            PresetPenButton buttonPresetPen = createPresetPenButton(fragmentActivity, llayoutPenContainer);
             mImageButtonPenToolGroup.add((ImageButton) buttonPresetPen);
-            llayoutPenContainer.addView(buttonPresetPen, 0); // cause of the test button put 1
+            llayoutPenContainer.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
-
 
         /* insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
@@ -214,9 +176,8 @@ public class CanvasFragment extends Fragment {
             Log.d(TAG, "onViewCreated: Insert Pdf");
         });
 
-
+        /* Test button */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-//         Test
         Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
         buttonTest.setOnClickListener(v -> {
             Log.d(TAG, sharedPreferences.getAll().toString());
@@ -226,34 +187,36 @@ public class CanvasFragment extends Fragment {
 
 
     @NonNull
-    private PresetPenButton generatePresetPenButton(FragmentActivity fragmentActivity, int[] penColorValues, LinearLayout llayoutPenContainer) {
+    private PresetPenButton createPresetPenButton(FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
         PresetPenButton buttonPresetPen = new PresetPenButton(
                 getContext(), fragmentActivity,
                 R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
                 R.array.pen_color_values);
-        buttonPresetPen.setOnClickListener(v1 -> {
-            buttonPresetPen.mDdownmColor.setSelection(buttonPresetPen.mddownColorIndex, true);
-            buttonPresetPen.mDdownmWeight.setSelection(buttonPresetPen.mddownWeightIndex, true);
-            mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
-            setOrToggleSelection(buttonPresetPen, false);
-        });
-        buttonPresetPen.setOnLongClickListener(view1 -> {
-            llayoutPenContainer.removeView(buttonPresetPen);
-            mPresetPenButtons.remove(buttonPresetPen);
-            return true;
-        });
+        setPresetPenButtonListeners(buttonPresetPen, llayoutPenContainer);
         Log.d(TAG, "generatePresetPenButton: generated Preset Pen Button");
         return buttonPresetPen;
     }
 
-    private void setddownContent(int spinnerId, int spinnerContentArrayId, onClickDropDownItem onClickDropDownItem) {
-        // ArrayAdapter<CharSequence> dropdownColors = ArrayAdapter.createFromResource(getActivity(), spinnerContentArrayId, R.layout.spinner_dropdown_pen_field);
-        ArrayAdapter<CharSequence> ddownmContentAA = new ArrayAdapter<CharSequence>(getActivity(), R.layout.spinner_dropdown_pen_field, getResources().getStringArray(spinnerContentArrayId)) {
+    private void setPresetPenButtonListeners(PresetPenButton buttonPresetPen, LinearLayout llayoutPenContainer) {
+        buttonPresetPen.setOnClickListener(v1 -> {
+            buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
+            buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
+            mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+            setOrToggleToolSelection(buttonPresetPen, false);
+        });
+        buttonPresetPen.setOnLongClickListener(view1 -> {
+            llayoutPenContainer.removeView(buttonPresetPen);
+//            mPresetPenButtons.remove(buttonPresetPen);
+            return true;
+        });
+    }
+
+    private void setddMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickddMenuFunction onClickddMenuFunction) {
+        ArrayAdapter<CharSequence> ddMenuAAdapter = new ArrayAdapter<CharSequence>(getActivity(), R.layout.spinner_dropdown_pen_field, getResources().getStringArray(ddMenuContentArrayId)) {
             @Override
             public boolean isEnabled(int position) {
                 if (position == 0) {
                     // Disable the first item from Spinner
-                    // First item will be use for hint
                     return false;
                 } else {
                     return true;
@@ -261,36 +224,35 @@ public class CanvasFragment extends Fragment {
             }
 
             @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
+                TextView textView = (TextView) view;
                 if (position == 0) {
                     // Set the hint text color of the first element gray
-                    tv.setTextColor(Color.GRAY);
+                    textView.setTextColor(Color.GRAY);
                 } else {
-                    tv.setTextColor(Color.WHITE);
+                    textView.setTextColor(Color.WHITE);
                 }
                 return view;
             }
         };
 
 
-        Spinner ddownm = getActivity().findViewById(spinnerId);
-        ddownmContentAA.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
-        ddownm.setAdapter(ddownmContentAA);
-        ddownm.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        Spinner ddMenu = getActivity().findViewById(ddMenuId);
+        ddMenuAAdapter.setDropDownViewResource(R.layout.spinner_dropdown_pen_items);
+        ddMenu.setAdapter(ddMenuAAdapter);
+        ddMenu.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d(TAG, "Dropdownmenu: itemselected: " + adapterView.getItemAtPosition(i));
-                onClickDropDownItem.onClick(adapterView, view, i, l);
+                onClickddMenuFunction.onClick(adapterView, view, i, l);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
-        ddownm.setSelection(1, false);
+        ddMenu.setSelection(1, false);
     }
 
     /**
@@ -301,7 +263,7 @@ public class CanvasFragment extends Fragment {
      * @param toggleable
      * @return state of the clicked button
      */
-    private boolean setOrToggleSelection(ImageButton activeButton, boolean toggleable) {
+    private boolean setOrToggleToolSelection(ImageButton activeButton, boolean toggleable) {
         boolean result = true;
         for (ImageButton imageButton : mImageButtonPenToolGroup) {
             if (imageButton != activeButton) { // if non active button
@@ -331,7 +293,7 @@ public class CanvasFragment extends Fragment {
         return result;
     }
 
-    private void setSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
+    private void setToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
         if (enabled) { // if selected
             for (ImageButton imageButton : imageButtonGroup) {
                 if (imageButton != activeButton) { // if non active button
@@ -352,7 +314,7 @@ public class CanvasFragment extends Fragment {
     }
 
     @FunctionalInterface
-    private interface onClickDropDownItem {
+    private interface onClickddMenuFunction {
         void onClick(AdapterView<?> adapterView, View view, int i, long l);
     }
 }
