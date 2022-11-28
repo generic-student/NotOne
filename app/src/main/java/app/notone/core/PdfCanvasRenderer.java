@@ -60,7 +60,10 @@ public class PdfCanvasRenderer {
         this.padding = padding;
     }
 
-    public void render(CanvasPdfDocument doc, Canvas canvas, Matrix viewMatrix) {
+    public void render(CanvasPdfDocument doc, Canvas canvas, Matrix viewMatrix_) {
+        Matrix viewMatrix = new Matrix(viewMatrix_);
+        viewMatrix.setScale(1,1);
+
         final RectF viewSpace = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
 
         final float scaling = getScaling();

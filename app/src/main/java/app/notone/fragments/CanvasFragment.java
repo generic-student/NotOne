@@ -37,6 +37,7 @@ import app.notone.R;
 import app.notone.core.WriteMode;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
+import app.notone.io.PdfImporter;
 
 public class CanvasFragment extends Fragment {
     private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
@@ -52,7 +53,7 @@ public class CanvasFragment extends Fragment {
                 @Override
                 public void onActivityResult(Uri uri) {
                     canvasView.resetViewMatrices();
-                    canvasView.getPdfDocument().loadFromStorage(getContext(), uri);
+                    canvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, 2.f));
                     canvasView.invalidate();
                 }
             });

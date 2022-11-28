@@ -1,17 +1,12 @@
 package app.notone;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -36,7 +31,7 @@ import androidx.preference.PreferenceManager;
 
 import static androidx.navigation.Navigation.findNavController;
 
-import app.notone.core.CanvasView;
+import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
