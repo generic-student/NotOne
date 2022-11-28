@@ -1,6 +1,8 @@
 package app.notone;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     NavigationView mNavDrawerContainerNV;
     boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
+    private Uri mUri;
+
     /**
      * Main onCreate of the App
      * Set the Main Activity View
@@ -91,8 +95,9 @@ public class MainActivity extends AppCompatActivity {
             String canvasData = "";
             switch (menuItem.getItemId()) {
                 case R.id.new_file:
+                    /* create a new file at a chosen uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: New File");
-                    canvasData = CanvasFileManager.newCanvasFile(); // returns json containing uri
+                    canvasData = CanvasFileManager.newCanvasFile(1); // returns json containing uri after opening filepicer
                     try {
                         CanvasImporter.initCanvasViewFromJSON(canvasData, canvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
                     } catch (JSONException e) {
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return true;
                 case R.id.open_file:
+                    /* chose a existing file with uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: Open File");
                     canvasData = CanvasFileManager.openCanvasFile();
                     try {
@@ -109,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return true;
                 case R.id.save_file:
-                    /* save file to existing uri of current view or save as to new uri */
+                    /* save file to existing uri of current view || save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                     Log.d(TAG, "onNavigationItemSelected: Save File as JSON to shared prefs");
                     try {
                         canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
@@ -126,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                     canvasView.setUri(uri);
                     return true;
                 case R.id.export:
-                    /* export to new uri */
+                    /* export Pdf to new uri */
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
             }
@@ -152,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             toggleToolBarVisibility(appBar, fabToolbarVisibility);
         });
 
-        /* set Title and Toolbar function by Fragment */
+        /* set Title and Toolbar functions by Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
             LinearLayout viewCanvasToolsContainer = findViewById(R.id.canvas_tools_container);
@@ -221,26 +227,26 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
 
-//    @SuppressLint("WrongConstant")
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-//        super.onActivityResult(requestCode, resultCode, resultData);
-//        Log.d(TAG, "onActivityResult: Caught an Activity Result");
-//        if (requestCode == CanvasExporter.CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-//            // Get URI of the created file from resultdata
-//            if (resultData != null) {
-//                mUri = resultData.getData();
-//                Log.d(TAG, "onActivityResult: Created a File at" + mUri);
-//
-//                // Persist permissions for File
-//                final int takeFlags = resultData.getFlags()
-//                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-//                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//                getContentResolver().takePersistableUriPermission(mUri, takeFlags);
-//            }
-//        }
-//
-//
-//    }
+    @SuppressLint("WrongConstant")
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        Log.d(TAG, "onActivityResult: Caught an Activity Result");
+        if (requestCode == CanvasExporter.CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // Get URI of the created file from resultdata
+            if (resultData != null) {
+                mUri = resultData.getData();
+                Log.d(TAG, "onActivityResult: Created a File at" + mUri);
+
+                // Persist permissions for File
+                final int takeFlags = resultData.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                getContentResolver().takePersistableUriPermission(mUri, takeFlags);
+            }
+        }
+
+
+    }
 
 }

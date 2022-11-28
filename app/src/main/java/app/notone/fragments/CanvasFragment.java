@@ -39,12 +39,12 @@ public class CanvasFragment extends Fragment {
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
     private static final String TAG = "NotOneCanvasFragment";
     private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
-    private static final String PREF_KEY_CANVAS_STORAGE = "lastOpenedCanvasWriter";
-    private static final String PREF_KEY_PEN_PRESETS = "penpresets";
+    private static final String CANVAS_STORAGE_PREF_KEY = "lastOpenedCanvasWriter";
+    private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
     private CanvasView mCanvasView;
     private View mCanvasFragmentView;
-    private ArrayList<ImageButton> mImageButtonPenToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
+    private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
     /**
      * Store Data in Shared Prefs to enable persistence
@@ -56,7 +56,7 @@ public class CanvasFragment extends Fragment {
         Log.d(TAG, "onStart: RELOADING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
-        String canvasdata = sharedPreferences.getString(PREF_KEY_CANVAS_STORAGE, "");
+        String canvasdata = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
 
         /* restore canvas */
         try {
@@ -67,7 +67,7 @@ public class CanvasFragment extends Fragment {
 
         /* restore old pens */
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
-        String pendata = sharedPreferences.getString(PREF_KEY_PEN_PRESETS, "");
+        String pendata = sharedPreferences.getString(PEN_PRESETS_PREF_KEY, "");
         try {
             mPresetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
                     pendata);
@@ -84,7 +84,7 @@ public class CanvasFragment extends Fragment {
                 Log.d(TAG, "restore old pen ");
                 setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
                 llayoutPenContainer.addView(presetPenButton, 0);
-                mImageButtonPenToolGroup.add((ImageButton) presetPenButton);
+                mImageButtonCanvasToolGroup.add((ImageButton) presetPenButton);
             });
         } else {
             Log.d(TAG, "onStart: didnt restore, Pens still there " + llayoutPenContainer.getChildCount());
@@ -105,7 +105,7 @@ public class CanvasFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        editor.putString(PREF_KEY_CANVAS_STORAGE, jsonString);
+        editor.putString(CANVAS_STORAGE_PREF_KEY, jsonString);
 
         /* export presetpens */
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
@@ -119,7 +119,7 @@ public class CanvasFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        editor.putString(PREF_KEY_PEN_PRESETS, presetPenJson);
+        editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
 
         // write changes to file
         editor.apply();
@@ -151,23 +151,23 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
             if (mCanvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
-                setToolSelection(mImageButtonPenToolGroup, buttonEraser, false);
+                setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
                 mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
             } else {
-                setToolSelection(mImageButtonPenToolGroup, buttonEraser, true);
+                setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
                 mCanvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> mCanvasView.undo());
         buttonRedo.setOnClickListener(v -> mCanvasView.redo());
-        mImageButtonPenToolGroup.add(buttonEraser);
+        mImageButtonCanvasToolGroup.add(buttonEraser);
 
         /* create pen presets  */
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
         buttonAddPresetPen.setOnClickListener(v -> {
             PresetPenButton buttonPresetPen = createPresetPenButton(fragmentActivity, llayoutPenContainer);
-            mImageButtonPenToolGroup.add((ImageButton) buttonPresetPen);
+            mImageButtonCanvasToolGroup.add((ImageButton) buttonPresetPen);
             llayoutPenContainer.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
@@ -267,7 +267,7 @@ public class CanvasFragment extends Fragment {
      */
     private boolean setOrToggleToolSelection(ImageButton activeButton, boolean toggleable) {
         boolean result = true;
-        for (ImageButton imageButton : mImageButtonPenToolGroup) {
+        for (ImageButton imageButton : mImageButtonCanvasToolGroup) {
             if (imageButton != activeButton) { // if non active button
                 // deselect all else
                 imageButton.setSelected(false);

@@ -58,6 +58,10 @@ public class CanvasExporter {
         return json;
     }
 
+    public static void canvasViewToPDF(){
+
+    }
+
     public static JSONObject canvasWriterToJSON(@NonNull CanvasWriter writer, boolean exportUndoTree) throws JSONException{
         //convert the strokes to json
         JSONObject json = new JSONObject();

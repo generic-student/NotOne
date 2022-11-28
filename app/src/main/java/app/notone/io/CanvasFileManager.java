@@ -8,8 +8,8 @@ public class CanvasFileManager {
         return null;
     }
 
-    public static String newCanvasFile() {
-        return null; // return new json containing uri
+    public static String newCanvasFile(int Type) {
+        return ""; // return new json containing uri
     }
 
     public static Uri saveasCanvasFile(String canvasData) {
