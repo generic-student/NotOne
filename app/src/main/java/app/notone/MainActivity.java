@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -106,19 +107,21 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                         return false;
                     }
-
                     CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
-                    // done in activity result method
+                        /* The rest is done in activity result method */
                     return true;
                 case R.id.open_file:
                     /* chose a existing file with uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: Open File");
-                    canvasData = CanvasFileManager.openCanvasFile();
+                    Uri uri = mCanvasView.getCurrentURI();
+                    canvasData = CanvasFileManager.openCanvasFile(this, uri);
                     try {
                         CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "onCreate: ", e);
                     }
+                    mCanvasView.invalidate();
+                    Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
                     return true;
                 case R.id.save_file:
                     /* save file to existing uri of current view || save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
@@ -131,11 +134,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Uri currentUri = mCanvasView.getCurrentURI();
                     if (currentUri != null) {
-                        CanvasFileManager.saveCanvasFile(currentUri, canvasData);
+                        CanvasFileManager.saveCanvasFile(this, currentUri, canvasData);
+
+                        Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
                         return true;
                     }
-                    Uri uri = CanvasFileManager.saveasCanvasFile(canvasData); // still contains the wrong uri
-                    mCanvasView.setUri(uri);
+                    // TODO
+//                    Uri uri = CanvasFileManager.saveAsCanvasFile(canvasData); // still contains the wrong uri
+//                    mCanvasView.setUri(uri);
                     return true;
                 case R.id.export:
                     /* export Pdf to new uri */
@@ -250,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "new_file: ", e);
                 }
                 mCanvasView.invalidate();
+                Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
 
                 // Persist permissions for File
                 final int takeFlags = resultData.getFlags()

@@ -19,6 +19,7 @@ public class CanvasImporter {
     private static final String TAG = "";
 
     public static void initCanvasViewFromJSON(String jsonString, @NonNull CanvasView view, boolean loadUndoTree) throws JSONException {
+        Log.d(TAG, "initCanvasViewFromJSON: " + jsonString);
         JSONObject json = new JSONObject(jsonString);
 
         final float scale = (float) json.getDouble("scale");
