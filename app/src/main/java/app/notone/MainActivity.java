@@ -25,12 +25,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.CanvasImporter;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
     private Uri mUri;
+    public static CanvasView mCanvasView = null;
 
     /**
      * Main onCreate of the App
@@ -90,26 +93,35 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
         /* catch menu clicks for setting actions, forward to navController for destination change */
-        CanvasView canvasView = findViewById(R.id.canvasView);
+//        CanvasView aaaaaa = findViewById(R.id.canvasView);
+//        mCanvasView = navHostFragment.getChildFragmentManager().getFragments().get(0).getActivity().findViewById(R.id.canvasView);
+//        mCanvasView = CanvasFragment.mCanvasView;
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
+            mCanvasView = CanvasFragment.mCanvasView;
             String canvasData = "";
             switch (menuItem.getItemId()) {
                 case R.id.new_file:
                     /* create a new file at a chosen uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: New File");
+                    if(mCanvasView == null) {
+                        Log.e(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                        return false;
+                    }
                     canvasData = CanvasFileManager.newCanvasFile(1); // returns json containing uri after opening filepicer
                     try {
-                        CanvasImporter.initCanvasViewFromJSON(canvasData, canvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
+                        CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
                     } catch (JSONException e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
+                        Log.e(TAG, "onCreate: ", e);
                     }
+                    mCanvasView.invalidate();
                     return true;
                 case R.id.open_file:
                     /* chose a existing file with uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: Open File");
                     canvasData = CanvasFileManager.openCanvasFile();
                     try {
-                        CanvasImporter.initCanvasViewFromJSON(canvasData, canvasView, true);
+                        CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -118,18 +130,18 @@ public class MainActivity extends AppCompatActivity {
                     /* save file to existing uri of current view || save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                     Log.d(TAG, "onNavigationItemSelected: Save File as JSON to shared prefs");
                     try {
-                        canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
+                        canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return false;
                     }
-                    Uri currentUri = canvasView.getCurrentURI();
+                    Uri currentUri = mCanvasView.getCurrentURI();
                     if (currentUri != null) {
                         CanvasFileManager.saveCanvasFile(currentUri, canvasData);
                         return true;
                     }
                     Uri uri = CanvasFileManager.saveasCanvasFile(canvasData); // still contains the wrong uri
-                    canvasView.setUri(uri);
+                    mCanvasView.setUri(uri);
                     return true;
                 case R.id.export:
                     /* export Pdf to new uri */

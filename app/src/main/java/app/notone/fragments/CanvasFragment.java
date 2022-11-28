@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 import app.notone.CanvasView;
+import app.notone.MainActivity;
 import app.notone.R;
 import app.notone.WriteMode;
 import app.notone.io.CanvasExporter;
@@ -42,7 +43,7 @@ public class CanvasFragment extends Fragment {
     private static final String CANVAS_STORAGE_PREF_KEY = "lastOpenedCanvasWriter";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
-    private CanvasView mCanvasView;
+    public static CanvasView mCanvasView; // TODO maybe static is bad
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
@@ -105,6 +106,7 @@ public class CanvasFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+//        Log.d(TAG, "onPause: " + jsonString);
         editor.putString(CANVAS_STORAGE_PREF_KEY, jsonString);
 
         /* export presetpens */
@@ -139,7 +141,7 @@ public class CanvasFragment extends Fragment {
         Log.d(TAG, "onViewCreated");
         FragmentActivity fragmentActivity = getActivity();
         mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
-
+//        MainActivity.mCanvasView = mCanvasView;
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
         setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));

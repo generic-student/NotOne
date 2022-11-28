@@ -1,6 +1,7 @@
 package app.notone.io;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,13 +9,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import app.notone.CanvasView;
 import app.notone.CanvasWriter;
 import app.notone.CanvasWriterAction;
 import app.notone.Stroke;
 
 public class CanvasImporter {
-    public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException {
+    private static final String TAG = "";
+
+    public static void initCanvasViewFromJSON(String jsonString, @NonNull CanvasView view, boolean loadUndoTree) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
         final float scale = (float) json.getDouble("scale");
@@ -33,6 +37,8 @@ public class CanvasImporter {
 
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
+        if(view == null)
+            Log.d(TAG, "initCanvasViewFromJSON: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
         view.getInverseViewTransform().setValues(inverseViewTransformData);
