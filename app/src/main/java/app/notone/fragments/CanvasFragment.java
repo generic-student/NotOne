@@ -51,6 +51,7 @@ public class CanvasFragment extends Fragment {
      */
     @Override
     public void onStart() {
+        // TODO factorise to worker thread
         super.onStart();
         Log.d(TAG, "onStart: RELOADING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
@@ -92,6 +93,7 @@ public class CanvasFragment extends Fragment {
 
     @Override
     public void onPause() {
+        // TODO factorise to worker thread
         Log.d(TAG, "onPause: STORING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
