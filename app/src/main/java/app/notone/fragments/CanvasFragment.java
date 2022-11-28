@@ -1,11 +1,16 @@
 package app.notone.fragments;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +31,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -37,6 +43,7 @@ import app.notone.R;
 import app.notone.core.WriteMode;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
+import app.notone.io.PdfExporter;
 import app.notone.io.PdfImporter;
 
 public class CanvasFragment extends Fragment {
@@ -154,11 +161,22 @@ public class CanvasFragment extends Fragment {
             mGetPdfDocument.launch("application/pdf");
         });
 
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
         // Test
         Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
         buttonTest.setOnClickListener(v -> {
-            canvasView.reset();
+            //canvasView.reset();
+            String folder = "/storage/emulated/0/Documents";
+            String filename = "NotOneExport" + Long.toString(System.currentTimeMillis()/1000) + ".pdf";
+            System.out.println(folder + "/" + filename);
+
+            PdfExporter.export(canvasView, (float)metrics.densityDpi / metrics.density, folder, filename);
         });
+
+
+        //metrics.densityDpi;
+
     }
 
     @FunctionalInterface
@@ -225,6 +243,16 @@ public class CanvasFragment extends Fragment {
         editor.commit();
 
         super.onPause();
+    }
+
+    private String getFolder() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            return getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM).toString();
+        }
+        else
+        {
+            return Environment.getExternalStorageDirectory().toString();
+        }
     }
 
 

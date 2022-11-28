@@ -7,12 +7,17 @@ import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import app.notone.core.CanvasPdfDocument;
 
 public class PdfImporter {
+
     public static CanvasPdfDocument fromUri(Context context, Uri uri, float scaling) {
         CanvasPdfDocument document = new CanvasPdfDocument(scaling);
         try {
