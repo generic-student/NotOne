@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -107,14 +106,9 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                         return false;
                     }
-                    canvasData = CanvasFileManager.newCanvasFile(1); // returns json containing uri after opening filepicer
-                    try {
-                        CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
-                    } catch (JSONException e) {
-//                        e.printStackTrace();
-                        Log.e(TAG, "onCreate: ", e);
-                    }
-                    mCanvasView.invalidate();
+
+                    CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
+                    // done in activity result method
                     return true;
                 case R.id.open_file:
                     /* chose a existing file with uri and open it in the current canvas */
@@ -244,11 +238,18 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
         Log.d(TAG, "onActivityResult: Caught an Activity Result");
-        if (requestCode == CanvasExporter.CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == CanvasFileManager.CREATE_NEW_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             // Get URI of the created file from resultdata
             if (resultData != null) {
                 mUri = resultData.getData();
-                Log.d(TAG, "onActivityResult: Created a File at" + mUri);
+                Log.d(TAG, "onActivityResult: Created a New File at: " + mUri);
+                String canvasData = CanvasFileManager.newCanvasFile(mUri,1);
+                try {
+                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
+                } catch (JSONException e) {
+                    Log.e(TAG, "new_file: ", e);
+                }
+                mCanvasView.invalidate();
 
                 // Persist permissions for File
                 final int takeFlags = resultData.getFlags()
@@ -257,8 +258,5 @@ public class MainActivity extends AppCompatActivity {
                 getContentResolver().takePersistableUriPermission(mUri, takeFlags);
             }
         }
-
-
     }
-
 }

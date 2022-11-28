@@ -131,41 +131,4 @@ public class CanvasExporter {
 
         return json;
     }
-
-    public void saveJSONtoFileStorage(){
-
-    }
-
-    public static final int CREATE_FILE_REQUEST_CODE = 1;
-
-    public static void createFile(
-        Activity activity, Uri pickerInitialUri, ActivityResultRegistry activityResultRegistry) {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/text");
-        intent.putExtra(Intent.EXTRA_TITLE, "invoice.pdf");
-
-        // Optionally, specify a URI for the directory that should be opened in
-        // the system file picker when your app creates the document. (pickerInitialUri)
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
-
-        activity.startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
-    }
-    public static void alterDocument(Activity activity, Uri uri, String json) {
-        try {
-            ParcelFileDescriptor pfd = activity.getContentResolver().
-                    openFileDescriptor(uri, "w");
-            FileOutputStream fileOutputStream =
-                    new FileOutputStream(pfd.getFileDescriptor());
-            fileOutputStream.write(("Overwritten at " + System.currentTimeMillis() +
-                    "\n" + json).getBytes());
-            // Let the document provider know you're done by closing the stream.
-            fileOutputStream.close();
-            pfd.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-// https://developer.android.com/training/data-storage/shared/documents-files#java
-
 }
