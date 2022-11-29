@@ -140,8 +140,7 @@ public class CanvasFileManager {
                     openFileDescriptor(uri, "w");
             FileOutputStream fileOutputStream =
                     new FileOutputStream(pfd.getFileDescriptor());
-            fileOutputStream.write(("Overwritten at " + System.currentTimeMillis() +
-                    "\n" + json).getBytes());
+            fileOutputStream.write((json).getBytes());
             // Let the document provider know you're done by closing the stream.
             fileOutputStream.close();
             pfd.close();
