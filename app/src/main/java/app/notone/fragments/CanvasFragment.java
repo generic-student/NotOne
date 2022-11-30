@@ -166,12 +166,12 @@ public class CanvasFragment extends Fragment {
         // Test
         Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
         buttonTest.setOnClickListener(v -> {
-            //canvasView.reset();
-            String folder = "/storage/emulated/0/Documents";
-            String filename = "NotOneExport" + Long.toString(System.currentTimeMillis()/1000) + ".pdf";
-            System.out.println(folder + "/" + filename);
-
-            PdfExporter.export(canvasView, (float)metrics.densityDpi / metrics.density, folder, filename);
+            canvasView.reset();
+//            String folder = "/storage/emulated/0/Documents";
+//            String filename = "NotOneExport" + Long.toString(System.currentTimeMillis()/1000) + ".pdf";
+//            System.out.println(folder + "/" + filename);
+//
+//            PdfExporter.export(canvasView, (float)metrics.densityDpi / metrics.density, folder, filename);
         });
 
 
