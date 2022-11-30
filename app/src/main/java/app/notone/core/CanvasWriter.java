@@ -8,13 +8,18 @@ import android.view.MotionEvent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import app.notone.core.pens.CanvasEraserPen;
+import app.notone.core.pens.CanvasPen;
+import app.notone.core.pens.CanvasPenFactory;
+import app.notone.core.pens.CanvasWriterPen;
 import app.notone.core.util.MathHelper;
 import app.notone.core.util.SAT;
 
 public class CanvasWriter implements Serializable {
-    private static final int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
-    private static final String LOG_TAG = CanvasWriter.class.getSimpleName();
+    private static final transient int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
+    private static final transient String LOG_TAG = CanvasWriter.class.getSimpleName();
 
     private transient Paint mPaint;
     private float mStrokeWeight;
@@ -28,11 +33,11 @@ public class CanvasWriter implements Serializable {
 
     private Vector2f previousTouchPoint = new Vector2f(0, 0);
 
-
+    private HashMap<DrawState, CanvasPen> pens;
 
 
     public enum DrawState {
-        WRITE, ERASE
+        WRITE, ERASE, SELECT
     }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
@@ -51,6 +56,12 @@ public class CanvasWriter implements Serializable {
         mActions = new ArrayList<>();
         mUndoneActions = new ArrayList<>();
         mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
+
+        pens = new HashMap<>();
+        CanvasPenFactory penFactory = new CanvasPenFactory();
+        pens.put(DrawState.WRITE, penFactory.createCanvasPen("WRITER", this));
+        pens.put(DrawState.ERASE, penFactory.createCanvasPen("ERASER", this));
+        //pens.put(DrawState.SELECT, penFactory.createCanvasPen("SELECTOR", this));
     }
 
     public Paint getPaint() {
@@ -125,6 +136,22 @@ public class CanvasWriter implements Serializable {
         this.mWriteMode = mWriteMode;
     }
 
+    public Stroke getCurrentStroke() {
+        return mCurrentStroke;
+    }
+
+    public void setCurrentStroke(Stroke mCurrentStroke) {
+        this.mCurrentStroke = mCurrentStroke;
+    }
+
+    public Vector2f getPreviousTouchPoint() {
+        return previousTouchPoint;
+    }
+
+    public void setPreviousTouchPoint(Vector2f previousTouchPoint) {
+        this.previousTouchPoint = previousTouchPoint;
+    }
+
     public void reset() {
         mUndoneActions.clear();
         mActions.clear();
@@ -153,110 +180,16 @@ public class CanvasWriter implements Serializable {
         }
 
         boolean result = false;
-        switch(getDrawState()) {
-            case WRITE:
-                result = handleOnTouchEventWrite(event, currentTouchPoint);
-                break;
-            case ERASE:
-                result = handleOnTouchEventErase(event, currentTouchPoint, inverseViewMatrix);
-                break;
+        CanvasPen pen = pens.get(getDrawState());
+        if(pen != null) {
+            result = pen.handleOnTouchEvent(event, currentTouchPoint);
         }
+
 
         //update the previousTouchPoint
         previousTouchPoint = currentTouchPoint;
 
         return result;
-    }
-
-
-
-    private boolean handleOnTouchEventWrite(MotionEvent event, Vector2f pos) {
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                moveTo(mCurrentStroke, pos);
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                lineTo(mCurrentStroke, pos);
-                return true;
-
-            case MotionEvent.ACTION_UP:
-                if(mCurrentStroke.isEmpty()) {
-                    return false;
-                }
-                //delete the strokes that come after the currentStrokeIndex
-                clearUndoneStrokes();
-                //add the current stroke to the list of strokes
-                mStrokes.add(mCurrentStroke);
-                //add the action the the list
-                mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, mCurrentStroke));
-                //reset the current stroke
-                mCurrentStroke = new Stroke(getStrokeColor(), getStrokeWeight());
-
-                return true;
-        }
-
-        return false;
-    }
-
-    private boolean handleOnTouchEventErase(MotionEvent event, Vector2f pos, Matrix inverseViewMatrix) {
-        final float circleRadius = getStrokeWeight();
-        //erase the strokes that the eraser touches using the Eraser Class
-        final int strokesErased = erase(pos, circleRadius, inverseViewMatrix);
-        //if at least one stroke was erased, invalidate the canvas
-        return strokesErased > 0;
-    }
-
-    public void moveTo(Stroke currentStroke, Vector2f point) {
-        currentStroke.moveTo(point.x, point.y);
-    }
-
-    public void lineTo(Stroke currentStroke, Vector2f point) {
-        currentStroke.lineTo(point.x, point.y);
-    }
-
-    public int erase(Vector2f eraserPosition, float eraserRadius, Matrix inverseViewMatrix) {
-        Vector2f touchCenter = previousTouchPoint.add(eraserPosition.subtract(previousTouchPoint).divide(2));
-
-        //build a rectangle between the previous and current touch point
-        RectF rect = new RectF(
-                touchCenter.x,
-                touchCenter.y,
-                touchCenter.x + eraserRadius,
-                touchCenter.y + eraserRadius);
-        rect.offset(- rect.width() / 2, - rect.height() / 2);
-        //inverseViewMatrix.mapRect(rect);
-        Matrix m = new Matrix();
-        m.setRotate(previousTouchPoint.angle(eraserPosition), rect.centerX(), rect.centerY());
-
-        RectF bounds = new RectF();
-        float[] rectPts = MathHelper.rectToFloatArray(rect);
-        m.mapRect(rect);
-        m.mapPoints(rectPts);
-
-        int strokesErased = 0;
-
-        for(int i = 0; i < mStrokes.size(); i++) {
-            mStrokes.get(i).computeBounds(bounds, true);
-            float boundsPts[] = MathHelper.rectToFloatArray(bounds);
-
-            if(SAT.rectangleRectangleIntersection(rectPts, boundsPts)) {
-
-                ArrayList<Float> points = mStrokes.get(i).getPathPoints();
-                final boolean intersects = (mStrokes.get(i).getPathPoints().size() == 2) ?
-                        SAT.rectangularPointRectangleIntersection(points.get(0), points.get(1), mStrokes.get(i).getWeight(), rectPts) :
-                        SAT.linesRectangleIntersection(points, rectPts);
-
-
-                if(intersects) {
-                    Stroke erasedStroke = mStrokes.remove(i);
-                    mActions.add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
-                    strokesErased++;
-                }
-            }
-        }
-
-        return strokesErased;
     }
 
     public void renderStrokes(Canvas canvas) {
@@ -268,10 +201,6 @@ public class CanvasWriter implements Serializable {
         mPaint.setColor(mCurrentStroke.getColor());
         mPaint.setStrokeWidth(mCurrentStroke.getWeight());
         canvas.drawPath(mCurrentStroke, mPaint);
-    }
-
-    private void clearUndoneStrokes() {
-        mUndoneActions.clear();
     }
 
     public boolean undo() {

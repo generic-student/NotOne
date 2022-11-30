@@ -3,17 +3,25 @@ package app.notone.core;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.util.List;
+
+import app.notone.io.PdfExporter;
+
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
-    private final float MAX_SCALE = 10.f;
-    private final float MIN_SCALE = 0.1f;
+    private final float MAX_SCALE = 5.f;
+    private final float MIN_SCALE = 0.05f;
 
     private CanvasWriter mCanvasWriter;
 
@@ -139,6 +147,20 @@ public class CanvasView extends View {
         mPdfRenderer.render(mPdfDocument, canvas, mViewTransform);
 
         mCanvasWriter.renderStrokes(canvas);
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        //List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasView(this, (float)metrics.densityDpi / metrics.density);
+        List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(this, (float)metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+
+        Paint borderPaint = new Paint();
+        borderPaint.setStrokeWidth(3);
+        borderPaint.setColor(Color.BLACK);
+        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
+        borderPaint.setStyle(Paint.Style.STROKE);
+        for(Rect b : bounds) {
+            canvas.drawRect(b, borderPaint);
+        }
+
         super.onDraw(canvas);
     }
 
@@ -269,7 +291,7 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if(e2.getPointerCount() <= 1 && true) { // TODO check with shared preferneces
+            if(e2.getPointerCount() <= 1 && false) { // TODO check with shared preferneces
                 return true;
             }
 
