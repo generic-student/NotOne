@@ -195,7 +195,7 @@ public class CanvasView extends View {
     }
 
     public boolean undo() {
-        boolean invalidated = mCanvasWriter.undo();
+        boolean invalidated = mCanvasWriter.getUndoRedoManager().undo();
         if(invalidated) {
             invalidate();
         }
@@ -203,7 +203,7 @@ public class CanvasView extends View {
     }
 
     public boolean redo() {
-        boolean invalidated = mCanvasWriter.redo();
+        boolean invalidated = mCanvasWriter.getUndoRedoManager().redo();
         if(invalidated) {
             invalidate();
         }

@@ -1,5 +1,7 @@
 package app.notone.core.pens;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.view.MotionEvent;
 
@@ -21,4 +23,6 @@ public abstract class CanvasPen {
     }
 
     public abstract boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint);
+
+    public abstract void render(Canvas canvas);
 }

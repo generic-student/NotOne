@@ -1,7 +1,5 @@
 package app.notone.fragments;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
@@ -31,7 +29,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -40,10 +37,9 @@ import org.json.JSONException;
 
 import app.notone.core.CanvasView;
 import app.notone.R;
-import app.notone.core.WriteMode;
+import app.notone.core.pens.PenType;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
-import app.notone.io.PdfExporter;
 import app.notone.io.PdfImporter;
 
 public class CanvasFragment extends Fragment {
@@ -96,13 +92,13 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
-            if(canvasView.getCanvasWriter().getWriteMode() == WriteMode.ERASER) {
+            if(canvasView.getCanvasWriter().getWriteMode() == PenType.ERASER) {
                 buttonEraser.setBackgroundColor(Color.TRANSPARENT);
-                canvasView.getCanvasWriter().setWriteMode(WriteMode.PEN);
+                canvasView.getCanvasWriter().setWriteMode(PenType.PEN);
             }
             else {
                 buttonEraser.setBackgroundColor(Color.argb(120, 255, 255, 255));
-                canvasView.getCanvasWriter().setWriteMode(WriteMode.ERASER);
+                canvasView.getCanvasWriter().setWriteMode(PenType.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> canvasView.undo());

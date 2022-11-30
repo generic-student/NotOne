@@ -1,11 +1,15 @@
 package app.notone.core.pens;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
+import app.notone.R;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
@@ -14,8 +18,11 @@ import app.notone.core.util.MathHelper;
 import app.notone.core.util.SAT;
 
 public class CanvasEraserPen extends CanvasPen{
+    public RectF eraserBounds;
+
     public CanvasEraserPen(CanvasWriter writerReference) {
         super(writerReference);
+        eraserBounds = new RectF();
     }
 
     @Override
@@ -27,26 +34,29 @@ public class CanvasEraserPen extends CanvasPen{
         return strokesErased > 0;
     }
 
-    public int erase(Vector2f eraserPosition, float eraserRadius) {
-        final Vector2f previousTouchPoint = canvasWriterRef.getPreviousTouchPoint();
+    @Override
+    public void render(Canvas canvas) {
 
-        final Vector2f touchCenter = previousTouchPoint.add(eraserPosition.subtract(previousTouchPoint).divide(2));
+    }
+
+    private void computeEraserBounds(Vector2f eraserPosition, float eraserRadius) {
+        final Vector2f touchCenter = eraserPosition;
 
         //build a rectangle between the previous and current touch point
-        RectF rect = new RectF(
+        eraserBounds = new RectF(
                 touchCenter.x,
                 touchCenter.y,
                 touchCenter.x + eraserRadius,
                 touchCenter.y + eraserRadius);
-        rect.offset(- rect.width() / 2, - rect.height() / 2);
-        //inverseViewMatrix.mapRect(rect);
-        Matrix m = new Matrix();
-        m.setRotate(previousTouchPoint.angle(eraserPosition), rect.centerX(), rect.centerY());
+        eraserBounds.offset(- eraserBounds.width() / 2, - eraserBounds.height() / 2);
+
+    }
+
+    public int erase(Vector2f eraserPosition, float eraserRadius) {
+        computeEraserBounds(eraserPosition, eraserRadius);
 
         RectF bounds = new RectF();
-        float[] rectPts = MathHelper.rectToFloatArray(rect);
-        m.mapRect(rect);
-        m.mapPoints(rectPts);
+        float[] rectPts = MathHelper.rectToFloatArray(eraserBounds);
 
         int strokesErased = 0;
         ArrayList<Stroke> strokes = canvasWriterRef.getStrokes();
@@ -65,7 +75,7 @@ public class CanvasEraserPen extends CanvasPen{
 
                 if(intersects) {
                     Stroke erasedStroke = strokes.remove(i);
-                    canvasWriterRef.getActions().add(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
+                    canvasWriterRef.getUndoRedoManager().addAction(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
                     strokesErased++;
                 }
             }

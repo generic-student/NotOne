@@ -81,8 +81,8 @@ public class CanvasImporter {
             undoneActions.add(undoneAction);
         }
 
-        writer.setActions(actions);
-        writer.setUndoneActions(undoneActions);
+        writer.getUndoRedoManager().setActions(actions);
+        writer.getUndoRedoManager().setUndoneActions(undoneActions);
 
         return writer;
     }

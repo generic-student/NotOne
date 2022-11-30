@@ -65,14 +65,14 @@ public class CanvasExporter {
         }
 
         //export the undo tree
-        List<JSONObject> actionsJSON = writer.getActions().stream().map(action -> {
+        List<JSONObject> actionsJSON = writer.getUndoRedoManager().getActions().stream().map(action -> {
             final int strokeId = writer.getStrokes().indexOf(action.stroke);
             return canvasWriterActionToJSON(action, strokeId);
         }).collect(Collectors.toList());
 
         JSONArray actions = new JSONArray(actionsJSON);
 
-        List<JSONObject> undoneActionsJSON = writer.getUndoneActions().stream().map(action -> {
+        List<JSONObject> undoneActionsJSON = writer.getUndoRedoManager().getUndoneActions().stream().map(action -> {
             final int strokeId = writer.getStrokes().indexOf(action.stroke);
             return canvasWriterActionToJSON(action, strokeId);
         }).collect(Collectors.toList());
