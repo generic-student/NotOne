@@ -2,6 +2,7 @@ package app.notone.io;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Base64;
 
 import org.json.JSONArray;
@@ -17,6 +18,76 @@ import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
 
 public class CanvasImporter {
+    public static class CanvasImportData {
+        CanvasView canvasView;
+        String jsonString;
+        boolean loadUndoTree;
+
+        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree) {
+            this.canvasView = canvasView;
+            this.jsonString = jsonString;
+            this.loadUndoTree = loadUndoTree;
+        }
+    }
+
+    public static class InitCanvasFromJsonTask extends AsyncTask<CanvasImportData, Integer, Void> {
+        protected Void doInBackground(CanvasImportData... data) {
+            for(CanvasImportData canvasImportData : data) {
+                JSONObject json = null;
+                try {
+                    json = new JSONObject(canvasImportData.jsonString);
+                    final float scale = (float) json.getDouble("scale");
+                    canvasImportData.canvasView.setScale(scale);
+                    canvasImportData.canvasView.invalidate();
+
+                    JSONArray viewTransformJSON = json.getJSONArray("viewTransform");
+                    JSONArray inverseViewTransformJSON = json.getJSONArray("inverseViewTransform");
+                    float[] viewTransformData = new float[9];
+                    for(int i = 0; i < 9; i++) {
+                        viewTransformData[i] = (float) viewTransformJSON.getDouble(i);
+                    }
+                    canvasImportData.canvasView.getViewTransform().setValues(viewTransformData);
+                    canvasImportData.canvasView.invalidate();
+
+                    float[] inverseViewTransformData = new float[9];
+                    for(int i = 0; i < 9; i++) {
+                        inverseViewTransformData[i] = (float) inverseViewTransformJSON.getDouble(i);
+                    }
+                    canvasImportData.canvasView.getInverseViewTransform().setValues(inverseViewTransformData);
+                    canvasImportData.canvasView.invalidate();
+
+                    CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), canvasImportData.loadUndoTree);
+                    canvasImportData.canvasView.setCanvasWriter(writer);
+                    canvasImportData.canvasView.invalidate();
+
+                    CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
+                    canvasImportData.canvasView.setPdfDocument(document);
+                    canvasImportData.canvasView.invalidate();
+
+//                    canvasImportData.canvasView.setScale(scale);
+//                    canvasImportData.canvasView.getViewTransform().setValues(viewTransformData);
+//                    canvasImportData.canvasView.getInverseViewTransform().setValues(inverseViewTransformData);
+//                    canvasImportData.canvasView.setCanvasWriter(writer);
+//                    canvasImportData.canvasView.setPdfDocument(document);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        protected void onPostExecute(Void result) {
+
+        }
+
+    }
+
+
     public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
