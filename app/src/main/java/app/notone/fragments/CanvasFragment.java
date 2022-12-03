@@ -210,11 +210,13 @@ public class CanvasFragment extends Fragment {
         //load the data from the sharedPrefs
         String data = sharedPreferences.getString("lastOpenedCanvasWriter", "");
 
-        try {
-            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
-        }
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(data, canvasView, true));
+
+//        try {
+//            CanvasImporter.initCanvasViewFromJSON(data, canvasView, true);
+//        } catch (JSONException e) {
+//            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
+//        }
     }
 
     @Override
