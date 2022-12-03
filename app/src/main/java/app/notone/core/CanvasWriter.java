@@ -108,6 +108,10 @@ public class CanvasWriter implements Serializable {
     public void reset() {
         undoRedoManager.reset();
         mStrokes.clear();
+
+        for(CanvasPen pen : pens.values()) {
+            pen.reset();
+        }
     }
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
@@ -122,6 +126,8 @@ public class CanvasWriter implements Serializable {
         else if(getWriteMode() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
         }
+
+        setDrawState(DrawState.SELECT);
 
         //transform the cursor position using the inverse of the view matrix
         Vector2f currentTouchPoint = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);

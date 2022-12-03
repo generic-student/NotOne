@@ -1,15 +1,11 @@
 package app.notone.core.pens;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
-import app.notone.R;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
@@ -39,15 +35,19 @@ public class CanvasEraserPen extends CanvasPen{
 
     }
 
+    @Override
+    public void reset() {
+
+    }
+
     private void computeEraserBounds(Vector2f eraserPosition, float eraserRadius) {
-        final Vector2f touchCenter = eraserPosition;
 
         //build a rectangle between the previous and current touch point
         eraserBounds = new RectF(
-                touchCenter.x,
-                touchCenter.y,
-                touchCenter.x + eraserRadius,
-                touchCenter.y + eraserRadius);
+                eraserPosition.x,
+                eraserPosition.y,
+                eraserPosition.x + eraserRadius,
+                eraserPosition.y + eraserRadius);
         eraserBounds.offset(- eraserBounds.width() / 2, - eraserBounds.height() / 2);
 
     }
@@ -63,7 +63,7 @@ public class CanvasEraserPen extends CanvasPen{
 
         for(int i = 0; i < strokes.size(); i++) {
             strokes.get(i).computeBounds(bounds, true);
-            float boundsPts[] = MathHelper.rectToFloatArray(bounds);
+            float[] boundsPts = MathHelper.rectToFloatArray(bounds);
 
             if(SAT.rectangleRectangleIntersection(rectPts, boundsPts)) {
 

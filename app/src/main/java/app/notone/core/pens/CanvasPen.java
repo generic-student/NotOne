@@ -25,4 +25,6 @@ public abstract class CanvasPen {
     public abstract boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint);
 
     public abstract void render(Canvas canvas);
+
+    public abstract void reset();
 }

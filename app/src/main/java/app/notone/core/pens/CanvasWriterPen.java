@@ -1,7 +1,6 @@
 package app.notone.core.pens;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
@@ -58,11 +57,12 @@ public class CanvasWriterPen extends CanvasPen {
         canvas.drawPath(currentStroke, paint);
     }
 
-    private void clearUndoneStrokes() {
-        canvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
+    @Override
+    public void reset() {
+
     }
 
-    public Stroke getCurrentStroke() {
-        return currentStroke;
+    private void clearUndoneStrokes() {
+        canvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
     }
 }
