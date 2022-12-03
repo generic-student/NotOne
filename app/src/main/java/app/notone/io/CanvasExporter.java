@@ -3,6 +3,16 @@ package app.notone.io;
 import android.graphics.Bitmap;
 import android.util.Base64;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import org.json.JSONArray;
@@ -11,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,9 +32,13 @@ import app.notone.core.CanvasView;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+
+import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
 public class CanvasExporter {
-
+    private static final String LOG_TAG = CanvasExporter.class.getSimpleName();
 
     public static JSONObject canvasViewToJSON(@NonNull CanvasView view, boolean exportUndoTree) throws JSONException{
         JSONObject json = new JSONObject();
@@ -43,6 +59,9 @@ public class CanvasExporter {
         json.put("writer", canvasWriterToJSON(view.getCanvasWriter(), exportUndoTree));
         //get the pdfDocument instance
         json.put("pdf", canvasPdfDocumentToJson(view.getPdfDocument()));
+
+        // save Uri of canvas
+        json.put("uri", view.getCurrentURI().toString());
 
         return json;
     }

@@ -7,17 +7,19 @@
 
         <!-- set based on system settings, can be overwritten default unset -->
         <SwitchPreferenceCompat
+            app:icon="@drawable/ic_theme"
             app:key="darkmode"
             app:summaryOff="Light Mode"
             app:summaryOn="Dark Mode"
-            app:title="App Theme"  />
+            app:title="App Theme" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="false"
+            app:icon="@drawable/ic_pen"
             app:key="textmarker"
             app:summaryOff="Constant Opacity"
             app:summaryOn="Additive Opacity"
-            app:title="Text Marker Opacity Addition"
-            android:defaultValue="false"/>
+            app:title="Text Marker Opacity Addition" />
 
 
     </PreferenceCategory>
@@ -25,17 +27,27 @@
     <PreferenceCategory app:title="Function">
 
         <SwitchPreferenceCompat
-            app:key="panning"
+            android:defaultValue="false"
+            app:icon="@drawable/ic_pan"
+            app:key="twofingerpanning"
             app:summaryOff="Any Finger Pan"
             app:summaryOn="Two Finger Pan only"
-            app:title="Panning Mode"
-            android:defaultValue="false"/>
+            app:title="Restricted Panning" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            app:icon="@drawable/ic_right_arrow"
+            app:key="drawerswipe"
+            app:summaryOff="cant swipe to open Drawer"
+            app:summaryOn="swipe to open Drawer"
+            app:title="Drawer Swipe open (Restart Required)" />
 
 <!-- auto save to the location from which it was opened -->
         <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:icon="@drawable/ic_autosave"
             app:key="autosave"
-            app:title="Autosave the Canvas"
-            android:defaultValue="true"/>
+            app:title="Autosave the Canvas" />
 
         <EditTextPreference
             android:dependency="autosave"
@@ -46,9 +58,10 @@
             app:useSimpleSummaryProvider="true"/>
 
         <SwitchPreferenceCompat
+            android:defaultValue="false"
+            app:icon="@drawable/ic_sync"
             app:key="sync"
-            app:title="Synchronize with Server"
-            android:defaultValue="false"/>
+            app:title="Synchronize with Server" />
 
         <ListPreference
             android:dependency="sync"

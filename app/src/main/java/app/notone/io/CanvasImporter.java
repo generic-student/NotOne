@@ -1,5 +1,8 @@
 package app.notone.io;
 
+import android.net.Uri;
+import android.util.Log;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -11,6 +14,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import app.notone.core.CanvasPdfDocument;
 import app.notone.core.CanvasView;
 import app.notone.core.CanvasWriter;
@@ -115,6 +119,9 @@ public class CanvasImporter {
         view.setCanvasWriter(writer);
         view.setPdfDocument(document);
 
+        // import uri
+        String uri = json.getString("uri");
+        view.setUri(Uri.parse(uri));
     }
 
     public static CanvasWriter canvasWriterFromJSON(JSONObject json, boolean loadUndoTree) throws JSONException {
