@@ -36,7 +36,7 @@ public class CanvasWriter implements Serializable {
     }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
-    private PenType mWriteMode = PenType.PEN;
+    private PenType mCurrentPenType = PenType.PEN;
 
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
@@ -97,12 +97,12 @@ public class CanvasWriter implements Serializable {
         return undoRedoManager;
     }
 
-    public PenType getWriteMode() {
-        return mWriteMode;
+    public PenType getCurrentPenType() {
+        return mCurrentPenType;
     }
 
-    public void setWriteMode(PenType mWriteMode) {
-        this.mWriteMode = mWriteMode;
+    public void setCurrentPenType(PenType currentPenType) {
+        this.mCurrentPenType = currentPenType;
     }
 
     public void reset() {
@@ -116,18 +116,19 @@ public class CanvasWriter implements Serializable {
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
-        if(getWriteMode() == PenType.PEN) {
+        if(getCurrentPenType() == PenType.PEN) {
             if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.WRITE);
             }
         }
-        else if(getWriteMode() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
+        else if(getCurrentPenType() == PenType.SELECTOR) {
+            setDrawState(DrawState.SELECT);
+        }
+        else if(getCurrentPenType() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
         }
-
-        setDrawState(DrawState.SELECT);
 
         //transform the cursor position using the inverse of the view matrix
         Vector2f currentTouchPoint = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);

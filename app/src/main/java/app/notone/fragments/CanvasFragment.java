@@ -92,13 +92,13 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
-            if(canvasView.getCanvasWriter().getWriteMode() == PenType.ERASER) {
+            if(canvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
                 buttonEraser.setBackgroundColor(Color.TRANSPARENT);
-                canvasView.getCanvasWriter().setWriteMode(PenType.PEN);
+                canvasView.getCanvasWriter().setCurrentPenType(PenType.PEN);
             }
             else {
                 buttonEraser.setBackgroundColor(Color.argb(120, 255, 255, 255));
-                canvasView.getCanvasWriter().setWriteMode(PenType.ERASER);
+                canvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> canvasView.undo());
@@ -162,7 +162,8 @@ public class CanvasFragment extends Fragment {
         // Test
         Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
         buttonTest.setOnClickListener(v -> {
-            canvasView.reset();
+            //canvasView.reset();
+            canvasView.getCanvasWriter().setCurrentPenType(PenType.SELECTOR);
 //            String folder = "/storage/emulated/0/Documents";
 //            String filename = "NotOneExport" + Long.toString(System.currentTimeMillis()/1000) + ".pdf";
 //            System.out.println(folder + "/" + filename);
