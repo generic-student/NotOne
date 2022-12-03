@@ -1,12 +1,18 @@
 package app.notone;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,10 +27,14 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONException;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -32,10 +42,14 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+
+import app.notone.core.CanvasView;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.CanvasImporter;
+import app.notone.io.PdfExporter;
+import app.notone.io.PdfImporter;
 import app.notone.views.NavigationDrawer;
 
 import static androidx.navigation.Navigation.findNavController;
@@ -48,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
     NavigationDrawer mmainActivityDrawer;
     private Uri mUri;
     public static CanvasView mCanvasView = null;
+
+    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
+            uri -> {
+                DisplayMetrics metrics = getResources().getDisplayMetrics();
+                PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float)metrics.densityDpi / metrics.density, true);
+                CanvasFileManager.savePdfDocument(this, uri, doc);
+            });
 
     /**
      * Main onCreate of the App
@@ -65,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        requestFileAccessPermission();
 
         /* set theme Preference on first start if it has never been set before */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -104,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
                     /* create a new file at a chosen uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: New File");
                     if(mCanvasView == null) {
-                        Log.e(TAG, "onCreate: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                         return false;
                     }
                     CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
@@ -144,7 +166,8 @@ public class MainActivity extends AppCompatActivity {
 //                    mCanvasView.setUri(uri);
                     return true;
                 case R.id.export:
-                    /* export Pdf to new uri */
+                    mSavePdfDocument.launch("application/pdf");
+
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
             }
@@ -263,6 +286,32 @@ public class MainActivity extends AppCompatActivity {
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION
                         | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 getContentResolver().takePersistableUriPermission(mUri, takeFlags);
+            }
+        }
+    }
+
+    private void requestFileAccessPermission() {
+        // requesting permissions if not provided.
+        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 200) {
+            if (grantResults.length > 0) {
+
+                // after requesting permissions we are showing
+                // users a toast message of permission granted.
+                boolean writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if (writeStorage && readStorage) {
+                    Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             }
         }
     }

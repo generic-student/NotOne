@@ -137,6 +137,7 @@ public class CanvasView extends View {
 
     public void reset() {
         resetViewMatrices();
+        setScale(1.f);
         mCanvasWriter.reset();
         mPdfDocument = new CanvasPdfDocument(2.f);
         invalidate();

@@ -2,6 +2,7 @@ package app.notone.fragments;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,16 +21,19 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
-import app.notone.CanvasView;
-import app.notone.MainActivity;
+import app.notone.core.CanvasView;
 import app.notone.R;
-import app.notone.WriteMode;
+import app.notone.core.pens.PenType;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
+import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
 import app.notone.views.PresetPenButton;
 
@@ -47,6 +51,17 @@ public class CanvasFragment extends Fragment {
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
+    ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri uri) {
+                    mCanvasView.resetViewMatrices();
+                    mCanvasView.setScale(1f);
+                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, 2.f));
+                    mCanvasView.invalidate();
+                }
+            });
+
     /**
      * Store Data in Shared Prefs to enable persistence
      */
@@ -57,14 +72,16 @@ public class CanvasFragment extends Fragment {
         Log.d(TAG, "onStart: RELOADING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
-        String canvasdata = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
+        String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
 
-        /* restore canvas */
-        try {
-            CanvasImporter.initCanvasViewFromJSON(canvasdata, mCanvasView, true);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
-        }
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(data, mCanvasView, true));
+
+//        /* restore canvas */
+//        try {
+//            CanvasImporter.initCanvasViewFromJSON(canvasdata, mCanvasView, true);
+//        } catch (JSONException e) {
+//            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
+//        }
 
         /* restore old pens */
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
@@ -152,12 +169,12 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
-            if (mCanvasView.getCanvasWriter().getWritemode() == WriteMode.ERASER) {
+            if (mCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
-                mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.PEN);
             } else {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
-                mCanvasView.getCanvasWriter().setWritemode(WriteMode.ERASER);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonUndo.setOnClickListener(v -> mCanvasView.undo());
@@ -177,7 +194,7 @@ public class CanvasFragment extends Fragment {
         /* insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
-            Log.d(TAG, "onViewCreated: Insert Pdf");
+            mGetPdfDocument.launch("application/pdf");
         });
 
         /* Test button */
@@ -205,7 +222,7 @@ public class CanvasFragment extends Fragment {
         buttonPresetPen.setOnClickListener(v1 -> {
             buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
             buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
-            mCanvasView.getCanvasWriter().setWritemode(WriteMode.PEN);
+            mCanvasView.getCanvasWriter().setCurrentPenType(PenType.PEN);
             setOrToggleToolSelection(buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {

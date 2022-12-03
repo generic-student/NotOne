@@ -190,7 +190,7 @@ public class PdfExporter {
 
     public static void export(CanvasView canvasView, float dpi, String folder, String filename, boolean enforceA4) {
         //compute the size for the pdf pages
-        ArrayList<Rect> pages = computePdfPageBoundsFromCanvasView(canvasView, dpi);
+        ArrayList<Rect> pages = enforceA4 ? computePdfPageBoundsFromCanvasViewStrict(canvasView, dpi, PageSize.A4) : computePdfPageBoundsFromCanvasView(canvasView, dpi);
 
         //render the content to the pdf
         PdfDocument pdfDocument = new PdfDocument();
@@ -201,5 +201,16 @@ public class PdfExporter {
 
         //close the document
         pdfDocument.close();
+    }
+
+    public static PdfDocument exportPdfDocument(CanvasView canvasView, float dpi, boolean enforceA4) {
+        //compute the size for the pdf pages
+        ArrayList<Rect> pages = enforceA4 ? computePdfPageBoundsFromCanvasViewStrict(canvasView, dpi, PageSize.A4) : computePdfPageBoundsFromCanvasView(canvasView, dpi);
+
+        //render the content to the pdf
+        PdfDocument pdfDocument = new PdfDocument();
+        renderCanvasViewContentsToPdfDocument(canvasView, pages, pdfDocument);
+
+        return pdfDocument;
     }
 }
