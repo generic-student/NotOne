@@ -2,7 +2,9 @@ package app.notone.core;
 
 import android.graphics.Bitmap;
 
-public class CanvasPdfDocument {
+import java.io.Serializable;
+
+public class CanvasPdfDocument implements Serializable {
     private static final String LOG_TAG = CanvasPdfDocument.class.getSimpleName();
     private Bitmap[] pages = {};
     private float scaling = 2.f;

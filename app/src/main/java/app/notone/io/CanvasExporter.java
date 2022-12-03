@@ -22,7 +22,7 @@ import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
 
 public class CanvasExporter {
-    private static final String LOG_TAG = CanvasExporter.class.getSimpleName();
+
 
     public static JSONObject canvasViewToJSON(@NonNull CanvasView view, boolean exportUndoTree) throws JSONException{
         JSONObject json = new JSONObject();
@@ -147,8 +147,6 @@ public class CanvasExporter {
                 byteArrayBitmapStream);
         byte[] b = byteArrayBitmapStream.toByteArray();
         encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
-
-        System.out.println(encodedImage);
 
         try {
             json.put("data", encodedImage);

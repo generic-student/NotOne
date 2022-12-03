@@ -1,11 +1,12 @@
 package app.notone.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class UndoRedoManager {
+public class UndoRedoManager implements Serializable {
     private ArrayList<CanvasWriterAction> mUndoneActions;
     private ArrayList<CanvasWriterAction> mActions;
-    private ArrayList<Stroke> mStrokesReference;
+    private transient ArrayList<Stroke> mStrokesReference;
 
     public UndoRedoManager(ArrayList<Stroke> strokesRef) {
         mActions = new ArrayList<>();

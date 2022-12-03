@@ -29,7 +29,7 @@ public class CanvasWriter implements Serializable {
     private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
 
     //all the existing pens
-    private final HashMap<DrawState, CanvasPen> pens;
+    private final transient HashMap<DrawState, CanvasPen> pens;
 
     public enum DrawState {
         WRITE, ERASE, SELECT
