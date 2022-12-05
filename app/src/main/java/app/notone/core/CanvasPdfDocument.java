@@ -7,7 +7,6 @@ import java.io.Serializable;
 public class CanvasPdfDocument implements Serializable {
     private static final String LOG_TAG = CanvasPdfDocument.class.getSimpleName();
     private Bitmap[] pages = {};
-    private float scaling = 2.f;
 
     public Bitmap getPage(int value) {
         return pages[value];
