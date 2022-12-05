@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,8 @@ public class PdfExporter {
         final int heightPixels = pageSize.getHeightPixels(dpi);
         final int widthPixels = pageSize.getWidthPixels(dpi);
 
+        final int pdfPages = view.getPdfDocument().getPages().length;
+
         //sort the bounding boxes by their y coordinate
         final List<RectF> boundsSortedY = getStrokeBoundsSortedY(view).
                 stream().
@@ -72,10 +75,12 @@ public class PdfExporter {
         int maxBottom = (int) boundsSortedY.stream().max((b1, b2) -> Float.compare(b1.bottom, b2.bottom)).orElse(new RectF(0,0,0,0)).bottom;
 
         ArrayList<Rect> pages = new ArrayList<>();
+        for(int i = 0; i < pdfPages; i++) {
+            pages.add(new Rect(0, i * heightPixels, widthPixels, (i + 1) * heightPixels));
+        }
 
-        int pageIndex = 0;
+        int pageIndex = pdfPages;
         Rect page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
-
         while(page.top < maxBottom) {
             for (int i = 0; i < boundsSortedY.size(); i++) {
                 RectF bounds = boundsSortedY.get(i);
@@ -90,7 +95,7 @@ public class PdfExporter {
             pageIndex++;
             page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
         }
-
+        System.out.println(String.format("Pages: %d", pages.size()));
         return pages;
     }
 
@@ -154,7 +159,9 @@ public class PdfExporter {
             offset.setTranslate(-pageRect.left, -pageRect.top);
             canvas.setMatrix(offset);
 
+            view.getPdfRenderer().render(view.getPdfDocument(), canvas);
             view.getCanvasWriter().renderStrokes(canvas);
+
 
             document.finishPage(page);
         }

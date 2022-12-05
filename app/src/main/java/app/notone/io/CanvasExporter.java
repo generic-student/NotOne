@@ -59,7 +59,6 @@ public class CanvasExporter {
         json.put("writer", canvasWriterToJSON(view.getCanvasWriter(), exportUndoTree));
         //get the pdfDocument instance
         json.put("pdf", canvasPdfDocumentToJson(view.getPdfDocument()));
-
         // save Uri of canvas
         json.put("uri", view.getCurrentURI().toString());
 
