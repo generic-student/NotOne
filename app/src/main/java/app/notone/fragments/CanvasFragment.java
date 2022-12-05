@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,8 +57,9 @@ public class CanvasFragment extends Fragment {
                 public void onActivityResult(Uri uri) {
                     mCanvasView.resetViewMatrices();
                     mCanvasView.setScale(1f);
-                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
-                    mCanvasView.invalidate();
+                    PdfImporter.fromUri(getContext(), uri, mCanvasView.getPdfDocument());
+//                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
+//                    mCanvasView.invalidate();
                 }
             });
 

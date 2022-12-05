@@ -23,15 +23,7 @@ public class CanvasPdfDocument implements Serializable {
         this.pages = pages;
     }
 
-    public float getScaling() {
-        return scaling;
-    }
+    public CanvasPdfDocument() {
 
-    public void setScaling(float scaling) {
-        this.scaling = scaling;
-    }
-
-    public CanvasPdfDocument(float baseScaling) {
-        setScaling(baseScaling);
     }
 }

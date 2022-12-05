@@ -58,7 +58,7 @@ public class CanvasView extends View {
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
 
-        mPdfDocument = new CanvasPdfDocument(1.f);
+        mPdfDocument = new CanvasPdfDocument();
         mPdfRenderer = new PdfCanvasRenderer();
         mPdfRenderer.setPadding(0);
         mPdfRenderer.setScaling(1.f);
@@ -141,7 +141,7 @@ public class CanvasView extends View {
         resetViewMatrices();
         setScale(1.f);
         mCanvasWriter.reset();
-        mPdfDocument = new CanvasPdfDocument(1.f);
+        mPdfDocument = new CanvasPdfDocument();
         invalidate();
     }
 

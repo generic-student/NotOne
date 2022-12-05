@@ -201,7 +201,6 @@ public class CanvasImporter {
     }
 
     public static CanvasPdfDocument canvasPdfDocumentFromJson(JSONObject json) throws JSONException {
-        final float scaling = (float) json.getDouble("scaling");
         JSONArray pagesJSON = json.getJSONArray("pages");
         Bitmap[] pages = new Bitmap[pagesJSON.length()];
         for (int i = 0; i < pagesJSON.length(); i++) {
@@ -209,7 +208,7 @@ public class CanvasImporter {
             pages[i] = bitmapFromJSON(bitmapJSON);
         }
 
-        CanvasPdfDocument document = new CanvasPdfDocument(scaling);
+        CanvasPdfDocument document = new CanvasPdfDocument();
         document.setPages(pages);
 
         return document;

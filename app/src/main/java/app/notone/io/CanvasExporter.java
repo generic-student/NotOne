@@ -139,7 +139,6 @@ public class CanvasExporter {
     public static JSONObject canvasPdfDocumentToJson(CanvasPdfDocument document) {
         JSONObject json = new JSONObject();
         try {
-            json.put("scaling", document.getScaling());
             List<JSONObject> pagesJSON = Arrays.stream(document.getPages()).
                     map(page -> bitmapToJson(page)).
                     filter(Objects::nonNull).
