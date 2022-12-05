@@ -10,7 +10,7 @@ import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 
 public class CanvasWriterPen extends CanvasPen {
-    Stroke currentStroke;
+    private Stroke currentStroke;
 
     public CanvasWriterPen(CanvasWriter writerReference) {
         super(writerReference);
@@ -59,10 +59,18 @@ public class CanvasWriterPen extends CanvasPen {
 
     @Override
     public void reset() {
-
+        currentStroke.reset();
     }
 
     private void clearUndoneStrokes() {
         canvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
+    }
+
+    public void setStrokeColor(int c) {
+        currentStroke.setColor(c);
+    }
+
+    public void setStrokeWeight(float weight) {
+        currentStroke.setWeight(weight);
     }
 }

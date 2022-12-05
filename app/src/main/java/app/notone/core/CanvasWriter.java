@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import app.notone.core.pens.CanvasPen;
 import app.notone.core.pens.CanvasPenFactory;
+import app.notone.core.pens.CanvasWriterPen;
 import app.notone.core.pens.PenType;
 
 public class CanvasWriter implements Serializable {
@@ -67,6 +68,8 @@ public class CanvasWriter implements Serializable {
 
     public void setStrokeWeight(float mStrokeWeight) {
         this.mStrokeWeight = mStrokeWeight;
+
+        ((CanvasWriterPen)pens.get(DrawState.WRITE)).setStrokeWeight(mStrokeWeight);
     }
 
     public int getStrokeColor() {
@@ -75,6 +78,8 @@ public class CanvasWriter implements Serializable {
 
     public void setStrokeColor(int mStrokeColor) {
         this.mStrokeColor = mStrokeColor;
+
+        ((CanvasWriterPen)pens.get(DrawState.WRITE)).setStrokeColor(mStrokeColor);
     }
 
     public DrawState getDrawState() {
