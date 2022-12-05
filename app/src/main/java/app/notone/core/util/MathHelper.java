@@ -1,10 +1,14 @@
-package app.notone;
+package app.notone.core.util;
 
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+
+import app.notone.core.Vector2f;
 
 /**
  * Helper class for various math functions
@@ -108,5 +112,18 @@ public class MathHelper {
             }
         }
         return false;
+    }
+
+    public static boolean rectangleIntersectsRectangle(Rect r1, Rect r2) {
+        return r1.intersect(r2);
+    }
+
+    public static float[] rectToFloatArray(RectF rect) {
+        return new float[] {
+          rect.left, rect.bottom,
+          rect.left, rect.top,
+          rect.right, rect.top,
+          rect.right, rect.bottom
+        };
     }
 }

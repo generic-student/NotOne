@@ -1,4 +1,4 @@
-package app.notone;
+package app.notone.core;
 
 import android.graphics.Path;
 
@@ -22,6 +22,12 @@ public class Stroke extends Path implements Serializable {
         this.mColor = mColor;
         this.mWeight = mWeight;
         this.pathPoints = new ArrayList<>();
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.pathPoints.clear();
     }
 
     public int getColor() {
@@ -52,7 +58,7 @@ public class Stroke extends Path implements Serializable {
      * Initializes the Path variable after a Stroke Instance has been restored through a byte stream
      */
     public void initPathFromPathPoints() {
-        reset();
+        super.reset();
         super.moveTo(pathPoints.get(0), pathPoints.get(1));
         for(int i = 2; i < pathPoints.size(); i+=2) {
             super.lineTo(pathPoints.get(i), pathPoints.get(i+1));

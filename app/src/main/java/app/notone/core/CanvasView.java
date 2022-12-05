@@ -1,24 +1,32 @@
-package app.notone;
+package app.notone.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+
+import java.util.List;
+
+import app.notone.io.PdfExporter;
 
 import androidx.preference.PreferenceManager;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
     private final float MAX_SCALE = 5.f;
-    private final float MIN_SCALE = 0.01f;
+    private final float MIN_SCALE = 0.05f;
     public Uri mCurrentURI = null;
 
     private CanvasWriter mCanvasWriter;
@@ -30,6 +38,9 @@ public class CanvasView extends View {
     private Matrix mViewTransform;
     private Matrix mInverseViewTransform;
     private float mScale    = 1.f;
+
+    private CanvasPdfDocument mPdfDocument;
+    private PdfCanvasRenderer mPdfRenderer;
 
     /**
      * Constructor
@@ -46,6 +57,11 @@ public class CanvasView extends View {
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
+
+        mPdfDocument = new CanvasPdfDocument();
+        mPdfRenderer = new PdfCanvasRenderer();
+        mPdfRenderer.setPadding(0);
+        mPdfRenderer.setScaling(1.f);
     }
 
     /**
@@ -100,6 +116,35 @@ public class CanvasView extends View {
         this.mCanvasWriter = mCanvasWriter;
     }
 
+    public CanvasPdfDocument getPdfDocument() {
+        return mPdfDocument;
+    }
+
+    public void setPdfDocument(CanvasPdfDocument mPdfDocument) {
+        this.mPdfDocument = mPdfDocument;
+    }
+
+    public PdfCanvasRenderer getPdfRenderer() {
+        return mPdfRenderer;
+    }
+
+    public void setPdfRenderer(PdfCanvasRenderer mPdfRenderer) {
+        this.mPdfRenderer = mPdfRenderer;
+    }
+
+    public void resetViewMatrices() {
+        mViewTransform = new Matrix();
+        mViewTransform.invert(mInverseViewTransform);
+    }
+
+    public void reset() {
+        resetViewMatrices();
+        setScale(1.f);
+        mCanvasWriter.reset();
+        mPdfDocument = new CanvasPdfDocument();
+        invalidate();
+    }
+
     /**
      * called when canvas is updated or invalidated
      * @param canvas current Canvas
@@ -107,7 +152,24 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
+
+        mPdfRenderer.render(mPdfDocument, canvas);
+
         mCanvasWriter.renderStrokes(canvas);
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        //List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasView(this, (float)metrics.densityDpi / metrics.density);
+        List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(this, (float)metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+
+        Paint borderPaint = new Paint();
+        borderPaint.setStrokeWidth(3);
+        borderPaint.setColor(Color.BLACK);
+        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
+        borderPaint.setStyle(Paint.Style.STROKE);
+        for(Rect b : bounds) {
+            canvas.drawRect(b, borderPaint);
+        }
+
         super.onDraw(canvas);
     }
 
@@ -142,7 +204,7 @@ public class CanvasView extends View {
     }
 
     public boolean undo() {
-        boolean invalidated = mCanvasWriter.undo();
+        boolean invalidated = mCanvasWriter.getUndoRedoManager().undo();
         if(invalidated) {
             invalidate();
         }
@@ -150,7 +212,7 @@ public class CanvasView extends View {
     }
 
     public boolean redo() {
-        boolean invalidated = mCanvasWriter.redo();
+        boolean invalidated = mCanvasWriter.getUndoRedoManager().redo();
         if(invalidated) {
             invalidate();
         }
@@ -260,6 +322,7 @@ public class CanvasView extends View {
 
             mViewTransform.postTranslate(-distanceX, -distanceY); // slide with finger with negative transform
             invalidate();
+
             return true;
         }
 

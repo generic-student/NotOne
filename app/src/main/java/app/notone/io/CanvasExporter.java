@@ -1,5 +1,8 @@
 package app.notone.io;
 
+import android.graphics.Bitmap;
+import android.util.Base64;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,18 +19,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import app.notone.core.CanvasPdfDocument;
+import app.notone.core.CanvasView;
+import app.notone.core.CanvasWriter;
+import app.notone.core.CanvasWriterAction;
+import app.notone.core.Stroke;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import app.notone.CanvasView;
-import app.notone.CanvasWriter;
-import app.notone.CanvasWriterAction;
-import app.notone.Stroke;
 
 import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
@@ -51,15 +57,12 @@ public class CanvasExporter {
         json.put("inverseViewTransform", inverseViewTransform);
         //get the write instance
         json.put("writer", canvasWriterToJSON(view.getCanvasWriter(), exportUndoTree));
-
+        //get the pdfDocument instance
+        json.put("pdf", canvasPdfDocumentToJson(view.getPdfDocument()));
         // save Uri of canvas
         json.put("uri", view.getCurrentURI().toString());
 
         return json;
-    }
-
-    public static void canvasViewToPDF(){
-
     }
 
     public static JSONObject canvasWriterToJSON(@NonNull CanvasWriter writer, boolean exportUndoTree) throws JSONException{
@@ -80,14 +83,14 @@ public class CanvasExporter {
         }
 
         //export the undo tree
-        List<JSONObject> actionsJSON = writer.getActions().stream().map(action -> {
+        List<JSONObject> actionsJSON = writer.getUndoRedoManager().getActions().stream().map(action -> {
             final int strokeId = writer.getStrokes().indexOf(action.stroke);
             return canvasWriterActionToJSON(action, strokeId);
         }).collect(Collectors.toList());
 
         JSONArray actions = new JSONArray(actionsJSON);
 
-        List<JSONObject> undoneActionsJSON = writer.getUndoneActions().stream().map(action -> {
+        List<JSONObject> undoneActionsJSON = writer.getUndoRedoManager().getUndoneActions().stream().map(action -> {
             final int strokeId = writer.getStrokes().indexOf(action.stroke);
             return canvasWriterActionToJSON(action, strokeId);
         }).collect(Collectors.toList());
@@ -124,6 +127,46 @@ public class CanvasExporter {
             if(strokeId == -1) {
                 json.put("stroke", strokeToJSON(action.stroke));
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return json;
+    }
+
+    public static JSONObject canvasPdfDocumentToJson(CanvasPdfDocument document) {
+        JSONObject json = new JSONObject();
+        try {
+            List<JSONObject> pagesJSON = Arrays.stream(document.getPages()).
+                    map(page -> bitmapToJson(page)).
+                    filter(Objects::nonNull).
+                    collect(Collectors.toList());
+            JSONArray pages = new JSONArray(pagesJSON);
+            json.put("pages", pages);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return json;
+    }
+
+    public static JSONObject bitmapToJson(Bitmap bitmap) {
+        JSONObject json = new JSONObject();
+
+        //convert bitmap to string
+        final int COMPRESSION_QUALITY = 100;
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
+                byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+
+        try {
+            json.put("data", encodedImage);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

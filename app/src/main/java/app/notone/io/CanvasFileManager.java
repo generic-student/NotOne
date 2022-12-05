@@ -2,6 +2,8 @@ package app.notone.io;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
@@ -14,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class CanvasFileManager {
 
@@ -141,6 +144,21 @@ public class CanvasFileManager {
             FileOutputStream fileOutputStream =
                     new FileOutputStream(pfd.getFileDescriptor());
             fileOutputStream.write((json).getBytes());
+            // Let the document provider know you're done by closing the stream.
+            fileOutputStream.close();
+            pfd.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void savePdfDocument(Activity activity, Uri uri, PdfDocument doc) {
+        try {
+            ParcelFileDescriptor pfd = activity.getContentResolver().
+                    openFileDescriptor(uri, "w");
+            FileOutputStream fileOutputStream =
+                    new FileOutputStream(pfd.getFileDescriptor());
+            doc.writeTo(fileOutputStream);
             // Let the document provider know you're done by closing the stream.
             fileOutputStream.close();
             pfd.close();
