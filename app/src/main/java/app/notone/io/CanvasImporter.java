@@ -16,7 +16,7 @@ import app.notone.CanvasWriterAction;
 import app.notone.Stroke;
 
 public class CanvasImporter {
-    private static final String TAG = "";
+    private static final String TAG = "CanvasImporter";
 
     public static void initCanvasViewFromJSON(String jsonString, @NonNull CanvasView view, boolean loadUndoTree) throws JSONException {
         Log.d(TAG, "initCanvasViewFromJSON: " + jsonString);
@@ -38,9 +38,7 @@ public class CanvasImporter {
 
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
-        if(view == null)
-            Log.d(TAG, "initCanvasViewFromJSON: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        view.setScale(scale);
+         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
         view.getInverseViewTransform().setValues(inverseViewTransformData);
         view.setCanvasWriter(writer);
