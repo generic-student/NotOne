@@ -83,36 +83,4 @@ public class PdfImporter {
             e.printStackTrace();
         }
     }
-
-    public static CanvasPdfDocument fromUri(Context context, Uri uri, float scaling) {
-        CanvasPdfDocument document = new CanvasPdfDocument();
-        try {
-            ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-            PdfRenderer renderer = new PdfRenderer(fileDescriptor);
-
-            Matrix transform = new Matrix();
-            transform.setScale(scaling, scaling);
-
-            final int amtPages = renderer.getPageCount();
-            Bitmap[] pages = new Bitmap[amtPages];
-
-            for(int i = 0; i < amtPages; i++) {
-                PdfRenderer.Page page = renderer.openPage(i);
-                Log.d("PdfImporter", String.format("Loaded page %d with dimensions %dx%d", i+1, page.getWidth(), page.getHeight()));
-                pages[i] = Bitmap.createBitmap((int) (page.getWidth() * scaling), (int) (page.getHeight() * scaling), Bitmap.Config.ARGB_4444);
-                page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                page.close();
-            }
-
-            Log.d("PdfImporter", String.format("Loaded %d pages from %s", pages.length, uri.toString()));
-
-            document.setPages(pages);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return document;
-    }
 }
