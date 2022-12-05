@@ -22,6 +22,7 @@ import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
 
 public class CanvasImporter {
+
     public static class CanvasImportData {
         CanvasView canvasView;
         String jsonString;
@@ -113,6 +114,7 @@ public class CanvasImporter {
         }
 
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
+
 
         CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
 

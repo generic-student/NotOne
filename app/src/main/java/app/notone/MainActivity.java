@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
-        /* catch menu clicks for setting actions, forward to navController for destination change */
+        /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
 //        CanvasView aaaaaa = findViewById(R.id.canvasView);
 //        mCanvasView = navHostFragment.getChildFragmentManager().getFragments().get(0).getActivity().findViewById(R.id.canvasView);
 //        mCanvasView = CanvasFragment.mCanvasView;
@@ -130,12 +130,12 @@ public class MainActivity extends AppCompatActivity {
                         return false;
                     }
                     CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
-                        /* The rest is done in activity result method */
+                        /* The rest is done in activity result method TODO use ActivityResultContract */
                     return true;
                 case R.id.open_file:
                     /* chose a existing file with uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: Open File");
-                    Uri uri = mCanvasView.getCurrentURI();
+                    Uri uri = mCanvasView.getCurrentURI(); // TODO use file picker instead
                     canvasData = CanvasFileManager.openCanvasFile(this, uri);
                     try {
                         CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
@@ -172,13 +172,14 @@ public class MainActivity extends AppCompatActivity {
                     return true;
             }
             // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
+            /* forward click to the navigation controller if a navigation item is clicked*/
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
                 navGraphController.navigate(menuItem.getItemId());
                 mmainActivityDrawer.closeDrawers();
             }
             return true;
         });
-
+        /* set state of the drawer quick settings */
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
         Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
@@ -186,14 +187,13 @@ public class MainActivity extends AppCompatActivity {
         swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
         swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
-
-        /* Button to hide the toolbar */
+        /* FAButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
         fabToolbarVisibility.setOnClickListener(view -> {
-            toggleToolBarVisibility(appBar, fabToolbarVisibility);
+            toggleToolbarVisibility(appBar, fabToolbarVisibility);
         });
 
-        /* set Title and Toolbar functions by Fragment */
+        /* set Title and Toolbar functions depending on Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
             LinearLayout viewCanvasToolsContainer = findViewById(R.id.canvas_tools_container);
@@ -218,11 +218,16 @@ public class MainActivity extends AppCompatActivity {
                     throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
             }
             mToolbarVisibility = false; // to toggle to right state
-            toggleToolBarVisibility(appBar, fabToolbarVisibility);
+            toggleToolbarVisibility(appBar, fabToolbarVisibility);
         });
     }
 
-    private void toggleToolBarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
+    /**
+     * for the fab that hides the toolbar
+     * @param appBar
+     * @param fabToolbarVisibility
+     */
+    private void toggleToolbarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
             appBar.animate().translationY(-appBar.getHeight());
@@ -236,7 +241,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /* Handle Back Navigation via Android Button and Back Arrow in toolbar */
+    /**
+     *  Back Navigation via Android Button and Back Arrow in toolbar gets handled here
+     */
     @Override
     public boolean onSupportNavigateUp() {
         Log.d(TAG, "onSupportNavigateUp");
@@ -254,7 +261,9 @@ public class MainActivity extends AppCompatActivity {
         return navGraphController.navigateUp() || super.onSupportNavigateUp();
     }
 
-    /* Handle Navigation from the drawer menu with navcontoller*/
+    /**
+     *  Handle Navigation from the drawer menu with navcontoller
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Log.d(TAG, "onOptionsItemSelected");
@@ -262,16 +271,24 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
 
+    /**
+     * receive results from intents (mostly file picker results and stuff)
+     * @param requestCode
+     * @param resultCode
+     * @param resultData
+     */
     @SuppressLint("WrongConstant")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
         Log.d(TAG, "onActivityResult: Caught an Activity Result");
+        /* new file was created */
         if (requestCode == CanvasFileManager.CREATE_NEW_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             // Get URI of the created file from resultdata
             if (resultData != null) {
                 mUri = resultData.getData();
                 Log.d(TAG, "onActivityResult: Created a New File at: " + mUri);
+                // TODO switch to ActivityResultContract.CreateDocument callback
                 String canvasData = CanvasFileManager.newCanvasFile(mUri,1);
                 try {
                     CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
@@ -287,6 +304,8 @@ public class MainActivity extends AppCompatActivity {
                         | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 getContentResolver().takePersistableUriPermission(mUri, takeFlags);
             }
+        /* other things happend */
+        } else {
         }
     }
 
