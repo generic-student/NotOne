@@ -171,7 +171,7 @@ public class CanvasFragment extends Fragment {
         buttonEraser.setOnClickListener(v -> {
             if (mCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.PEN);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
                 mCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
@@ -222,7 +222,7 @@ public class CanvasFragment extends Fragment {
         buttonPresetPen.setOnClickListener(v1 -> {
             buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
             buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
-            mCanvasView.getCanvasWriter().setCurrentPenType(PenType.PEN);
+            mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             setOrToggleToolSelection(buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {

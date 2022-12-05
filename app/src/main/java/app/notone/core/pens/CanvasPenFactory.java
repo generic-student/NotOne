@@ -8,7 +8,7 @@ public class CanvasPenFactory {
             throw new IllegalArgumentException("Pen type cannot be null");
         }
         switch(type) {
-            case PEN:
+            case WRITER:
                 return new CanvasWriterPen(writerReference);
             case ERASER:
                 return new CanvasEraserPen(writerReference);

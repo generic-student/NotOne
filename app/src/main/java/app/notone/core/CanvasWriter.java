@@ -15,6 +15,10 @@ import app.notone.core.pens.CanvasWriterPen;
 import app.notone.core.pens.PenType;
 
 public class CanvasWriter implements Serializable {
+    private enum DrawState {
+        WRITE, ERASE, SELECT
+    }
+
     //constants
     private static final transient int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
@@ -32,12 +36,9 @@ public class CanvasWriter implements Serializable {
     //all the existing pens
     private final transient HashMap<DrawState, CanvasPen> pens;
 
-    public enum DrawState {
-        WRITE, ERASE, SELECT
-    }
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
-    private PenType mCurrentPenType = PenType.PEN;
+    private PenType mCurrentPenType = PenType.WRITER;
 
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
         this.mStrokeWeight = mStrokeWeight;
@@ -53,7 +54,7 @@ public class CanvasWriter implements Serializable {
 
         pens = new HashMap<>();
         CanvasPenFactory penFactory = new CanvasPenFactory();
-        pens.put(DrawState.WRITE, penFactory.createCanvasPen(PenType.PEN, this));
+        pens.put(DrawState.WRITE, penFactory.createCanvasPen(PenType.WRITER, this));
         pens.put(DrawState.ERASE, penFactory.createCanvasPen(PenType.ERASER, this));
         pens.put(DrawState.SELECT, penFactory.createCanvasPen(PenType.SELECTOR, this));
     }
@@ -121,7 +122,7 @@ public class CanvasWriter implements Serializable {
 
     public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
         //compute the draw state
-        if(getCurrentPenType() == PenType.PEN) {
+        if(getCurrentPenType() == PenType.WRITER) {
             if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
