@@ -36,7 +36,7 @@ public class PdfImporter {
                 PdfRenderer.Page page = renderer.openPage(i);
                 Log.d("PdfImporter", String.format("Loaded page %d with dimensions %dx%d", i+1, page.getWidth(), page.getHeight()));
                 pages[i] = Bitmap.createBitmap((int) (page.getWidth() * scaling), (int) (page.getHeight() * scaling), Bitmap.Config.ARGB_4444);
-                page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_PRINT);
+                page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 page.close();
             }
 
