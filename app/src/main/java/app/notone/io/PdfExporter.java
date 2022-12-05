@@ -65,16 +65,18 @@ public class PdfExporter {
         final int widthPixels = pageSize.getWidthPixels(dpi);
 
         //sort the bounding boxes by their y coordinate
-        final List<RectF> boundsSortedY = getStrokeBoundsSortedY(view);
+        final List<RectF> boundsSortedY = getStrokeBoundsSortedY(view).
+                stream().
+                filter(b -> b.left < widthPixels && b.right > 0).
+                collect(Collectors.toList());
+        int maxBottom = (int) boundsSortedY.stream().max((b1, b2) -> Float.compare(b1.bottom, b2.bottom)).orElse(new RectF(0,0,0,0)).bottom;
 
         ArrayList<Rect> pages = new ArrayList<>();
 
-
-        int startIndex = 0;
         int pageIndex = 0;
-        while (startIndex < boundsSortedY.size()) {
-            final Rect page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
+        Rect page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
 
+        while(page.top < maxBottom) {
             for (int i = 0; i < boundsSortedY.size(); i++) {
                 RectF bounds = boundsSortedY.get(i);
                 Rect intBounds = new Rect();
@@ -82,15 +84,11 @@ public class PdfExporter {
 
                 if (intBounds.intersect(page)) {
                     pages.add(page);
-                    startIndex = i;
                     break;
                 }
             }
             pageIndex++;
-
-            if(page.top > boundsSortedY.get(boundsSortedY.size() - 1).top) {
-                break;
-            }
+            page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
         }
 
         return pages;
