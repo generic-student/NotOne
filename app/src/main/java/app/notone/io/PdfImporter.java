@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import app.notone.core.CanvasPdfDocument;
 
 public class PdfImporter {
+    public static final float FACTOR_72PPI_TO_320PPI = 4.4444444f;
 
     public static CanvasPdfDocument fromUri(Context context, Uri uri, float scaling) {
         CanvasPdfDocument document = new CanvasPdfDocument(scaling);
@@ -32,10 +34,13 @@ public class PdfImporter {
 
             for(int i = 0; i < amtPages; i++) {
                 PdfRenderer.Page page = renderer.openPage(i);
-                pages[i] = Bitmap.createBitmap(page.getWidth() * 2, page.getHeight() * 2, Bitmap.Config.ARGB_4444);
+                Log.d("PdfImporter", String.format("Loaded page %d with dimensions %dx%d", i+1, page.getWidth(), page.getHeight()));
+                pages[i] = Bitmap.createBitmap((int) (page.getWidth() * scaling), (int) (page.getHeight() * scaling), Bitmap.Config.ARGB_4444);
                 page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_PRINT);
                 page.close();
             }
+
+            Log.d("PdfImporter", String.format("Loaded %d pages from %s", pages.length, uri.toString()));
 
             document.setPages(pages);
         } catch (FileNotFoundException e) {

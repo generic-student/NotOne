@@ -24,8 +24,8 @@ public class PdfCanvasRenderer {
         pdfPaint.setFilterBitmap(true);
         pdfPaint.setDither(true);
 
-        scaling = .5f;
-        padding = 20;
+        scaling = 1f;
+        padding = 0;
     }
 
     public Paint getPdfPaint() {
@@ -60,31 +60,26 @@ public class PdfCanvasRenderer {
         this.padding = padding;
     }
 
-    public void render(CanvasPdfDocument doc, Canvas canvas, Matrix viewMatrix_) {
-        Matrix viewMatrix = new Matrix(viewMatrix_);
-        viewMatrix.setScale(1,1);
-
-        final RectF viewSpace = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
+    public void render(CanvasPdfDocument doc, Canvas canvas) {
+        final Rect clipBounds = canvas.getClipBounds();
+        final RectF viewSpace = new RectF(clipBounds.left, clipBounds.top, clipBounds.right, clipBounds.bottom);
 
         final float scaling = getScaling();
         final int padding = getPadding();
 
         Matrix pdfMat = new Matrix();
         for(int i = 0; i < doc.getPages().length; i++) {
-            Rect source = new Rect(0, 0, doc.getPage(i).getWidth(), doc.getPage(i).getHeight());
             RectF dest = new RectF(0, 0, doc.getPage(i).getWidth() * scaling, doc.getPage(i).getHeight() * scaling);
+
             pdfMat.mapRect(dest);
             pdfMat.postTranslate(0, doc.getPage(i).getHeight() * scaling + padding);
 
-            RectF transformedDest = new RectF();
-            viewMatrix.mapRect(transformedDest, dest);
-            if(transformedDest.intersect(viewSpace) == false) {
+            if(!RectF.intersects(dest, viewSpace)) {
                 continue;
             }
 
-
-            canvas.drawBitmap(doc.getPage(i), source, dest, pdfPaint);
-            canvas.drawRect(dest, borderPaint);
+            canvas.drawBitmap(doc.getPage(i), null, dest, pdfPaint);
+            //canvas.drawRect(dest, borderPaint);
         }
     }
 }

@@ -82,7 +82,7 @@ public class PdfExporter {
                 Rect intBounds = new Rect();
                 bounds.roundOut(intBounds);
 
-                if (intBounds.intersect(page)) {
+                if (Rect.intersects(intBounds, page)) {
                     pages.add(page);
                     break;
                 }

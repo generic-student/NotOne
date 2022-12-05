@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,7 +58,7 @@ public class CanvasFragment extends Fragment {
                 public void onActivityResult(Uri uri) {
                     mCanvasView.resetViewMatrices();
                     mCanvasView.setScale(1f);
-                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, 2.f));
+                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
                     mCanvasView.invalidate();
                 }
             });
@@ -70,6 +71,7 @@ public class CanvasFragment extends Fragment {
         // TODO factorise to worker thread
         super.onStart();
         Log.d(TAG, "onStart: RELOADING DATA");
+        System.out.println(getResources().getDisplayMetrics());
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
         String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");

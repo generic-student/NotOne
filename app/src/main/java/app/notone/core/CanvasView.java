@@ -58,8 +58,10 @@ public class CanvasView extends View {
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
 
-        mPdfDocument = new CanvasPdfDocument(2.f);
+        mPdfDocument = new CanvasPdfDocument(1.f);
         mPdfRenderer = new PdfCanvasRenderer();
+        mPdfRenderer.setPadding(0);
+        mPdfRenderer.setScaling(1.f);
     }
 
     /**
@@ -139,7 +141,7 @@ public class CanvasView extends View {
         resetViewMatrices();
         setScale(1.f);
         mCanvasWriter.reset();
-        mPdfDocument = new CanvasPdfDocument(2.f);
+        mPdfDocument = new CanvasPdfDocument(1.f);
         invalidate();
     }
 
@@ -151,7 +153,7 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
 
-        mPdfRenderer.render(mPdfDocument, canvas, mViewTransform);
+        mPdfRenderer.render(mPdfDocument, canvas);
 
         mCanvasWriter.renderStrokes(canvas);
 
