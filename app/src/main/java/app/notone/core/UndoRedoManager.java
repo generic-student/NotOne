@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class UndoRedoManager implements Serializable {
+    private transient final int MAX_ACTIONS = 20;
     private ArrayList<CanvasWriterAction> mUndoneActions;
     private ArrayList<CanvasWriterAction> mActions;
     private transient ArrayList<Stroke> mStrokesReference;
@@ -21,10 +22,16 @@ public class UndoRedoManager implements Serializable {
 
     public void addAction(CanvasWriterAction action) {
         mActions.add(action);
+        if(mActions.size() > MAX_ACTIONS) {
+            mActions.remove(0);
+        }
     }
 
     public void addUndoneAction(CanvasWriterAction action) {
         mUndoneActions.add(action);
+        if(mUndoneActions.size() > MAX_ACTIONS) {
+            mUndoneActions.remove(0);
+        }
     }
 
     public ArrayList<CanvasWriterAction> getUndoneActions() {
