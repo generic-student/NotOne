@@ -3,14 +3,13 @@ package app.notone.io;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
-import java.io.FileNotFoundException;
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -31,7 +30,7 @@ public class PdfImporter {
     }
 
     public static class ImportPdfTask extends AsyncTask<PdfImporterTaskData, Integer, Void> {
-        protected Void doInBackground(PdfImporterTaskData... args) {
+        protected Void doInBackground(@NonNull PdfImporterTaskData... args) {
             PdfImporterTaskData data = args[0];
             PdfRenderer renderer = data.renderer;
             CanvasPdfDocument document = data.document;
@@ -77,8 +76,6 @@ public class PdfImporter {
 
             new PdfImporter.ImportPdfTask().execute(new PdfImporterTaskData(renderer, document));
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
