@@ -79,11 +79,11 @@ public class Vector2f {
     public float angle(Vector2f other) {
         float angle = (float) (Math.atan2(other.y - y, other.x - x));
 
-        if(angle < 0){
-            angle += 360;
-        }
+//        if(angle < 0){
+//            angle += 360;
+//        }
 
-        return angle;
+        return angle < 0 ? (float) (angle + Math.PI * 2) : angle;
     }
 
     /**

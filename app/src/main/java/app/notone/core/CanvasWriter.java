@@ -16,7 +16,7 @@ import app.notone.core.pens.PenType;
 
 public class CanvasWriter implements Serializable {
     private enum DrawState {
-        WRITE, ERASE, SELECT
+        WRITE, ERASE, SELECT, SHAPE
     }
 
     //constants
@@ -57,6 +57,7 @@ public class CanvasWriter implements Serializable {
         pens.put(DrawState.WRITE, penFactory.createCanvasPen(PenType.WRITER, this));
         pens.put(DrawState.ERASE, penFactory.createCanvasPen(PenType.ERASER, this));
         pens.put(DrawState.SELECT, penFactory.createCanvasPen(PenType.SELECTOR, this));
+        pens.put(DrawState.SHAPE, penFactory.createCanvasPen(PenType.SHAPE_DETECTOR, this));
     }
 
     public Paint getPaint() {
@@ -126,7 +127,7 @@ public class CanvasWriter implements Serializable {
             if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
-                setDrawState(DrawState.WRITE);
+                setDrawState(DrawState.SHAPE);
             }
         }
         else if(getCurrentPenType() == PenType.SELECTOR) {

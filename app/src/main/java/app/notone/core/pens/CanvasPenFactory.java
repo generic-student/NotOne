@@ -14,6 +14,8 @@ public class CanvasPenFactory {
                 return new CanvasEraserPen(writerReference);
             case SELECTOR:
                 return new CanvasSelectorPen(writerReference);
+            case SHAPE_DETECTOR:
+                return new CanvasShapePen(writerReference);
             default:
                 throw new IllegalArgumentException("Unknown Pen type: " + type);
         }

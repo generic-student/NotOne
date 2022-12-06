@@ -95,7 +95,6 @@ public class PdfExporter {
             pageIndex++;
             page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
         }
-        System.out.println(String.format("Pages: %d", pages.size()));
         return pages;
     }
 

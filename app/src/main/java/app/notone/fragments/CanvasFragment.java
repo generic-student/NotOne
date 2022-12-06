@@ -31,6 +31,7 @@ import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
+import app.notone.core.util.InkRecognizer;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
 import app.notone.io.PdfImporter;
