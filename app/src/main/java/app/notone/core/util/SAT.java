@@ -8,7 +8,16 @@ import java.util.Collections;
 
 import app.notone.core.Vector2f;
 
+/**
+ * Helper function for the Separating-Axis-Theorem
+ */
 public class SAT {
+    /**
+     * Checks if two non-axis-aligned rectangles are intersecting
+     * @param r1 the points describing the first rectangle
+     * @param r2 the points describing the second rectangle
+     * @return true if the are intersecting
+     */
     public static boolean rectangleRectangleIntersection(@NonNull float[] r1, @NonNull float[] r2) {
         if (r1.length != 8 || r2.length != 8) {
             throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements.");
@@ -48,6 +57,12 @@ public class SAT {
         return true;
     }
 
+    /**
+     * Checks if a line intersects a rectangle
+     * @param p the points describing the line
+     * @param r the points describing the rectangle
+     * @return true if they are intersecting
+     */
     public static boolean lineRectangleIntersection(@NonNull float[] p, @NonNull float[] r) {
         if (r.length != 8 || p.length != 4) {
             throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements and the path requires 4 elements.");
@@ -84,6 +99,14 @@ public class SAT {
         return true;
     }
 
+    /**
+     * Checks if two non-axis-aligned rectangles intersect. One of the rectangles is constructed from a point and a given side-length.
+     * @param x x-Coordinate of the point
+     * @param y y-Coordinate of the point
+     * @param sideLength side-length of the constructed rectangle
+     * @param r the other rectangle
+     * @return true if they are intersecting
+     */
     public static boolean rectangularPointRectangleIntersection(float x, float y, float sideLength, @NonNull float[] r) {
         return rectangleRectangleIntersection(r, new float[] {
                 x - sideLength / 2, y - sideLength / 2,
@@ -93,6 +116,12 @@ public class SAT {
         });
     }
 
+    /**
+     * Checks if any line from a list of lines intersects a non-axis-aligned rectangle
+     * @param p list of points describing multiple lines (or a path)
+     * @param r list of points describing a rectangle
+     * @return true if one of the line-segments intersects the rectangle
+     */
     public static boolean linesRectangleIntersection(@NonNull ArrayList<Float> p, @NonNull float[] r) {
         if (r.length != 8 || p.size() < 4) {
             throw new IllegalArgumentException(

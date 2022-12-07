@@ -13,17 +13,21 @@ import app.notone.core.Vector2f;
 import app.notone.core.util.MathHelper;
 import app.notone.core.util.SAT;
 
+/**
+ * Handles erasing strokes from the canvas
+ */
 public class CanvasEraserPen extends CanvasPen{
-    public RectF eraserBounds;
+    //defines the collision bounds of the eraser
+    public RectF mEraserBounds;
 
     public CanvasEraserPen(CanvasWriter writerReference) {
         super(writerReference);
-        eraserBounds = new RectF();
+        mEraserBounds = new RectF();
     }
 
     @Override
     public boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint) {
-        final float circleRadius = canvasWriterRef.getStrokeWeight();
+        final float circleRadius = mCanvasWriterRef.getStrokeWeight();
         //erase the strokes that the eraser touches using the Eraser Class
         final int strokesErased = erase(currentTouchPoint, circleRadius);
         //if at least one stroke was erased, invalidate the canvas
@@ -37,45 +41,60 @@ public class CanvasEraserPen extends CanvasPen{
 
     @Override
     public void reset() {
-
+        mEraserBounds = new RectF();
     }
 
+    /**
+     * Computes the new bounds with the current touch point in the center and a given side-length
+     * @param eraserPosition the current touch position
+     * @param eraserRadius the side-length of the bounds
+     */
     private void computeEraserBounds(Vector2f eraserPosition, float eraserRadius) {
 
         //build a rectangle between the previous and current touch point
-        eraserBounds = new RectF(
+        mEraserBounds = new RectF(
                 eraserPosition.x,
                 eraserPosition.y,
                 eraserPosition.x + eraserRadius,
                 eraserPosition.y + eraserRadius);
-        eraserBounds.offset(- eraserBounds.width() / 2, - eraserBounds.height() / 2);
+        mEraserBounds.offset(- mEraserBounds.width() / 2, - mEraserBounds.height() / 2);
 
     }
 
+    /**
+     * Deletes all strokes that intersect with the eraserBounds
+     * @param eraserPosition the current touch position
+     * @param eraserRadius the side-length of the bounds
+     * @return the amount of strokes that have been deleted
+     */
     public int erase(Vector2f eraserPosition, float eraserRadius) {
         computeEraserBounds(eraserPosition, eraserRadius);
 
         RectF bounds = new RectF();
-        float[] rectPts = MathHelper.rectToFloatArray(eraserBounds);
+        float[] rectPts = MathHelper.rectToFloatArray(mEraserBounds);
 
         int strokesErased = 0;
-        ArrayList<Stroke> strokes = canvasWriterRef.getStrokes();
+        ArrayList<Stroke> strokes = mCanvasWriterRef.getStrokes();
 
+        //check all strokes if the intersect with the bounds
         for(int i = 0; i < strokes.size(); i++) {
             strokes.get(i).computeBounds(bounds, true);
             float[] boundsPts = MathHelper.rectToFloatArray(bounds);
 
+            //check if the bounding box intersects the bounds, if not then the stroke itself will not either
             if(SAT.rectangleRectangleIntersection(rectPts, boundsPts)) {
 
                 ArrayList<Float> points = strokes.get(i).getPathPoints();
+                //check if the path defined by the points in the stroke intersect with the bounds
+                //if there is only one point (x, y) in the path check if that point lies inside the bounds
                 final boolean intersects = (strokes.get(i).getPathPoints().size() == 2) ?
                         SAT.rectangularPointRectangleIntersection(points.get(0), points.get(1), strokes.get(i).getWeight(), rectPts) :
                         SAT.linesRectangleIntersection(points, rectPts);
 
-
+                //remove the stroke if an intersection has been found
                 if(intersects) {
                     Stroke erasedStroke = strokes.remove(i);
-                    canvasWriterRef.getUndoRedoManager().addAction(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
+                    mCanvasWriterRef.getUndoRedoManager().addAction(new CanvasWriterAction(CanvasWriterAction.Type.ERASE, erasedStroke));
                     strokesErased++;
                 }
             }

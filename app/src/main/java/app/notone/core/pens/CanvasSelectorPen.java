@@ -9,24 +9,28 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
-import app.notone.R;
 import app.notone.core.CanvasWriter;
 import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 
+/**
+ * Handles selecting strokes
+ */
 public class CanvasSelectorPen extends CanvasPen {
     private boolean mIsSelecting;
-    private RectF mSelectionRect;
-    private Paint mSelectionBorderPaint;
-    private Paint mSelectedStrokesPaint;
+    private RectF mSelectionBounds;
+    //how the selectionBounds should be rendered
+    private final Paint mSelectionBorderPaint;
+    //how the selected strokes should be rendered
+    private final Paint mSelectedStrokesPaint;
 
-    private ArrayList<Stroke> selectedStrokes;
+    private final ArrayList<Stroke> mSelectedStrokes;
 
     public CanvasSelectorPen(CanvasWriter writerReference) {
         super(writerReference);
 
         mIsSelecting = false;
-        mSelectionRect = new RectF(0, 0, 0, 0);
+        mSelectionBounds = new RectF(0, 0, 0, 0);
 
         mSelectionBorderPaint = new Paint();
         mSelectionBorderPaint.setStyle(Paint.Style.STROKE);
@@ -39,7 +43,7 @@ public class CanvasSelectorPen extends CanvasPen {
         mSelectedStrokesPaint.setColor(Color.LTGRAY);
         mSelectedStrokesPaint.setStrokeWidth(5);
 
-        selectedStrokes = new ArrayList<>();
+        mSelectedStrokes = new ArrayList<>();
     }
 
     @Override
@@ -47,21 +51,21 @@ public class CanvasSelectorPen extends CanvasPen {
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mIsSelecting = true;
-                mSelectionRect.left = currentTouchPoint.x;
-                mSelectionRect.top = currentTouchPoint.y;
-                mSelectionRect.right = currentTouchPoint.x;
-                mSelectionRect.bottom = currentTouchPoint.y;
+                mSelectionBounds.left = currentTouchPoint.x;
+                mSelectionBounds.top = currentTouchPoint.y;
+                mSelectionBounds.right = currentTouchPoint.x;
+                mSelectionBounds.bottom = currentTouchPoint.y;
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                mSelectionRect.right = currentTouchPoint.x;
-                mSelectionRect.bottom = currentTouchPoint.y;
+                mSelectionBounds.right = currentTouchPoint.x;
+                mSelectionBounds.bottom = currentTouchPoint.y;
                 break;
 
             case MotionEvent.ACTION_UP:
                 mIsSelecting = false;
 
-                //
+                //correct the bounds if the user has been selecting e.g. from bottom-right to top-left
                 correctSelectionBounds();
                 //select the strokes in the selectionRect
                 selectStrokes();
@@ -74,45 +78,51 @@ public class CanvasSelectorPen extends CanvasPen {
 
     @Override
     public void render(Canvas canvas) {
-        for(Stroke stroke : selectedStrokes) {
+        for(Stroke stroke : mSelectedStrokes) {
             canvas.drawPath(stroke, mSelectedStrokesPaint);
         }
 
         if(mIsSelecting)
-            canvas.drawRect(mSelectionRect, mSelectionBorderPaint);
+            canvas.drawRect(mSelectionBounds, mSelectionBorderPaint);
 
     }
 
     @Override
     public void reset() {
-        selectedStrokes.clear();
+        mSelectedStrokes.clear();
         mIsSelecting = false;
-        mSelectionRect = new RectF(0, 0, 0, 0);
+        mSelectionBounds = new RectF(0, 0, 0, 0);
     }
 
+    /**
+     * ensures that the bottom-right corner of the selectionBounds is actually on the bottom-right
+     */
     private void correctSelectionBounds() {
-        if(mSelectionRect.left > mSelectionRect.right) {
-            final float left = mSelectionRect.left;
-            mSelectionRect.left = mSelectionRect.right;
-            mSelectionRect.right = left;
+        if(mSelectionBounds.left > mSelectionBounds.right) {
+            final float left = mSelectionBounds.left;
+            mSelectionBounds.left = mSelectionBounds.right;
+            mSelectionBounds.right = left;
         }
 
-        if(mSelectionRect.top > mSelectionRect.bottom) {
-            final float top = mSelectionRect.top;
-            mSelectionRect.top = mSelectionRect.bottom;
-            mSelectionRect.bottom = top;
+        if(mSelectionBounds.top > mSelectionBounds.bottom) {
+            final float top = mSelectionBounds.top;
+            mSelectionBounds.top = mSelectionBounds.bottom;
+            mSelectionBounds.bottom = top;
         }
     }
 
+    /**
+     * Select all strokes whose bounding boxes intersect with the selectionBounds
+     */
     private void selectStrokes() {
-        selectedStrokes.clear();
+        mSelectedStrokes.clear();
 
         RectF bounds = new RectF();
-        for(Stroke stroke : canvasWriterRef.getStrokes()) {
+        for(Stroke stroke : mCanvasWriterRef.getStrokes()) {
             stroke.computeBounds(bounds, false);
 
-            if(mSelectionRect.contains(bounds)) {
-                selectedStrokes.add(stroke);
+            if(mSelectionBounds.contains(bounds)) {
+                mSelectedStrokes.add(stroke);
             }
         }
     }

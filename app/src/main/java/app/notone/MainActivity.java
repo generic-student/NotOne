@@ -5,6 +5,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONException;
 
@@ -53,6 +56,8 @@ import app.notone.io.PdfImporter;
 import app.notone.views.NavigationDrawer;
 
 import static androidx.navigation.Navigation.findNavController;
+
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "NotOneMainActivity";
@@ -84,14 +89,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate Main");
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
 
         setContentView(R.layout.activity_main);
 
         requestFileAccessPermission();
 
+        FirebaseStorage.getInstance().useEmulator("192.168.178.49", 9199);
+
         /* set theme Preference on first start if it has never been set before */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
+
         boolean darkMode = (Configuration.UI_MODE_NIGHT_YES == (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK));
         if (!sharedPreferences.contains("darkmode"))
             spEditor.putBoolean("darkmode", darkMode).apply();

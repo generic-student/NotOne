@@ -4,6 +4,9 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
+/**
+ * Describes the Pages of a PdfDocument as a List of Bitmaps
+ */
 public class CanvasPdfDocument implements Serializable {
     private static final String LOG_TAG = CanvasPdfDocument.class.getSimpleName();
     private Bitmap[] pages = {};

@@ -138,7 +138,9 @@ public class CanvasExporter {
     public static JSONObject canvasPdfDocumentToJson(CanvasPdfDocument document) {
         JSONObject json = new JSONObject();
         try {
-            List<JSONObject> pagesJSON = Arrays.stream(document.getPages()).
+            Bitmap[] pagesList = document.getPages();//document.getPages().length > 15 ? Arrays.copyOfRange(document.getPages(), 0, 14) : document.getPages();
+
+            List<JSONObject> pagesJSON = Arrays.stream(pagesList).
                     map(page -> bitmapToJson(page)).
                     filter(Objects::nonNull).
                     collect(Collectors.toList());
@@ -162,8 +164,7 @@ public class CanvasExporter {
         ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
                 byteArrayBitmapStream);
-        byte[] b = byteArrayBitmapStream.toByteArray();
-        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        encodedImage = Base64.encodeToString(byteArrayBitmapStream.toByteArray(), Base64.DEFAULT);
 
         try {
             json.put("data", encodedImage);
