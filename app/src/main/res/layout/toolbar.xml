@@ -114,21 +114,33 @@
                             android:contentDescription="ERASER"
                             app:tint="@color/white"/>
 
+                        <ImageButton
+                            android:id="@+id/button_marker"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:padding="10dp"
+                            android:layout_gravity="center"
+                            android:scaleX="1.2"
+                            android:scaleY="1.2"
+                            android:src="@drawable/ic_marker"
+                            android:background="@android:color/transparent"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:contentDescription="MARKER"
+                            app:tint="@color/white"/>
 
-
-                            <ImageButton
-                                android:id="@+id/button_add_pen"
-                                android:layout_width="wrap_content"
-                                android:paddingHorizontal="20dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:scaleX="1.2"
-                                android:scaleY="1.2"
-                                android:src="@drawable/ic_add_pen"
-                                android:background="@android:color/transparent"
-                                android:foreground="?android:attr/selectableItemBackground"
-                                android:contentDescription="Add a Pen Config"
-                                app:tint="@color/white"/>
+                        <ImageButton
+                            android:id="@+id/button_add_pen"
+                            android:layout_width="wrap_content"
+                            android:paddingHorizontal="20dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:scaleX="1.2"
+                            android:scaleY="1.2"
+                            android:src="@drawable/ic_add_pen"
+                            android:background="@android:color/transparent"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:contentDescription="Add a Pen Config"
+                            app:tint="@color/white"/>
 
                         <Spinner
                             android:id="@+id/ddownm_pen_colors"
