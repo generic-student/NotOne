@@ -70,7 +70,7 @@ public class CanvasShapePen extends CanvasWriterPen{
     private void recognizeShape() {
         Ink ink = inkBuilder.build();
         //get the last written stroke since this is the one being analyzed
-        Stroke strokeReference = canvasWriterRef.getStrokes().get(canvasWriterRef.getStrokes().size() - 1);
+        Stroke strokeReference = mCanvasWriterRef.getStrokes().get(mCanvasWriterRef.getStrokes().size() - 1);
 
         if(InkRecognizer.getInstance().isInitialized()) {
             InkRecognizer.getInstance().getRecognizer().recognize(ink)
@@ -90,7 +90,7 @@ public class CanvasShapePen extends CanvasWriterPen{
 
     private void convertStrokeToShape(String shape, Stroke strokeReference) {
         //check if the referenced stroke still exists
-        if(!canvasWriterRef.getStrokes().contains(strokeReference)) {
+        if(!mCanvasWriterRef.getStrokes().contains(strokeReference)) {
             return;
         }
 
