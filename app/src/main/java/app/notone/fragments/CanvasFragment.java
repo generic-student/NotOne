@@ -50,6 +50,7 @@ public class CanvasFragment extends Fragment {
     public static CanvasView mCanvasView; // TODO maybe static is bad
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
+    private boolean markerEnabled = false;
 
     ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
             new ActivityResultCallback<Uri>() {
@@ -160,7 +161,7 @@ public class CanvasFragment extends Fragment {
         Log.d(TAG, "onViewCreated");
         FragmentActivity fragmentActivity = getActivity();
         mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
-//        MainActivity.mCanvasView = mCanvasView;
+
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
         setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));
@@ -168,6 +169,7 @@ public class CanvasFragment extends Fragment {
 
         /* Undo, Redo, activate Eraser Actions */
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
+        ImageButton buttonMarker = fragmentActivity.findViewById(R.id.button_marker);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
@@ -175,13 +177,31 @@ public class CanvasFragment extends Fragment {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
                 mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
+                markerEnabled = false;
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
                 mCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
+        buttonMarker.setOnClickListener(v -> {
+            if(!markerEnabled) {
+                setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, true);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                int color = mCanvasView.getStrokeColor();
+                int transparent = Color.argb(90, Color.red(color), Color.green(color), Color.blue(color));
+                mCanvasView.setStrokeColor(transparent);
+            } else {
+                setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, false);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                int color = mCanvasView.getStrokeColor();
+                int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
+                mCanvasView.setStrokeColor(transparent);
+            }
+            markerEnabled = !markerEnabled;
+        });
         buttonUndo.setOnClickListener(v -> mCanvasView.undo());
         buttonRedo.setOnClickListener(v -> mCanvasView.redo());
         mImageButtonCanvasToolGroup.add(buttonEraser);
+        mImageButtonCanvasToolGroup.add(buttonMarker);
 
         /* create pen presets  */
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
@@ -206,6 +226,10 @@ public class CanvasFragment extends Fragment {
             Log.d(TAG, sharedPreferences.getAll().toString());
             sharedPreferences.edit().clear().commit();
         });
+
+        /* draw bound depending on settings */
+        boolean pdfbounds = sharedPreferences.getBoolean("pdfbounds", false);
+        mCanvasView.setRenderBounds(pdfbounds);
     }
 
 
@@ -225,6 +249,10 @@ public class CanvasFragment extends Fragment {
             buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
             buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
             mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+            markerEnabled = false;
+            int color = mCanvasView.getStrokeColor();
+            int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
+            mCanvasView.setStrokeColor(transparent);
             setOrToggleToolSelection(buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {
