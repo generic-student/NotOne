@@ -1,10 +1,7 @@
 package app.notone;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -27,7 +24,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONException;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -35,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -42,33 +39,96 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-
 import app.notone.core.CanvasView;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.CanvasImporter;
 import app.notone.io.PdfExporter;
-import app.notone.io.PdfImporter;
 import app.notone.views.NavigationDrawer;
 
+import static android.Manifest.permission.MANAGE_DOCUMENTS;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
+    public static CanvasView mCanvasView = null;
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
     boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
-    private Uri mUri;
-    public static CanvasView mCanvasView = null;
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
             uri -> {
                 DisplayMetrics metrics = getResources().getDisplayMetrics();
-                PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float)metrics.densityDpi / metrics.density, true);
+                PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
                 CanvasFileManager.savePdfDocument(this, uri, doc);
             });
+
+    ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),
+            uri -> {
+                if (uri == null) {
+                    Log.e(TAG, "mNewCanvasFile: file creation was aborted");
+                    return;
+                }
+                Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
+                String canvasData = CanvasFileManager.initNewFile(uri, 1);
+                try {
+                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+                } catch (JSONException e) {
+                    Log.e(TAG, "new_file: ", e);
+                }
+                mCanvasView.invalidate();
+
+                Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
+            });
+
+    ActivityResultLauncher<String[]> mOpenCanvasFile = registerForActivityResult(new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri == null) {
+                    Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
+                    return;
+                }
+                Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+                String canvasData = CanvasFileManager.openCanvasFile(this, uri);
+                try {
+                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+                } catch (JSONException e) {
+                    Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+                }
+                mCanvasView.invalidate();
+                Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+            });
+
+    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),
+            uri -> {
+                if (uri == null) {
+                    Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
+                    return;
+                }
+                saveCanvasFile(uri);
+                mCanvasView.setUri(uri);
+            });
+
+    private void saveCanvasFile(Uri uri) {
+        Log.d(TAG, "mSaveAsCanvasFile to Json");
+        if (!checkFileAccessPermission()) {
+            Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "saveCanvasFile: Permissions not granted");
+            return;
+        }
+        String canvasData = "";
+        try {
+            canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "onCreate: save file: " + uri);
+        CanvasFileManager.saveCanvasFile(this, uri, canvasData);
+        Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
+    }
 
     /**
      * Main onCreate of the App
@@ -116,57 +176,38 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
         /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
-//        CanvasView aaaaaa = findViewById(R.id.canvasView);
-//        mCanvasView = navHostFragment.getChildFragmentManager().getFragments().get(0).getActivity().findViewById(R.id.canvasView);
-//        mCanvasView = CanvasFragment.mCanvasView;
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
             mCanvasView = CanvasFragment.mCanvasView;
+            if (mCanvasView == null) {
+                Log.e(TAG, "onCreate: Canvasview has not been initalized");
+                return false;
+            }
             String canvasData = "";
             switch (menuItem.getItemId()) {
+                /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:
-                    /* create a new file at a chosen uri and open it in the current canvas */
                     Log.d(TAG, "onNavigationItemSelected: New File");
-                    if(mCanvasView == null) {
-                        return false;
-                    }
-                    CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
-                        /* The rest is done in activity result method TODO use ActivityResultContract */
+                    mNewCanvasFile.launch("canvasFile.json");
                     return true;
+                /* chose a existing file with uri and open it in the current canvas */
                 case R.id.open_file:
-                    /* chose a existing file with uri and open it in the current canvas */
-                    Log.d(TAG, "onNavigationItemSelected: Open File");
-                    Uri uri = mCanvasView.getCurrentURI(); // TODO use file picker instead
-                    canvasData = CanvasFileManager.openCanvasFile(this, uri);
-                    try {
-                        CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "onCreate: ", e);
-                    }
-                    mCanvasView.invalidate();
-                    Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+                    mOpenCanvasFile.launch(new String[]{"application/text",
+                            "application/json",
+                            "application/pdf"});
                     return true;
+                /* save file to existing uri of current view */
+                /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                 case R.id.save_file:
-                    /* save file to existing uri of current view || save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
-                    Log.d(TAG, "onNavigationItemSelected: Save File as JSON to shared prefs");
-                    try {
-                        canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                    Uri currentUri = mCanvasView.getCurrentURI();
-                    if (currentUri != null) {
-                        CanvasFileManager.saveCanvasFile(this, currentUri, canvasData);
-
-                        Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
+                    Uri uri = mCanvasView.getCurrentURI();
+                    if (uri == null) { // shouldnt happen
+                        mSaveAsCanvasFile.launch("canvasFile.json");
                         return true;
                     }
-                    // TODO
-//                    Uri uri = CanvasFileManager.saveAsCanvasFile(canvasData); // still contains the wrong uri
-//                    mCanvasView.setUri(uri);
+                    saveCanvasFile(uri);
                     return true;
+                /* export a file to pdf */
                 case R.id.export:
-                    mSavePdfDocument.launch("application/pdf");
+                    mSavePdfDocument.launch("exported.pdf");
 
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
@@ -224,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * for the fab that hides the toolbar
+     *
      * @param appBar
      * @param fabToolbarVisibility
      */
@@ -242,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *  Back Navigation via Android Button and Back Arrow in toolbar gets handled here
+     * Back Navigation via Android Button and Back Arrow in toolbar gets handled here
      */
     @Override
     public boolean onSupportNavigateUp() {
@@ -262,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *  Handle Navigation from the drawer menu with navcontoller
+     * Handle Navigation from the drawer menu with navcontoller
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -271,47 +313,23 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
 
-    /**
-     * receive results from intents (mostly file picker results and stuff)
-     * @param requestCode
-     * @param resultCode
-     * @param resultData
-     */
-    @SuppressLint("WrongConstant")
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        Log.d(TAG, "onActivityResult: Caught an Activity Result");
-        /* new file was created */
-        if (requestCode == CanvasFileManager.CREATE_NEW_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // Get URI of the created file from resultdata
-            if (resultData != null) {
-                mUri = resultData.getData();
-                Log.d(TAG, "onActivityResult: Created a New File at: " + mUri);
-                // TODO switch to ActivityResultContract.CreateDocument callback
-                String canvasData = CanvasFileManager.newCanvasFile(mUri,1);
-                try {
-                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
-                } catch (JSONException e) {
-                    Log.e(TAG, "new_file: ", e);
-                }
-                mCanvasView.invalidate();
-                Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
-
-                // Persist permissions for File
-                final int takeFlags = resultData.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                getContentResolver().takePersistableUriPermission(mUri, takeFlags);
-            }
-        /* other things happend */
-        } else {
-        }
-    }
-
     private void requestFileAccessPermission() {
         // requesting permissions if not provided.
         ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+
+    }
+
+    private boolean checkFileAccessPermission() {
+        return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void persistUriPermission(Uri uri) {
+//        final int takeFlags = intent.getFlags()
+//                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+//                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//// Check for the freshest data.
+//        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+
     }
 
     @Override
@@ -326,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
                 if (writeStorage && readStorage) {
-                    Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
                     finish();

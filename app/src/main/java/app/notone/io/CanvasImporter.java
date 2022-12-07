@@ -116,13 +116,13 @@ public class CanvasImporter {
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
 
-        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
+//        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
 
         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
         view.getInverseViewTransform().setValues(inverseViewTransformData);
         view.setCanvasWriter(writer);
-        view.setPdfDocument(document);
+//        view.setPdfDocument(document);
 
         // import uri
         String uri = json.getString("uri");
