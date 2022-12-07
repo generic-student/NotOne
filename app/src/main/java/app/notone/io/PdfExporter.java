@@ -5,6 +5,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -21,7 +22,10 @@ import app.notone.core.CanvasView;
 
 public class PdfExporter {
 
+    private final static String TAG = "PdfExporter";
+
     public static class PageSize {
+
         private final float widthInches;
         private final float heightInches;
 
@@ -95,7 +99,7 @@ public class PdfExporter {
             pageIndex++;
             page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
         }
-        System.out.println(String.format("Pages: %d", pages.size()));
+//        Log.i(TAG, "computePdfPageBoundsFromCanvasViewStrict: " + String.format("Pages: %d", pages.size()));
         return pages;
     }
 

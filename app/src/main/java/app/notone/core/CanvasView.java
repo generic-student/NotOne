@@ -41,6 +41,7 @@ public class CanvasView extends View {
 
     private CanvasPdfDocument mPdfDocument;
     private PdfCanvasRenderer mPdfRenderer;
+    private boolean renderBounds = true;
 
     /**
      * Constructor
@@ -158,16 +159,20 @@ public class CanvasView extends View {
         mCanvasWriter.renderStrokes(canvas);
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        //List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasView(this, (float)metrics.densityDpi / metrics.density);
-        List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(this, (float)metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+
 
         Paint borderPaint = new Paint();
         borderPaint.setStrokeWidth(3);
         borderPaint.setColor(Color.BLACK);
         borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
         borderPaint.setStyle(Paint.Style.STROKE);
-        for(Rect b : bounds) {
-            canvas.drawRect(b, borderPaint);
+
+        // draw pdfbounds
+        if(renderBounds) {
+            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(this, (float) metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+            for (Rect b : bounds) {
+                canvas.drawRect(b, borderPaint);
+            }
         }
 
         super.onDraw(canvas);
@@ -229,6 +234,10 @@ public class CanvasView extends View {
 
     public void setUri(Uri uri) {
         this.mCurrentURI = uri;
+    }
+
+    public void setRenderBounds(boolean pdfbounds) {
+        renderBounds = pdfbounds;
     }
 
     /**

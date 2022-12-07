@@ -33,20 +33,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
-        app:menu="@menu/drawer_menu" />
+        app:menu="@menu/drawer_menu"/>
+
     <!--    as an alternative to the menu a list view can be used https://code.tutsplus.com/tutorials/how-to-code-a-navigation-drawer-in-an-android-app - -cms-30263-->
-
 </app.notone.views.NavigationDrawer>
-<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:orientation="vertical" >-->
-
-<!--    <androidx.fragment.app.FragmentContainerView-->
-<!--        android:name="app.notone.fragments.CanvasFragment"-->
-<!--        android:id="@+id/fooFragment"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        tools:layout="@layout/fragment_canvas" />-->
-<!--</LinearLayout>-->

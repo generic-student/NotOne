@@ -2,18 +2,26 @@ package app.notone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +31,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONException;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -47,78 +61,109 @@ import app.notone.io.CanvasImporter;
 import app.notone.io.PdfExporter;
 import app.notone.views.NavigationDrawer;
 
-import static android.Manifest.permission.MANAGE_DOCUMENTS;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
-    public static CanvasView mCanvasView = null;
+    private static CanvasView mCanvasView = null;
+    private static String mCanvasName = "Document Name";
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
     boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
 
-    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
-            uri -> {
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
-                CanvasFileManager.savePdfDocument(this, uri, doc);
-            });
+    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
+        CanvasFileManager.savePdfDocument(this, uri, doc);
+    });
 
-    ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),
-            uri -> {
-                if (uri == null) {
-                    Log.e(TAG, "mNewCanvasFile: file creation was aborted");
-                    return;
-                }
-                Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
-                String canvasData = CanvasFileManager.initNewFile(uri, 1);
-                try {
-                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-                } catch (JSONException e) {
-                    Log.e(TAG, "new_file: ", e);
-                }
-                mCanvasView.invalidate();
+    ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json") {
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull Context context, @NonNull String input) {
+            Intent intent = super.createIntent(context, input);
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getFilesDir()); // inital uri
+            return intent;
+        }
+    }, uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
+            return;
+        }
+        Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
+        String canvasData = CanvasFileManager.initNewFile(uri, 1);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "new_file: ", e);
+        }
+        mCanvasView.invalidate();
 
-                Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
-            });
+        persistUriPermission(getIntent(), uri);
 
-    ActivityResultLauncher<String[]> mOpenCanvasFile = registerForActivityResult(new ActivityResultContracts.OpenDocument(),
-            uri -> {
-                if (uri == null) {
-                    Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
-                    return;
-                }
-                Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
-                String canvasData = CanvasFileManager.openCanvasFile(this, uri);
-                try {
-                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-                } catch (JSONException e) {
-                    Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
-                }
-                mCanvasView.invalidate();
-                Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
-            });
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
 
-    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),
-            uri -> {
-                if (uri == null) {
-                    Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
-                    return;
-                }
-                saveCanvasFile(uri);
-                mCanvasView.setUri(uri);
-            });
+        Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
+    });
+
+    ActivityResultLauncher<String[]> mOpenCanvasFile = registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
+            return;
+        }
+        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+        String canvasData = CanvasFileManager.openCanvasFile(this, uri);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+        }
+        mCanvasView.invalidate();
+
+        persistUriPermission(getIntent(), uri);
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+
+        Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+    });
+
+    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
+            return;
+        }
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+
+        saveCanvasFile(uri);
+        mCanvasView.setUri(uri);
+
+        persistUriPermission(getIntent(), uri);
+        Toast.makeText(this, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
+    });
 
     private void saveCanvasFile(Uri uri) {
         Log.d(TAG, "mSaveAsCanvasFile to Json");
+        // check for file access permissions || grant them, persistUriPermission() doesnt seem to work
         if (!checkFileAccessPermission()) {
             Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "saveCanvasFile: Permissions not granted");
             return;
         }
+        try {
+            getApplicationContext().grantUriPermission(getApplicationContext().getPackageName(), uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (SecurityException se) {
+            /* permission did not persist; user has to chose which file to override */
+            Log.e(TAG, "saveCanvasFile: Failed to save file as it cant be accessed");
+            mSaveAsCanvasFile.launch("canvasFile.json"); // this is recursive
+            return;
+        }
+
+        // save files
         String canvasData = "";
         try {
             canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
@@ -127,7 +172,29 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, "onCreate: save file: " + uri);
         CanvasFileManager.saveCanvasFile(this, uri, canvasData);
+
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+
         Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
+        return;
+    }
+
+    private String getCanvasFileName(Uri uri) {
+        Cursor returnCursor =
+                getContentResolver().query(uri, null, null, null, null);
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+        returnCursor.moveToFirst();
+        String FileName = returnCursor.getString(nameIndex);
+        String FileSize = Long.toString(returnCursor.getLong(sizeIndex));
+
+        return FileName + " : " + FileSize;
+    }
+
+    private void setCanvasTitle(String title){
+        TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+        tvTitle.setText(title);
     }
 
     /**
@@ -177,12 +244,13 @@ public class MainActivity extends AppCompatActivity {
 
         /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
+
+            /* handle action button clicks */
             mCanvasView = CanvasFragment.mCanvasView;
             if (mCanvasView == null) {
                 Log.e(TAG, "onCreate: Canvasview has not been initalized");
                 return false;
             }
-            String canvasData = "";
             switch (menuItem.getItemId()) {
                 /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:
@@ -191,15 +259,13 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 /* chose a existing file with uri and open it in the current canvas */
                 case R.id.open_file:
-                    mOpenCanvasFile.launch(new String[]{"application/text",
-                            "application/json",
-                            "application/pdf"});
+                    mOpenCanvasFile.launch(new String[]{"application/json"});
                     return true;
                 /* save file to existing uri of current view */
-                /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                 case R.id.save_file:
                     Uri uri = mCanvasView.getCurrentURI();
                     if (uri == null) { // shouldnt happen
+                        /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                         mSaveAsCanvasFile.launch("canvasFile.json");
                         return true;
                     }
@@ -208,14 +274,14 @@ public class MainActivity extends AppCompatActivity {
                 /* export a file to pdf */
                 case R.id.export:
                     mSavePdfDocument.launch("exported.pdf");
-
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
             }
-            // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
+
+
             /* forward click to the navigation controller if a navigation item is clicked*/
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
-                navGraphController.navigate(menuItem.getItemId());
+                navGraphController.navigate(menuItem.getItemId()); // onOptionsItemSelected
                 mmainActivityDrawer.closeDrawers();
             }
             return true;
@@ -227,6 +293,52 @@ public class MainActivity extends AppCompatActivity {
         swSync.setChecked(sharedPreferences.getBoolean("sync", false));
         swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
         swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+
+        /* populate recentes list */
+        ExpandableListView expandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
+        ExpandableListAdapter expandableListAdapter;
+        List<String> expandableTitleList;
+        HashMap<String, List<String>> expandableDetailList;
+        expandableDetailList = new HashMap<String, List<String>>();
+        expandableTitleList = new ArrayList<String>(expandableDetailList.keySet());
+        expandableListAdapter = new SimpleExpandableListAdapter(groupData, groupLayout, groupFrom, groupTo, childData, childLayout,  childFrom, childTo)
+        expandableListAdapter = new CustomizedExpandableListAdapter(this, expandableTitleList, expandableDetailList);
+        expandableListView.setAdapter(expandableListAdapter);
+
+        // This method is called when the group is expanded
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition) + " List Expanded.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // This method is called when the group is collapsed
+        expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition) + " List Collapsed.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // This method is called when the child in any group is clicked
+        // via a toast method, it is shown to display the selected child item as a sample
+        // we may need to add further steps according to the requirements
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition)
+                        + " -> "
+                        + expandableDetailList.get(
+                        expandableTitleList.get(groupPosition)).get(
+                        childPosition), Toast.LENGTH_SHORT
+                ).show();
+                return false;
+            }
+        });
+
+
 
         /* FAButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
@@ -245,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     viewCanvasToolsContainer.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
                     tvTitle.setVisibility(View.VISIBLE);
-                    tvTitle.setText("DOCNAME"); // TODO replace with open document name
+                    tvTitle.setText(mCanvasName); // TODO replace with open document name
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:
@@ -323,13 +435,11 @@ public class MainActivity extends AppCompatActivity {
         return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     }
 
-    private void persistUriPermission(Uri uri) {
-//        final int takeFlags = intent.getFlags()
-//                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-//                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//// Check for the freshest data.
-//        getContentResolver().takePersistableUriPermission(uri, takeFlags);
-
+//    @SuppressLint("WrongConstant") // breaks it ?!
+    private void persistUriPermission(Intent intent, Uri uri) {
+        int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        // Check for the freshest data.
+        getContentResolver().takePersistableUriPermission(uri, takeFlags);
     }
 
     @Override
