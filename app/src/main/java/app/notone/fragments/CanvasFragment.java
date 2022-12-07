@@ -19,7 +19,11 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,11 +37,18 @@ import app.notone.R;
 import app.notone.core.pens.PenType;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasImporter;
+import app.notone.io.FileManager;
 import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
 import app.notone.views.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 public class CanvasFragment extends Fragment {
 
@@ -70,21 +81,21 @@ public class CanvasFragment extends Fragment {
     public void onStart() {
         // TODO factorise to worker thread
         super.onStart();
-        Log.d(TAG, "onStart: RELOADING DATA");
-        System.out.println(getResources().getDisplayMetrics());
+//        Log.d(TAG, "onStart: RELOADING DATA");
+//        System.out.println(getResources().getDisplayMetrics());
+//        //load the data from the sharedPrefs
+//        String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
+//
+//        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(data, mCanvasView, true));
+
+        try {
+            FileManager.load(getContext(), mCanvasView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
-        //load the data from the sharedPrefs
-        String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
-
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(data, mCanvasView, true));
-
-//        /* restore canvas */
-//        try {
-//            CanvasImporter.initCanvasViewFromJSON(canvasdata, mCanvasView, true);
-//        } catch (JSONException e) {
-//            Log.e(LOG_TAG, "Could not load the last opened canvas: " + e.getMessage());
-//        }
-
         /* restore old pens */
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
         String pendata = sharedPreferences.getString(PEN_PRESETS_PREF_KEY, "");
@@ -113,20 +124,21 @@ public class CanvasFragment extends Fragment {
 
     @Override
     public void onPause() {
-        // TODO factorise to worker thread
         Log.d(TAG, "onPause: STORING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        if(!sharedPreferences.contains("firebase-userid")) {
+            Log.d(TAG, "Setting userid for the FirebaseStorage.");
+            editor.putString("firebase-userid", UUID.randomUUID().toString()).apply();
+        }
 
-        /* export canvas */
-        String jsonString = "";
         try {
-            jsonString = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString(1);
+            FileManager.save(getContext(), mCanvasView);
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        Log.d(TAG, "onPause: " + jsonString);
-        editor.putString(CANVAS_STORAGE_PREF_KEY, jsonString);
 
         /* export presetpens */
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
