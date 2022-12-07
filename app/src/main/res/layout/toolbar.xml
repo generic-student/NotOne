@@ -74,13 +74,13 @@
                         android:orientation="horizontal"
                         android:layout_gravity="end">
 
-                        <Button
-                            android:id="@+id/button_test"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:maxLines="1"
-                            android:layout_marginHorizontal="150dp"
-                            android:text="TEST" />
+<!--                        <Button-->
+<!--                            android:id="@+id/button_test"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="match_parent"-->
+<!--                            android:maxLines="1"-->
+<!--                            android:layout_marginHorizontal="150dp"-->
+<!--                            android:text="TEST" />-->
 
                     <LinearLayout
                         android:id="@+id/canvas_pens_preset_container"
@@ -123,6 +123,20 @@
                             android:scaleX="1.2"
                             android:scaleY="1.2"
                             android:src="@drawable/ic_marker"
+                            android:background="@android:color/transparent"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:contentDescription="MARKER"
+                            app:tint="@color/white"/>
+
+                        <ImageButton
+                            android:id="@+id/button_shape"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:padding="10dp"
+                            android:layout_gravity="center"
+                            android:scaleX="1.2"
+                            android:scaleY="1.2"
+                            android:src="@drawable/ic_shape"
                             android:background="@android:color/transparent"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:contentDescription="MARKER"

@@ -17,8 +17,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ExpandableListAdapter;
+import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.SimpleExpandableListAdapter;
@@ -32,7 +31,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -276,6 +274,8 @@ public class MainActivity extends AppCompatActivity {
                     mSavePdfDocument.launch("exported.pdf");
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
                     return true;
+                case R.id.recent_files:
+                    return false;
             }
 
 
@@ -288,56 +288,78 @@ public class MainActivity extends AppCompatActivity {
         });
         /* set state of the drawer quick settings */
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
-        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+//        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
-        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
+//        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
         swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
-        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+//        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
         /* populate recentes list */
-        ExpandableListView expandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
-        ExpandableListAdapter expandableListAdapter;
-        List<String> expandableTitleList;
-        HashMap<String, List<String>> expandableDetailList;
-        expandableDetailList = new HashMap<String, List<String>>();
-        expandableTitleList = new ArrayList<String>(expandableDetailList.keySet());
-        expandableListAdapter = new SimpleExpandableListAdapter(groupData, groupLayout, groupFrom, groupTo, childData, childLayout,  childFrom, childTo)
-        expandableListAdapter = new CustomizedExpandableListAdapter(this, expandableTitleList, expandableDetailList);
-        expandableListView.setAdapter(expandableListAdapter);
+        ExpandableListView simpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
+        SimpleExpandableListAdapter mAdapter;
+        // string arrays for group and child items
+        String groupItems[] = {"Recent Files"};
+        String[][] childItems = {{"Dog", "Cat", "Tiger"}};
+        // create lists for group and child items
+        List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
+        List<List<Map<String, String>>> childData = new ArrayList<List<Map<String, String>>>();
+        // add data in group and child list
+        for (int i = 0; i < groupItems.length; i++) {
+            Map<String, String> curGroupMap = new HashMap<String, String>();
+            groupData.add(curGroupMap);
+            curGroupMap.put(TAG, groupItems[i]);
 
-        // This method is called when the group is expanded
-        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-            @Override
-            public void onGroupExpand(int groupPosition) {
-                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition) + " List Expanded.", Toast.LENGTH_SHORT).show();
+            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+            for (int j = 0; j < childItems[i].length; j++) {
+                Map<String, String> curChildMap = new HashMap<String, String>();
+                children.add(curChildMap);
+                curChildMap.put(TAG, childItems[i][j]);
             }
-        });
+            childData.add(children);
+        }
+        // define arrays for displaying data in Expandable list view
+        String groupFrom[] = {TAG};
+        int groupTo[] = {R.id.listGroupTitle};
+        String childFrom[] = {TAG};
+        int childTo[] = {R.id.listItem};
 
-        // This method is called when the group is collapsed
-        expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
-            @Override
-            public void onGroupCollapse(int groupPosition) {
-                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition) + " List Collapsed.", Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        // This method is called when the child in any group is clicked
-        // via a toast method, it is shown to display the selected child item as a sample
-        // we may need to add further steps according to the requirements
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        // Set up the adapter
+        mAdapter = new SimpleExpandableListAdapter(this, groupData,
+                R.layout.list_group,
+                groupFrom, groupTo,
+                childData, R.layout.list_item,
+                childFrom, childTo);
+        simpleExpandableListView.setAdapter(mAdapter);
+
+        // perform set on group click listener event
+        simpleExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                Toast.makeText(getApplicationContext(), expandableTitleList.get(groupPosition)
-                        + " -> "
-                        + expandableDetailList.get(
-                        expandableTitleList.get(groupPosition)).get(
-                        childPosition), Toast.LENGTH_SHORT
-                ).show();
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+
+                if(!parent.isGroupExpanded(groupPosition)) {
+                    findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+                    Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+                } else {
+                    findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+                }
+                // display a toast with group name whenever a user clicks on a group item
+                Toast.makeText(getApplicationContext(), "Group Name Is :" + groupItems[groupPosition], Toast.LENGTH_LONG).show();
+
                 return false;
             }
         });
+        // perform set on child click listener event
+        simpleExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 
+                // display a toast with child name whenever a user clicks on a child item
+                Toast.makeText(getApplicationContext(), "Child Name Is :" + childItems[groupPosition][childPosition], Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
 
 
         /* FAButton to hide the toolbar */

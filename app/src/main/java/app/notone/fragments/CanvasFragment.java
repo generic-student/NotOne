@@ -221,11 +221,11 @@ public class CanvasFragment extends Fragment {
 
         /* Test button */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
-        buttonTest.setOnClickListener(v -> {
-            Log.d(TAG, sharedPreferences.getAll().toString());
-            sharedPreferences.edit().clear().commit();
-        });
+//        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
+//        buttonTest.setOnClickListener(v -> {
+//            Log.d(TAG, sharedPreferences.getAll().toString());
+//            sharedPreferences.edit().clear().commit();
+//        });
 
         /* draw bound depending on settings */
         boolean pdfbounds = sharedPreferences.getBoolean("pdfbounds", false);
