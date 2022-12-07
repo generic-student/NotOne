@@ -9,38 +9,42 @@ import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 
+/**
+ * Handles adding strokes to the canvas (writing strokes)
+ */
 public class CanvasWriterPen extends CanvasPen {
-    private Stroke currentStroke;
+    //the current stroke that is being written
+    private Stroke mCurrentStroke;
 
     public CanvasWriterPen(CanvasWriter writerReference) {
         super(writerReference);
 
-        currentStroke = new Stroke(writerReference.getStrokeColor(), writerReference.getStrokeWeight());
+        mCurrentStroke = new Stroke(writerReference.getStrokeColor(), writerReference.getStrokeWeight());
     }
 
     @Override
     public boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint) {
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                currentStroke.moveTo(currentTouchPoint.x, currentTouchPoint.y);
+                mCurrentStroke.moveTo(currentTouchPoint.x, currentTouchPoint.y);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                currentStroke.lineTo(currentTouchPoint.x, currentTouchPoint.y);
+                mCurrentStroke.lineTo(currentTouchPoint.x, currentTouchPoint.y);
                 return true;
 
             case MotionEvent.ACTION_UP:
-                if(currentStroke.isEmpty()) {
+                if(mCurrentStroke.isEmpty()) {
                     return false;
                 }
-                //delete the strokes that come after the currentStrokeIndex
+                //clear the redo tree since a new branch has been created
                 clearUndoneStrokes();
                 //add the current stroke to the list of strokes
-                canvasWriterRef.getStrokes().add(currentStroke);
+                mCanvasWriterRef.getStrokes().add(mCurrentStroke);
                 //add the action the the list
-                canvasWriterRef.getUndoRedoManager().addAction(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, currentStroke));
+                mCanvasWriterRef.getUndoRedoManager().addAction(new CanvasWriterAction(CanvasWriterAction.Type.WRITE, mCurrentStroke));
                 //reset the current stroke
-                currentStroke = new Stroke(canvasWriterRef.getStrokeColor(), canvasWriterRef.getStrokeWeight());
+                mCurrentStroke = new Stroke(mCanvasWriterRef.getStrokeColor(), mCanvasWriterRef.getStrokeWeight());
 
                 return true;
         }
@@ -50,27 +54,30 @@ public class CanvasWriterPen extends CanvasPen {
 
     @Override
     public void render(Canvas canvas) {
-        Paint paint = canvasWriterRef.getPaint();
+        Paint paint = mCanvasWriterRef.getPaint();
 
-        paint.setColor(currentStroke.getColor());
-        paint.setStrokeWidth(currentStroke.getWeight());
-        canvas.drawPath(currentStroke, paint);
+        paint.setColor(mCurrentStroke.getColor());
+        paint.setStrokeWidth(mCurrentStroke.getWeight());
+        canvas.drawPath(mCurrentStroke, paint);
     }
 
     @Override
     public void reset() {
-        currentStroke.reset();
+        mCurrentStroke.reset();
     }
 
+    /**
+     * clears the list of undone actions (the redo tree)
+     */
     private void clearUndoneStrokes() {
-        canvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
+        mCanvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
     }
 
     public void setStrokeColor(int c) {
-        currentStroke.setColor(c);
+        mCurrentStroke.setColor(c);
     }
 
     public void setStrokeWeight(float weight) {
-        currentStroke.setWeight(weight);
+        mCurrentStroke.setWeight(weight);
     }
 }
