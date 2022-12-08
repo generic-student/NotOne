@@ -78,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:paddingStart="80dp"
                         android:paddingBottom="20dp"
-                        android:text="Generic and \nDefault Student"
+                        android:text="Generic and \nDefault  Student"
                         android:textAppearance="@android:style/TextAppearance.Material.Small" />
                 </LinearLayout>
                 <Button
@@ -88,7 +88,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="?colorCanvas"
                     android:textAlignment="viewStart"
-                    android:text="| VISIT THEIR PAGES"
+                    android:text="VISIT THEIR PAGES"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?colorTextDayNight" />
@@ -163,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="80dp"
                 android:paddingBottom="20dp"
-                android:text="..."
+                android:text="@string/third_party_licenses"
                 android:textAppearance="@android:style/TextAppearance.Material.Small" />
         </LinearLayout>
     </ScrollView>

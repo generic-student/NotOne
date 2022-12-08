@@ -66,7 +66,7 @@ import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
     private static CanvasView mCanvasView = null;
-    private static String mCanvasName = "Document Name";
+    private static String mCanvasName = "Unsaved Doc";
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
@@ -188,18 +188,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getCanvasFileName(Uri uri) {
-        Cursor returnCursor =
-                getContentResolver().query(uri, null, null, null, null);
-        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-        returnCursor.moveToFirst();
-        String FileName = returnCursor.getString(nameIndex);
-        String FileSize = Long.toString(returnCursor.getLong(sizeIndex));
-
+        String FileName = "";
+        String FileSize = "";
+        try {
+            Cursor returnCursor =
+                    getContentResolver().query(uri, null, null, null, null);
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            FileName = returnCursor.getString(nameIndex);
+            FileSize = Long.toString(returnCursor.getLong(sizeIndex));
+        } catch(NullPointerException n) {
+            Log.e(TAG, "getCanvasFileName: couldnt extract Filename from uri");
+            FileName = "Unsaved Document";
+            FileSize = "0";
+        }
         return FileName + " : " + FileSize;
     }
 
     private void setCanvasTitle(String title){
+        if(title == null || title.equals("")){
+            Log.e(TAG, "setCanvasTitle: uri is probably empty, save first");
+            return;
+        }
         TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
         tvTitle.setText(title);
     }
@@ -250,10 +261,11 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
         /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
+
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
+            mCanvasView = CanvasFragment.mCanvasView;
 
             /* handle action button clicks */
-            mCanvasView = CanvasFragment.mCanvasView;
             if (mCanvasView == null) {
                 Log.e(TAG, "onCreate: Canvasview has not been initalized");
                 return false;
@@ -270,13 +282,12 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 /* save file to existing uri of current view */
                 case R.id.save_file:
-                    Uri uri = mCanvasView.getCurrentURI();
-                    if (uri == null) { // shouldnt happen
+                    if (mCanvasView.getCurrentURI().equals(Uri.parse(""))) { // shouldnt happen
                         /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                         mSaveAsCanvasFile.launch("canvasFile.json");
                         return false;
                     }
-                    saveCanvasFile(uri);
+                    saveCanvasFile(mCanvasView.getCurrentURI());
                     return false;
                 /* export a file to pdf */
                 case R.id.export:
