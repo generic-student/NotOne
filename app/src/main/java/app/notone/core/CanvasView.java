@@ -226,7 +226,7 @@ public class CanvasView extends View {
 
     public Uri getCurrentURI() {
         if(mCurrentURI == null) {
-            Log.e(LOG_TAG, "getCurrentURI: URI is not yet set, save the document");
+            Log.e(LOG_TAG, "getCurrentURI: URI is not yet set, save the document first");
             return Uri.parse("");
         }
         return mCurrentURI;

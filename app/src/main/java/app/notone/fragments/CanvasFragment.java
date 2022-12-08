@@ -43,7 +43,7 @@ public class CanvasFragment extends Fragment {
 
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
     private static final String TAG = "NotOneCanvasFragment";
-    private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
+    public static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
     private static final String CANVAS_STORAGE_PREF_KEY = "lastOpenedCanvasWriter";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
@@ -75,7 +75,6 @@ public class CanvasFragment extends Fragment {
         // TODO factorise to worker thread
         super.onStart();
         Log.d(TAG, "onStart: RELOADING DATA");
-        System.out.println(getResources().getDisplayMetrics());
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
         String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
@@ -146,10 +145,12 @@ public class CanvasFragment extends Fragment {
         }
         editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
 
+        /* export recent files */
+
         // write changes to file
         editor.apply();
         super.onPause();
-        Toast.makeText(getActivity(), "exported persistence data", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "exported persistence data", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -220,6 +221,14 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
             mGetPdfDocument.launch("application/pdf");
+        });
+
+        /* return to origin button */
+        ImageButton buttonOrigin = fragmentActivity.findViewById(R.id.button_return_to_origin);
+        buttonOrigin.setOnClickListener(v -> {
+            mCanvasView.resetViewMatrices();
+            mCanvasView.setScale(1);
+            mCanvasView.invalidate();
         });
 
         /* Test button */
