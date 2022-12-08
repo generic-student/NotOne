@@ -41,6 +41,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ActionBarPolicy;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -73,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     NavigationDrawer mmainActivityDrawer;
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
+            return;
+        }
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
         CanvasFileManager.savePdfDocument(this, uri, doc);
@@ -113,20 +118,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
             return;
         }
-        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
-        String canvasData = CanvasFileManager.openCanvasFile(this, uri);
-        try {
-            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-        } catch (JSONException e) {
-            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
-        }
-        mCanvasView.invalidate();
-
-        persistUriPermission(getIntent(), uri);
-        mCanvasName = getCanvasFileName(uri);
-        setCanvasTitle(mCanvasName);
-
-        Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+        openCanvasFile(uri);
     });
 
     ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
@@ -176,6 +168,23 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
         return;
+    }
+
+    private void openCanvasFile(Uri uri) {
+        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+        String canvasData = CanvasFileManager.openCanvasFile(this, uri);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+        }
+        mCanvasView.invalidate();
+
+        persistUriPermission(getIntent(), uri);
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+
+        Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
     }
 
     private String getCanvasFileName(Uri uri) {
@@ -254,26 +263,26 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.new_file:
                     Log.d(TAG, "onNavigationItemSelected: New File");
                     mNewCanvasFile.launch("canvasFile.json");
-                    return true;
+                    return false;
                 /* chose a existing file with uri and open it in the current canvas */
                 case R.id.open_file:
                     mOpenCanvasFile.launch(new String[]{"application/json"});
-                    return true;
+                    return false;
                 /* save file to existing uri of current view */
                 case R.id.save_file:
                     Uri uri = mCanvasView.getCurrentURI();
                     if (uri == null) { // shouldnt happen
                         /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                         mSaveAsCanvasFile.launch("canvasFile.json");
-                        return true;
+                        return false;
                     }
                     saveCanvasFile(uri);
-                    return true;
+                    return false;
                 /* export a file to pdf */
                 case R.id.export:
                     mSavePdfDocument.launch("exported.pdf");
                     Log.i(TAG, "onNavigationItemSelected: Export to pdf");
-                    return true;
+                    return false;
                 case R.id.recent_files:
                     return false;
             }
@@ -294,15 +303,22 @@ public class MainActivity extends AppCompatActivity {
         swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
-        /* populate recentes list */
+        /* populate recents list */
         ExpandableListView simpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
-        SimpleExpandableListAdapter mAdapter;
         // string arrays for group and child items
         String groupItems[] = {"Recent Files"};
-        String[][] childItems = {{"Dog", "Cat", "Tiger"}};
+        String[][] childItems = {{"Dog", "Cat", "Tiger", "Tiger", "AAA", "EEEEEEEE", "CCCCCC"}};
         // create lists for group and child items
         List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
         List<List<Map<String, String>>> childData = new ArrayList<List<Map<String, String>>>();
+        Map<String, Uri> nameUriMap = new HashMap<String, Uri>();
+
+        // define arrays for displaying data in Expandable list view
+        String groupFrom[] = {TAG};
+        int groupTo[] = {R.id.listGroupTitle};
+        String childFrom[] = {TAG};
+        int childTo[] = {R.id.listItemText};
+
         // add data in group and child list
         for (int i = 0; i < groupItems.length; i++) {
             Map<String, String> curGroupMap = new HashMap<String, String>();
@@ -317,50 +333,30 @@ public class MainActivity extends AppCompatActivity {
             }
             childData.add(children);
         }
-        // define arrays for displaying data in Expandable list view
-        String groupFrom[] = {TAG};
-        int groupTo[] = {R.id.listGroupTitle};
-        String childFrom[] = {TAG};
-        int childTo[] = {R.id.listItem};
-
 
         // Set up the adapter
-        mAdapter = new SimpleExpandableListAdapter(this, groupData,
+        SimpleExpandableListAdapter mAdapter = new SimpleExpandableListAdapter(this, groupData,
                 R.layout.list_group,
                 groupFrom, groupTo,
                 childData, R.layout.list_item,
                 childFrom, childTo);
         simpleExpandableListView.setAdapter(mAdapter);
 
-        // perform set on group click listener event
-        simpleExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-
-                if(!parent.isGroupExpanded(groupPosition)) {
-                    findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
-                    Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
-                } else {
-                    findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
-                }
-                // display a toast with group name whenever a user clicks on a group item
-                Toast.makeText(getApplicationContext(), "Group Name Is :" + groupItems[groupPosition], Toast.LENGTH_LONG).show();
-
-                return false;
-            }
+        simpleExpandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+            if(!parent.isGroupExpanded(groupPosition)) {
+                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+                Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+            } else {
+                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+            } //groupItems[groupPosition]
+            return false;
         });
-        // perform set on child click listener event
-        simpleExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-
-                // display a toast with child name whenever a user clicks on a child item
-                Toast.makeText(getApplicationContext(), "Child Name Is :" + childItems[groupPosition][childPosition], Toast.LENGTH_LONG).show();
-                return false;
-            }
+        simpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            Log.d(TAG, "simpleExpandableListView.setOnChildClickListener: " + childItems[groupPosition][childPosition]);
+//            openCanvasFile(nameUriMap.get(childItems[groupPosition][childPosition]));
+            return false;
         });
-
 
         /* FAButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
