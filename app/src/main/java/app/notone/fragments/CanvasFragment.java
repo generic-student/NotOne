@@ -56,6 +56,9 @@ public class CanvasFragment extends Fragment {
             new ActivityResultCallback<Uri>() {
                 @Override
                 public void onActivityResult(Uri uri) {
+                    if(uri == null){
+                        return;
+                    }
                     mCanvasView.resetViewMatrices();
                     mCanvasView.setScale(1f);
                     PdfImporter.fromUri(getContext(), uri, mCanvasView.getPdfDocument());
