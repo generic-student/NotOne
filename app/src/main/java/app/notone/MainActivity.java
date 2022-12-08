@@ -33,6 +33,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.view.ActionBarPolicy;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -53,6 +53,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasView;
+import app.notone.core.util.StringUriFixedSizeStack;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
@@ -65,13 +66,15 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
-    private static CanvasView mCanvasView = null;
-    private static String mCanvasName = "Unsaved Doc";
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
-    boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
+
+    boolean mToolbarVisibility = true;
+    private static CanvasView mCanvasView = null;
+    private static String mCanvasName = "Unsaved Doc";
+    StringUriFixedSizeStack<String, Uri> mNameUriMap = new StringUriFixedSizeStack<String, Uri>(5);
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
         if (uri == null) {
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
         mCanvasName = getCanvasFileName(uri);
         setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
 
         Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
     });
@@ -128,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mCanvasName = getCanvasFileName(uri);
         setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
 
         saveCanvasFile(uri);
         mCanvasView.setUri(uri);
@@ -183,8 +188,14 @@ public class MainActivity extends AppCompatActivity {
         persistUriPermission(getIntent(), uri);
         mCanvasName = getCanvasFileName(uri);
         setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
 
         Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+    }
+
+    private void addToRecentFiles(String mCanvasName, Uri uri) {
+        mNameUriMap.push(mCanvasName, uri);
+        Log.d(TAG, "addToRecentFiles: " + mNameUriMap);
     }
 
     private String getCanvasFileName(Uri uri) {
@@ -322,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
         // create lists for group and child items
         List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
         List<List<Map<String, String>>> childData = new ArrayList<List<Map<String, String>>>();
-        Map<String, Uri> nameUriMap = new HashMap<String, Uri>();
 
         // define arrays for displaying data in Expandable list view
         String groupFrom[] = {TAG};
