@@ -19,6 +19,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.SimpleExpandableListAdapter;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     NavigationView mNavDrawerContainerNV;
     NavigationDrawer mmainActivityDrawer;
 
+    ExpandableListView mSimpleExpandableListView;
     SimpleExpandableListAdapter mAdapter;
     String[][] mRecentFileNames = {{}};
     private List<List<Map<String, String>>> mChildData;
@@ -267,9 +270,16 @@ public class MainActivity extends AppCompatActivity {
         String groupItems[] = {"Recent Files"};
 
         mRecentFileNames = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        mChildData = new ArrayList<List<Map<String, String>>>();
         initExpListData(groupItems, groupData, mChildData);
 
-        mAdapter.notifyDataSetInvalidated();
+        mSimpleExpandableListView.invalidate();
+        mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
+        mAdapter = createSimpleExpListAdapter(
+                new String[] {"Recent Files"});
+        mSimpleExpandableListView.setAdapter(mAdapter);
+        mSimpleExpandableListView.invalidateViews();
+        ((BaseExpandableListAdapter)mAdapter).notifyDataSetInvalidated();
         mAdapter.notifyDataSetChanged();
         super.onResume();
     }
@@ -374,16 +384,19 @@ public class MainActivity extends AppCompatActivity {
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
         /* populate recents list */
-        ExpandableListView simpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
+        mSimpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
         // string arrays for group and child items
         String groupItems[] = {"Recent Files"};
 //        String[][] recentFileNames = {{"Dog", "Cat", "Tiger", "Tiger", "AAA", "EEEEEEEE", "CCCCCC"}};
-        mRecentFileNames = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        mRecentFileNames = new String[][]{{"Dog", "Cat", "Tiger", "Tiger", "AAA", "EEEEEEEE", "CCCCCC"}};
         mAdapter = createSimpleExpListAdapter(groupItems);
-        simpleExpandableListView.setAdapter(mAdapter);
+        mSimpleExpandableListView.setAdapter(mAdapter);
 
-        simpleExpandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
-            Log.d(TAG, "setOnGroupClickListener: " + mNameUriMap + Arrays.toString(mRecentFileNames[0]) + "child:" + mChildData);
+        mSimpleExpandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+            mSimpleExpandableListView.invalidate();
+            mAdapter.notifyDataSetInvalidated();
+            mAdapter.notifyDataSetChanged();
+            Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(mRecentFileNames[0]) + " CHILDDATA:" + mChildData);
             if (!parent.isGroupExpanded(groupPosition)) {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
                 Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
@@ -393,8 +406,8 @@ public class MainActivity extends AppCompatActivity {
             } //groupItems[groupPosition]
             return false;
         });
-        simpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            Log.d(TAG, "simpleExpandableListView.setOnChildClickListener: " + mRecentFileNames[groupPosition][childPosition] + mNameUriMap.get(mRecentFileNames[groupPosition][childPosition]));
+        mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + mRecentFileNames[groupPosition][childPosition] + mNameUriMap.get(mRecentFileNames[groupPosition][childPosition]));
 //            openCanvasFile(nameUriMap.get(recentFileNames[groupPosition][childPosition]));
             return false;
         });
@@ -455,8 +468,14 @@ public class MainActivity extends AppCompatActivity {
                 childFrom, childTo) {
             @Override
             public void registerDataSetObserver(DataSetObserver observer) {
-                Log.d(TAG, "registerDataSetObserver: DATA changed");
                 super.registerDataSetObserver(observer);
+                Log.d(TAG, "registerDataSetObserver: DATA changed");
+            }
+
+            @Override
+            public void notifyDataSetChanged() {
+                Log.d(TAG, "notifyDataSetChanged: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                super.notifyDataSetChanged();
             }
         };
     }
