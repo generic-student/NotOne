@@ -21,7 +21,7 @@ public class PenPorter {
     private final static String TAG = "NotOnePenPorter";
 
     public static JSONObject presetPensToJSON(ArrayList<PresetPenButton> presetPenButtons) throws JSONException {
-        Log.d(TAG, "converting " + presetPenButtons + " to Json");
+//        Log.d(TAG, "converting " + presetPenButtons + " to Json");
 
         JSONObject json = new JSONObject();
         JSONArray pens = new JSONArray();
@@ -42,13 +42,13 @@ public class PenPorter {
     }
 
     public static ArrayList<PresetPenButton> presetPensFromJSON(Context context, FragmentActivity fragmentActivity, String pendata) throws JSONException {
-        Log.d(TAG, "converting json " + pendata + " to preset pens");
+//        Log.d(TAG, "converting json " + pendata + " to preset pens");
 
         JSONObject json = new JSONObject(pendata);
         JSONArray jsonArray = json.getJSONArray("pens");
         ArrayList<PresetPenButton> PPBtns = new ArrayList<PresetPenButton>();
 
-        Log.d(TAG, "penPresetsFromJSON: got " + jsonArray.length() + " pens");
+//        Log.d(TAG, "penPresetsFromJSON: got " + jsonArray.length() + " pens");
         for(int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonpen = jsonArray.getJSONObject(i);
             int colorindexmapid = jsonpen.getInt("colorindexmapid");

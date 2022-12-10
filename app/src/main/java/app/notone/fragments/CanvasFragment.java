@@ -74,7 +74,7 @@ public class CanvasFragment extends Fragment {
     public void onStart() {
         // TODO factorise to worker thread
         super.onStart();
-        Log.d(TAG, "onStart: RELOADING DATA");
+        Log.d(TAG, "onStart: reloading canvas data saved in shared prefs");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         //load the data from the sharedPrefs
         String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
@@ -94,7 +94,7 @@ public class CanvasFragment extends Fragment {
         try {
             mPresetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
                     pendata);
-            Log.d(TAG, "onStart: got old preset pens " + mPresetPenButtons);
+//            Log.d(TAG, "onStart: got old preset pens " + mPresetPenButtons);
         } catch (JSONException e) {
             Log.e(TAG, "onStart: failed to extract Pens from json", e);
             e.printStackTrace();
@@ -102,7 +102,7 @@ public class CanvasFragment extends Fragment {
         // add pen to container
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
         if(llayoutPenContainer.getChildCount() == 0) {
-            Log.d(TAG, "onViewCreated: restoring old pens " + mPresetPenButtons);
+            Log.d(TAG, "onStart: restoring old pens " + mPresetPenButtons);
             mPresetPenButtons.forEach(presetPenButton -> {
                 Log.d(TAG, "restore old pen ");
                 setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
@@ -117,7 +117,7 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onPause() {
         // TODO factorise to worker thread
-        Log.d(TAG, "onPause: STORING DATA");
+        Log.d(TAG, "onPause: Exporting Data to the shard prefs for persistence");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -307,7 +307,7 @@ public class CanvasFragment extends Fragment {
         ddMenu.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d(TAG, "Dropdownmenu: itemselected: " + adapterView.getItemAtPosition(i));
+//                Log.d(TAG, "Dropdownmenu: itemselected: " + adapterView.getItemAtPosition(i));
                 onClickddMenuFunction.onClick(adapterView, view, i, l);
             }
 

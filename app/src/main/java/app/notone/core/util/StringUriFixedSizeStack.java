@@ -22,15 +22,15 @@ public class StringUriFixedSizeStack<K, V> extends LinkedHashMap<K, V> {
          Log.d(TAG, "StringUriFixedSizeStack: No Recent Files");
          return;
       }
-      Log.d(TAG, "StringUriFixedSizeStack: creating LinkedHashMap from String: " + cereal);
+//      Log.d(TAG, "StringUriFixedSizeStack: creating LinkedHashMap from String: " + cereal);
       cereal = cereal.replace("{","");
       cereal = cereal.replace("}","");
-      Log.d(TAG, "StringUriFixedSizeStack: " + cereal.split(",").toString());
+//      Log.d(TAG, "StringUriFixedSizeStack: " + cereal.split(",").toString());
       for(String pair : cereal.split(",")) {
          if(pair.equals("")){
             continue;
          }
-         Log.d(TAG, "StringUriFixedSizeStack: adding pair: " + pair);
+//         Log.d(TAG, "StringUriFixedSizeStack: adding pair: " + pair);
          String[] splitPair = pair.split(":");
          this.push((K) splitPair[0], (V) Uri.parse(splitPair[1]));
       }
@@ -45,6 +45,7 @@ public class StringUriFixedSizeStack<K, V> extends LinkedHashMap<K, V> {
 
    @NonNull
    public String toStringCereal() {
+      Log.d(TAG, "toStringCereal: " + this);
       String result = "{";
 
       for (Entry<K, V> pair : this.entrySet()){

@@ -79,13 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
     ExpandableListView mSimpleExpandableListView;
     SimpleExpandableListAdapter mAdapter;
-    String[][] mRecentFileNames = {{}};
-    private List<List<Map<String, String>>> mChildData;
 
     boolean mToolbarVisibility = true;
-    StringUriFixedSizeStack<String, Uri> mNameUriMap = new StringUriFixedSizeStack<String, Uri>(5);
+    private StringUriFixedSizeStack<String, Uri> mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4);
 
-    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
+    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
+            uri -> {
         if (uri == null) {
             Log.e(TAG, "mNewCanvasFile: file creation was aborted");
             return;
@@ -96,14 +95,15 @@ public class MainActivity extends AppCompatActivity {
     });
 
     ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json") {
-        @NonNull
-        @Override
-        public Intent createIntent(@NonNull Context context, @NonNull String input) {
-            Intent intent = super.createIntent(context, input);
-            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getFilesDir()); // inital uri
-            return intent;
-        }
-    }, uri -> {
+//        @NonNull
+//        @Override
+//        public Intent createIntent(@NonNull Context context, @NonNull String input) {
+//            Intent intent = super.createIntent(context, input);
+//            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getFilesDir()); // inital uri
+//            return intent;
+//        }
+    },
+            uri -> {
         if (uri == null) {
             Log.e(TAG, "mNewCanvasFile: file creation was aborted");
             return;
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         mCanvasName = getCanvasFileName(uri);
         setCanvasTitle(mCanvasName);
         addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
 
         Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
     });
@@ -132,6 +133,23 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         openCanvasFile(uri);
+    });
+
+    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
+            return;
+        }
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
+
+        saveCanvasFile(uri);
+        mCanvasView.setUri(uri);
+
+        persistUriPermission(getIntent(), uri);
+        Toast.makeText(this, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
     });
 
     private void saveCanvasFile(Uri uri) {
@@ -158,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "onCreate: save file: " + uri);
         CanvasFileManager.saveCanvasFile(this, uri, canvasData);
 
         mCanvasName = getCanvasFileName(uri);
@@ -166,21 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
         return;
-    }    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
-        if (uri == null) {
-            Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
-            return;
-        }
-        mCanvasName = getCanvasFileName(uri);
-        setCanvasTitle(mCanvasName);
-        addToRecentFiles(mCanvasName, uri);
-
-        saveCanvasFile(uri);
-        mCanvasView.setUri(uri);
-
-        persistUriPermission(getIntent(), uri);
-        Toast.makeText(this, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
-    });
+    }
 
     private void openCanvasFile(Uri uri) {
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
@@ -202,13 +205,9 @@ public class MainActivity extends AppCompatActivity {
         mCanvasName = getCanvasFileName(uri);
         setCanvasTitle(mCanvasName);
         addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
 
         Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
-    }
-
-    private void addToRecentFiles(String mCanvasName, Uri uri) {
-        mNameUriMap.push(mCanvasName, uri);
-        Log.d(TAG, "addToRecentFiles: " + mNameUriMap);
     }
 
     private String getCanvasFileName(Uri uri) {
@@ -242,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: ");
+        /* save recent files */
         if (mNameUriMap.size() != 0) {
             SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -254,34 +254,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume: Loading Recent Files");
+    protected void onStart() {
+        /* reload recent files */
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
-        SharedPreferences.Editor spEditor = sharedPreferences.edit();
         String recentFiles = sharedPreferences.getString(RECENT_FILES_PREF_KEY, "");
-        Log.d(TAG, "onCreate: recentFiles: " + recentFiles + mNameUriMap);
+        Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
         try {
-            mNameUriMap = new StringUriFixedSizeStack<String, Uri>(5, sharedPreferences.getString(RECENT_FILES_PREF_KEY, ""));
+            mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4, recentFiles);
         } catch (ArrayIndexOutOfBoundsException a) {
             Log.e(TAG, "onCreate: couldnt load recent files");
         }
 
-        List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-        String groupItems[] = {"Recent Files"};
+        updateExpListRecentFiles();
+        super.onStart();
+    }
 
-        mRecentFileNames = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
-        mChildData = new ArrayList<List<Map<String, String>>>();
-        initExpListData(groupItems, groupData, mChildData);
+    private void addToRecentFiles(String mCanvasName, Uri uri) {
+        mNameUriMap.push(mCanvasName, uri);
+        Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
+    }
 
+    private void updateExpListRecentFiles() {
+        String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        Log.d(TAG, "updateExpListRecentFiles: AAAAAAAAAAAAAAAAAAAAAAAA" + Arrays.deepToString(recentFileList));
         mSimpleExpandableListView.invalidate();
         mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
-        mAdapter = createSimpleExpListAdapter(
-                new String[] {"Recent Files"});
+        mAdapter = createSimpleExpListAdapterForRecentFiles(
+                recentFileList);
         mSimpleExpandableListView.setAdapter(mAdapter);
         mSimpleExpandableListView.invalidateViews();
         ((BaseExpandableListAdapter)mAdapter).notifyDataSetInvalidated();
         mAdapter.notifyDataSetChanged();
-        super.onResume();
     }
 
     /**
@@ -386,28 +389,24 @@ public class MainActivity extends AppCompatActivity {
         /* populate recents list */
         mSimpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
         // string arrays for group and child items
-        String groupItems[] = {"Recent Files"};
-//        String[][] recentFileNames = {{"Dog", "Cat", "Tiger", "Tiger", "AAA", "EEEEEEEE", "CCCCCC"}};
-        mRecentFileNames = new String[][]{{"Dog", "Cat", "Tiger", "Tiger", "AAA", "EEEEEEEE", "CCCCCC"}};
-        mAdapter = createSimpleExpListAdapter(groupItems);
+        String [][] mrecentfilenames = new String[][]{{"Default Value"}};
+        mAdapter = createSimpleExpListAdapterForRecentFiles(mrecentfilenames);
         mSimpleExpandableListView.setAdapter(mAdapter);
 
         mSimpleExpandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
-            mSimpleExpandableListView.invalidate();
-            mAdapter.notifyDataSetInvalidated();
-            mAdapter.notifyDataSetChanged();
-            Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(mRecentFileNames[0]) + " CHILDDATA:" + mChildData);
+
+            Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(mrecentfilenames[0]));
             if (!parent.isGroupExpanded(groupPosition)) {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
                 Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
             } else {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
-            } //groupItems[groupPosition]
+            }
             return false;
         });
         mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + mRecentFileNames[groupPosition][childPosition] + mNameUriMap.get(mRecentFileNames[groupPosition][childPosition]));
+            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + mrecentfilenames[groupPosition][childPosition] + mNameUriMap.get(mrecentfilenames[groupPosition][childPosition]));
 //            openCanvasFile(nameUriMap.get(recentFileNames[groupPosition][childPosition]));
             return false;
         });
@@ -447,12 +446,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private SimpleExpandableListAdapter createSimpleExpListAdapter(String[] groupItems) {
+    private SimpleExpandableListAdapter createSimpleExpListAdapterForRecentFiles(
+            String[][] recentFileNames) {
         // create lists for group and child items
+        String[] groupItems = {"Recent Files"};
         List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-        mChildData = new ArrayList<List<Map<String, String>>>();
+        List<List<Map<String, String>>> listItemData = new ArrayList<List<Map<String, String>>>();
 
-        initExpListData(groupItems, groupData, mChildData);
+        // add data in group and child list
+        for (int i = 0; i < groupItems.length; i++) {
+            Map<String, String> curGroupMap = new HashMap<String, String>();
+            groupData.add(curGroupMap);
+            curGroupMap.put(TAG, groupItems[i]);
+
+            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+            for (int j = 0; j < recentFileNames[i].length; j++) {
+                Map<String, String> curChildMap = new HashMap<String, String>();
+                children.add(curChildMap);
+                curChildMap.put(TAG, recentFileNames[i][j]);
+            }
+            listItemData.add(children);
+        }
 
         // define arrays for displaying data in Expandable list view
         String groupFrom[] = {TAG};
@@ -464,37 +478,20 @@ public class MainActivity extends AppCompatActivity {
         return mAdapter = new SimpleExpandableListAdapter(this, groupData,
                 R.layout.list_group,
                 groupFrom, groupTo,
-                mChildData, R.layout.list_item,
+                listItemData, R.layout.list_item,
                 childFrom, childTo) {
-            @Override
-            public void registerDataSetObserver(DataSetObserver observer) {
-                super.registerDataSetObserver(observer);
-                Log.d(TAG, "registerDataSetObserver: DATA changed");
-            }
+//            @Override
+//            public void registerDataSetObserver(DataSetObserver observer) {
+//                super.registerDataSetObserver(observer);
+//                Log.d(TAG, "registerDataSetObserver: DATA changed");
+//            }
 
-            @Override
-            public void notifyDataSetChanged() {
-                Log.d(TAG, "notifyDataSetChanged: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                super.notifyDataSetChanged();
-            }
+//            @Override
+//            public void notifyDataSetChanged() {
+//                Log.d(TAG, "notifyDataSetChanged: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+//                super.notifyDataSetChanged();
+//            }
         };
-    }
-
-    private void initExpListData(String[] groupItems, List<Map<String, String>> groupData, List<List<Map<String, String>>> childData) {
-        // add data in group and child list
-        for (int i = 0; i < groupItems.length; i++) {
-            Map<String, String> curGroupMap = new HashMap<String, String>();
-            groupData.add(curGroupMap);
-            curGroupMap.put(TAG, groupItems[i]);
-
-            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
-            for (int j = 0; j < mRecentFileNames[i].length; j++) {
-                Map<String, String> curChildMap = new HashMap<String, String>();
-                children.add(curChildMap);
-                curChildMap.put(TAG, mRecentFileNames[i][j]);
-            }
-            childData.add(children);
-        }
     }
 
     /**
@@ -558,6 +555,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //    @SuppressLint("WrongConstant") // breaks it ?!
+    @SuppressLint("WrongConstant")
     private void persistUriPermission(Intent intent, Uri uri) {
         int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         // Check for the freshest data.
