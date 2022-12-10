@@ -406,8 +406,10 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + mrecentfilenames[groupPosition][childPosition] + mNameUriMap.get(mrecentfilenames[groupPosition][childPosition]));
-//            openCanvasFile(nameUriMap.get(recentFileNames[groupPosition][childPosition]));
+            Log.d(TAG, "onCreate: " + mNameUriMap.values());
+            String filename = mAdapter.getChild(groupPosition,childPosition).toString().replaceAll("\\{([A-Z])\\w+=","").replaceAll("\\}","");
+            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + mNameUriMap.get(filename));
+            openCanvasFile(mNameUriMap.get(filename));
             return false;
         });
 
@@ -460,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
             curGroupMap.put(TAG, groupItems[i]);
 
             List<Map<String, String>> children = new ArrayList<Map<String, String>>();
-            for (int j = 0; j < recentFileNames[i].length; j++) {
+            for (int j = recentFileNames[i].length - 1; j >= 0 ; j--) {
                 Map<String, String> curChildMap = new HashMap<String, String>();
                 children.add(curChildMap);
                 curChildMap.put(TAG, recentFileNames[i][j]);
