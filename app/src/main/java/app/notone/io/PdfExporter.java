@@ -5,6 +5,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -21,7 +22,10 @@ import app.notone.core.CanvasView;
 
 public class PdfExporter {
 
+    private final static String TAG = "PdfExporter";
+
     public static class PageSize {
+
         private final float widthInches;
         private final float heightInches;
 

@@ -16,5 +16,6 @@
     <string name="drawer_menu_server_sync_item_text">Server Sync (seconds)</string>
     <string name="drawer_menu_settings_item_text">Settings</string>
     <string name="drawer_menu_about_item_text">About</string>
-    <string name="drawer_menu_save_as_item_text">Save | Save as</string>
+    <string name="drawer_menu_save_as_item_text">Save</string>
+    <string name="third_party_licenses">AAAAAAAAA\nBBBBBBBBB\nCCCCCCCCCC\n</string>
 </resources>

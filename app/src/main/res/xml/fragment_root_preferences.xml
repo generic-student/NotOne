@@ -14,13 +14,21 @@
             app:title="App Theme" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:icon="@drawable/ic_rect"
+            app:key="pdfbounds"
+            app:summaryOff=""
+            app:summaryOn="Showing bounds of exported area"
+            app:title="Pdf Export Bounds" />
+
+        <SwitchPreferenceCompat
+            app:enabled="false"
             android:defaultValue="false"
             app:icon="@drawable/ic_pen"
             app:key="textmarker"
             app:summaryOff="Constant Opacity"
             app:summaryOn="Additive Opacity"
             app:title="Text Marker Opacity Addition" />
-
 
     </PreferenceCategory>
 

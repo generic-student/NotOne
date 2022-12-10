@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
 
-/* enable and disable swiping to open the drawer based on preferences */
+/* a custom drawer enable and disable swiping to open the drawer based on preferences */
 public class NavigationDrawer extends DrawerLayout {
 
     boolean mSwipeOpenEnabled;

@@ -1,23 +1,31 @@
 package app.notone;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +38,12 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONException;
 
-import androidx.activity.result.ActivityResultCallback;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -38,6 +51,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -45,35 +59,239 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-
 import app.notone.core.CanvasView;
+import app.notone.core.util.StringUriFixedSizeStack;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.CanvasImporter;
 import app.notone.io.PdfExporter;
-import app.notone.io.PdfImporter;
 import app.notone.views.NavigationDrawer;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
 
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String RECENT_FILES_PREF_KEY = "recentfiles";
+    private static CanvasView mCanvasView = null;
+    private static String mCanvasName = "Unsaved Doc";
     String TAG = "NotOneMainActivity";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
-    boolean mToolbarVisibility = true;
     NavigationDrawer mmainActivityDrawer;
-    private Uri mUri;
-    public static CanvasView mCanvasView = null;
+
+    ExpandableListView mSimpleExpandableListView;
+    SimpleExpandableListAdapter mAdapter;
+
+    boolean mToolbarVisibility = true;
+    private StringUriFixedSizeStack<String, Uri> mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4);
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
             uri -> {
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float)metrics.densityDpi / metrics.density, true);
-                CanvasFileManager.savePdfDocument(this, uri, doc);
-            });
+        if (uri == null) {
+            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
+            return;
+        }
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
+        CanvasFileManager.savePdfDocument(this, uri, doc);
+    });
+
+    ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json") {
+//        @NonNull
+//        @Override
+//        public Intent createIntent(@NonNull Context context, @NonNull String input) {
+//            Intent intent = super.createIntent(context, input);
+//            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getFilesDir()); // inital uri
+//            return intent;
+//        }
+    },
+            uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
+            return;
+        }
+        Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
+        String canvasData = CanvasFileManager.initNewFile(uri, 1);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "new_file: ", e);
+        }
+        mCanvasView.invalidate();
+
+        persistUriPermission(getIntent(), uri);
+
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
+
+        Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
+    });
+
+    ActivityResultLauncher<String[]> mOpenCanvasFile = registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
+            return;
+        }
+        openCanvasFile(uri);
+    });
+
+    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+        if (uri == null) {
+            Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
+            return;
+        }
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
+
+        saveCanvasFile(uri);
+        mCanvasView.setUri(uri);
+
+        persistUriPermission(getIntent(), uri);
+        Toast.makeText(this, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
+    });
+
+    private void saveCanvasFile(Uri uri) {
+        Log.d(TAG, "mSaveAsCanvasFile to Json");
+        // check for file access permissions || grant them, persistUriPermission() doesnt seem to work
+        if (!checkFileAccessPermission()) {
+            Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "saveCanvasFile: Permissions not granted");
+            return;
+        }
+        try {
+            getApplicationContext().grantUriPermission(getApplicationContext().getPackageName(), uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (SecurityException se) {
+            /* permission did not persist; user has to chose which file to override */
+            Log.e(TAG, "saveCanvasFile: Failed to save file as it cant be accessed");
+            mSaveAsCanvasFile.launch("canvasFile.json"); // this is recursive
+            return;
+        }
+
+        // save files
+        String canvasData = "";
+        try {
+            canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        CanvasFileManager.saveCanvasFile(this, uri, canvasData);
+
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+
+        Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
+        return;
+    }
+
+    private void openCanvasFile(Uri uri) {
+        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+        String canvasData = CanvasFileManager.openCanvasFile(this, uri);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+            Toast.makeText(this, "failed to parse file", Toast.LENGTH_SHORT).show();
+            return;
+        } catch (IllegalArgumentException i) {
+            Log.e(TAG, "mOpenCanvasFile: canvasFile was empty");
+            Toast.makeText(this, "file is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mCanvasView.invalidate();
+
+        persistUriPermission(getIntent(), uri);
+        mCanvasName = getCanvasFileName(uri);
+        setCanvasTitle(mCanvasName);
+        addToRecentFiles(mCanvasName, uri);
+        updateExpListRecentFiles();
+
+        Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
+    }
+
+    private String getCanvasFileName(Uri uri) {
+        String FileName = "";
+        String FileSize = "";
+        try {
+            Cursor returnCursor =
+                    getContentResolver().query(uri, null, null, null, null);
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            FileName = returnCursor.getString(nameIndex);
+            FileSize = Long.toString(returnCursor.getLong(sizeIndex));
+        } catch (NullPointerException n) {
+            Log.e(TAG, "getCanvasFileName: couldnt extract Filename from uri");
+            FileName = "Unsaved Document";
+            FileSize = "0";
+        }
+        return FileName + " : " + FileSize;
+    }
+
+    private void setCanvasTitle(String title) {
+        if (title == null || title.equals("")) {
+            Log.e(TAG, "setCanvasTitle: uri is probably empty, save first");
+            return;
+        }
+        TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
+        tvTitle.setText(title);
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: ");
+        /* save recent files */
+        if (mNameUriMap.size() != 0) {
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            Log.d(TAG, "onPause: storing recent files: " + mNameUriMap.toStringCereal());
+            editor.putString(RECENT_FILES_PREF_KEY, mNameUriMap.toStringCereal());
+
+            editor.apply();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        /* reload recent files */
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
+        String recentFiles = sharedPreferences.getString(RECENT_FILES_PREF_KEY, "");
+        Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
+        try {
+            mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4, recentFiles);
+        } catch (ArrayIndexOutOfBoundsException a) {
+            Log.e(TAG, "onCreate: couldnt load recent files");
+        }
+
+        updateExpListRecentFiles();
+        super.onStart();
+    }
+
+    private void addToRecentFiles(String mCanvasName, Uri uri) {
+        mNameUriMap.push(mCanvasName, uri);
+        Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
+    }
+
+    private void updateExpListRecentFiles() {
+        String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        Log.d(TAG, "updateExpListRecentFiles: AAAAAAAAAAAAAAAAAAAAAAAA" + Arrays.deepToString(recentFileList));
+        mSimpleExpandableListView.invalidate();
+        mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
+        mAdapter = createSimpleExpListAdapterForRecentFiles(
+                recentFileList);
+        mSimpleExpandableListView.setAdapter(mAdapter);
+        mSimpleExpandableListView.invalidateViews();
+        ((BaseExpandableListAdapter)mAdapter).notifyDataSetInvalidated();
+        mAdapter.notifyDataSetChanged();
+    }
 
     /**
      * Main onCreate of the App
@@ -125,76 +343,83 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
         /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
-//        CanvasView aaaaaa = findViewById(R.id.canvasView);
-//        mCanvasView = navHostFragment.getChildFragmentManager().getFragments().get(0).getActivity().findViewById(R.id.canvasView);
-//        mCanvasView = CanvasFragment.mCanvasView;
+
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
             mCanvasView = CanvasFragment.mCanvasView;
-            String canvasData = "";
-            switch (menuItem.getItemId()) {
-                case R.id.new_file:
-                    /* create a new file at a chosen uri and open it in the current canvas */
-                    Log.d(TAG, "onNavigationItemSelected: New File");
-                    if(mCanvasView == null) {
-                        return false;
-                    }
-                    CanvasFileManager.createNewFile(this, Uri.parse("")); // returns json containing uri after opening filepicer
-                        /* The rest is done in activity result method TODO use ActivityResultContract */
-                    return true;
-                case R.id.open_file:
-                    /* chose a existing file with uri and open it in the current canvas */
-                    Log.d(TAG, "onNavigationItemSelected: Open File");
-                    Uri uri = mCanvasView.getCurrentURI(); // TODO use file picker instead
-                    canvasData = CanvasFileManager.openCanvasFile(this, uri);
-                    try {
-                        CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "onCreate: ", e);
-                    }
-                    mCanvasView.invalidate();
-                    Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
-                    return true;
-                case R.id.save_file:
-                    /* save file to existing uri of current view || save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
-                    Log.d(TAG, "onNavigationItemSelected: Save File as JSON to shared prefs");
-                    try {
-                        canvasData = CanvasExporter.canvasViewToJSON(mCanvasView, true).toString();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                    Uri currentUri = mCanvasView.getCurrentURI();
-                    if (currentUri != null) {
-                        CanvasFileManager.saveCanvasFile(this, currentUri, canvasData);
 
-                        Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                    // TODO
-//                    Uri uri = CanvasFileManager.saveAsCanvasFile(canvasData); // still contains the wrong uri
-//                    mCanvasView.setUri(uri);
-                    return true;
-                case R.id.export:
-                    mSavePdfDocument.launch("application/pdf");
-
-                    Log.i(TAG, "onNavigationItemSelected: Export to pdf");
-                    return true;
+            /* handle action button clicks */
+            if (mCanvasView == null) {
+                Log.e(TAG, "onCreate: Canvasview has not been initalized");
+                return false;
             }
-            // needed as onDestinationChanged is not called when onNavigationItemSelected catches the menu item click event
+            switch (menuItem.getItemId()) {
+                /* create a new file at a chosen uri and open it in the current canvas */
+                case R.id.new_file:
+                    Log.d(TAG, "onNavigationItemSelected: New File");
+                    mNewCanvasFile.launch("canvasFile.json");
+                    return false;
+                /* chose a existing file with uri and open it in the current canvas */
+                case R.id.open_file:
+                    mOpenCanvasFile.launch(new String[]{"application/json"});
+                    return false;
+                /* save file to existing uri of current view */
+                case R.id.save_file:
+                    if (mCanvasView.getCurrentURI().equals(Uri.parse(""))) { // shouldnt happen
+                        /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
+                        mSaveAsCanvasFile.launch("canvasFile.json");
+                        return false;
+                    }
+                    saveCanvasFile(mCanvasView.getCurrentURI());
+                    return false;
+                /* export a file to pdf */
+                case R.id.export:
+                    mSavePdfDocument.launch("exported.pdf");
+                    Log.i(TAG, "onNavigationItemSelected: Export to pdf");
+                    return false;
+                case R.id.recent_files:
+                    return false;
+            }
+
+
             /* forward click to the navigation controller if a navigation item is clicked*/
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
-                navGraphController.navigate(menuItem.getItemId());
+                navGraphController.navigate(menuItem.getItemId()); // onOptionsItemSelected
                 mmainActivityDrawer.closeDrawers();
             }
             return true;
         });
         /* set state of the drawer quick settings */
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
-        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+//        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
-        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
+//        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
         swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
-        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+//        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
+
+        /* populate recents list */
+        mSimpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
+        // string arrays for group and child items
+        String [][] mrecentfilenames = new String[][]{{"Default Value"}};
+        mAdapter = createSimpleExpListAdapterForRecentFiles(mrecentfilenames);
+        mSimpleExpandableListView.setAdapter(mAdapter);
+
+        mSimpleExpandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+
+            Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(mrecentfilenames[0]));
+            if (!parent.isGroupExpanded(groupPosition)) {
+                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+                Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+            } else {
+                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+            }
+            return false;
+        });
+        mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + mrecentfilenames[groupPosition][childPosition] + mNameUriMap.get(mrecentfilenames[groupPosition][childPosition]));
+//            openCanvasFile(nameUriMap.get(recentFileNames[groupPosition][childPosition]));
+            return false;
+        });
 
         /* FAButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
@@ -213,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
                     viewCanvasToolsContainer.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
                     tvTitle.setVisibility(View.VISIBLE);
-                    tvTitle.setText("DOCNAME"); // TODO replace with open document name
+                    tvTitle.setText(mCanvasName); // TODO replace with open document name
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:
@@ -231,8 +456,57 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private SimpleExpandableListAdapter createSimpleExpListAdapterForRecentFiles(
+            String[][] recentFileNames) {
+        // create lists for group and child items
+        String[] groupItems = {"Recent Files"};
+        List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
+        List<List<Map<String, String>>> listItemData = new ArrayList<List<Map<String, String>>>();
+
+        // add data in group and child list
+        for (int i = 0; i < groupItems.length; i++) {
+            Map<String, String> curGroupMap = new HashMap<String, String>();
+            groupData.add(curGroupMap);
+            curGroupMap.put(TAG, groupItems[i]);
+
+            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+            for (int j = 0; j < recentFileNames[i].length; j++) {
+                Map<String, String> curChildMap = new HashMap<String, String>();
+                children.add(curChildMap);
+                curChildMap.put(TAG, recentFileNames[i][j]);
+            }
+            listItemData.add(children);
+        }
+
+        // define arrays for displaying data in Expandable list view
+        String groupFrom[] = {TAG};
+        int groupTo[] = {R.id.listGroupTitle};
+        String childFrom[] = {TAG};
+        int childTo[] = {R.id.listItemText};
+
+        // Set up the adapter
+        return mAdapter = new SimpleExpandableListAdapter(this, groupData,
+                R.layout.list_group,
+                groupFrom, groupTo,
+                listItemData, R.layout.list_item,
+                childFrom, childTo) {
+//            @Override
+//            public void registerDataSetObserver(DataSetObserver observer) {
+//                super.registerDataSetObserver(observer);
+//                Log.d(TAG, "registerDataSetObserver: DATA changed");
+//            }
+
+//            @Override
+//            public void notifyDataSetChanged() {
+//                Log.d(TAG, "notifyDataSetChanged: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+//                super.notifyDataSetChanged();
+//            }
+        };
+    }
+
     /**
      * for the fab that hides the toolbar
+     *
      * @param appBar
      * @param fabToolbarVisibility
      */
@@ -251,7 +525,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *  Back Navigation via Android Button and Back Arrow in toolbar gets handled here
+     * Back Navigation via Android Button and Back Arrow in toolbar gets handled here
      */
     @Override
     public boolean onSupportNavigateUp() {
@@ -271,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *  Handle Navigation from the drawer menu with navcontoller
+     * Handle Navigation from the drawer menu with navcontoller
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -280,47 +554,22 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }
 
-    /**
-     * receive results from intents (mostly file picker results and stuff)
-     * @param requestCode
-     * @param resultCode
-     * @param resultData
-     */
-    @SuppressLint("WrongConstant")
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        Log.d(TAG, "onActivityResult: Caught an Activity Result");
-        /* new file was created */
-        if (requestCode == CanvasFileManager.CREATE_NEW_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // Get URI of the created file from resultdata
-            if (resultData != null) {
-                mUri = resultData.getData();
-                Log.d(TAG, "onActivityResult: Created a New File at: " + mUri);
-                // TODO switch to ActivityResultContract.CreateDocument callback
-                String canvasData = CanvasFileManager.newCanvasFile(mUri,1);
-                try {
-                    CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true); // canvasView.currentURI = CanvasFileManager.getCurrentURI();
-                } catch (JSONException e) {
-                    Log.e(TAG, "new_file: ", e);
-                }
-                mCanvasView.invalidate();
-                Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
-
-                // Persist permissions for File
-                final int takeFlags = resultData.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                getContentResolver().takePersistableUriPermission(mUri, takeFlags);
-            }
-        /* other things happend */
-        } else {
-        }
-    }
-
     private void requestFileAccessPermission() {
         // requesting permissions if not provided.
         ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+
+    }
+
+    private boolean checkFileAccessPermission() {
+        return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    //    @SuppressLint("WrongConstant") // breaks it ?!
+    @SuppressLint("WrongConstant")
+    private void persistUriPermission(Intent intent, Uri uri) {
+        int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        // Check for the freshest data.
+        getContentResolver().takePersistableUriPermission(uri, takeFlags);
     }
 
     @Override
@@ -335,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
                 if (writeStorage && readStorage) {
-                    Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
                     finish();
@@ -343,4 +592,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

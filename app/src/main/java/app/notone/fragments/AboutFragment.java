@@ -17,7 +17,7 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
         Button buttonAbout = view.findViewById(R.id.button_about_pages);
-        buttonAbout.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://duckduckgo.org"))));
+        buttonAbout.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://github.com/generic-student"))));
         return view;
     }
 }

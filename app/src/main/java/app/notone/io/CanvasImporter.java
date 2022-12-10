@@ -23,6 +23,8 @@ import app.notone.core.Stroke;
 
 public class CanvasImporter {
 
+    private static final String TAG = "CanvasImporter";
+
     public static class CanvasImportData {
         CanvasView canvasView;
         String jsonString;
@@ -96,7 +98,11 @@ public class CanvasImporter {
     }
 
 
-    public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException {
+    public static void initCanvasViewFromJSON(String jsonString, CanvasView view, boolean loadUndoTree) throws JSONException, IllegalArgumentException {
+        if(jsonString.equals("")){
+            Log.e(TAG, "initCanvasViewFromJSON: no Data in CanvasFile");
+            throw new IllegalArgumentException("no Data in CanvasFile");
+        }
         JSONObject json = new JSONObject(jsonString);
 
         final float scale = (float) json.getDouble("scale");
@@ -116,13 +122,13 @@ public class CanvasImporter {
         CanvasWriter writer = canvasWriterFromJSON(json.getJSONObject("writer"), loadUndoTree);
 
 
-        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
+//        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
 
         view.setScale(scale);
         view.getViewTransform().setValues(viewTransformData);
         view.getInverseViewTransform().setValues(inverseViewTransformData);
         view.setCanvasWriter(writer);
-        view.setPdfDocument(document);
+//        view.setPdfDocument(document);
 
         // import uri
         String uri = json.getString("uri");
