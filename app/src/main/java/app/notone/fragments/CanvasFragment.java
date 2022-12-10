@@ -32,6 +32,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
+
+import app.notone.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
@@ -63,6 +65,8 @@ public class CanvasFragment extends Fragment {
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
+    private PeriodicSaveHandler periodicSaveHandler;
+
     ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
             new ActivityResultCallback<Uri>() {
                 @Override
@@ -82,6 +86,8 @@ public class CanvasFragment extends Fragment {
     public void onStart() {
         // TODO factorise to worker thread
         super.onStart();
+
+        periodicSaveHandler.start();
 //        Log.d(TAG, "onStart: RELOADING DATA");
 //        System.out.println(getResources().getDisplayMetrics());
 //        //load the data from the sharedPrefs
@@ -125,6 +131,8 @@ public class CanvasFragment extends Fragment {
 
     @Override
     public void onPause() {
+        periodicSaveHandler.stop();
+
         Log.d(TAG, "onPause: STORING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -171,8 +179,13 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated");
+
         FragmentActivity fragmentActivity = getActivity();
         mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
+
+        periodicSaveHandler = new PeriodicSaveHandler(getContext(), 10000);
+
+
 //        MainActivity.mCanvasView = mCanvasView;
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);

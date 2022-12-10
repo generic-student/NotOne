@@ -31,7 +31,7 @@ public abstract class CanvasPen {
 
     /**
      * Renders additional content that is only visible when the pen is selected
-     * @param canvas
+     * @param canvas the canvas to be rendered to
      */
     public abstract void render(Canvas canvas);
 
