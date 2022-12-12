@@ -2,6 +2,7 @@ package app.notone.core.util;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import androidx.annotation.NonNull;
@@ -22,7 +23,8 @@ public class StringUriFixedSizeStack<K, V> extends LinkedHashMap<K, V> {
          Log.d(TAG, "StringUriFixedSizeStack: No Recent Files");
          return;
       }
-//      Log.d(TAG, "StringUriFixedSizeStack: creating LinkedHashMap from String: " + cereal);
+
+      Log.d(TAG, "StringUriFixedSizeStack: creating LinkedHashMap from String: " + cereal);
       cereal = cereal.replace("{","");
       cereal = cereal.replace("}","");
 //      Log.d(TAG, "StringUriFixedSizeStack: " + cereal.split(",").toString());
@@ -30,9 +32,11 @@ public class StringUriFixedSizeStack<K, V> extends LinkedHashMap<K, V> {
          if(pair.equals("")){
             continue;
          }
-//         Log.d(TAG, "StringUriFixedSizeStack: adding pair: " + pair);
+         Log.d(TAG, "StringUriFixedSizeStack: adding pair: " + pair);
          String[] splitPair = pair.split(":");
-         this.push((K) splitPair[0], (V) Uri.parse(splitPair[1]));
+         Uri uri = Uri.parse(String.join("", Arrays.copyOfRange(splitPair, 1, splitPair.length)).replace("^0",""));
+         Log.d(TAG, "StringUriFixedSizeStack: uri of pair: " + uri);
+         this.push((K) splitPair[0], (V) uri);
       }
    }
 
@@ -49,6 +53,7 @@ public class StringUriFixedSizeStack<K, V> extends LinkedHashMap<K, V> {
       String result = "{";
 
       for (Entry<K, V> pair : this.entrySet()){
+         Log.d(TAG, "toStringCereal: " + pair);
          result += pair.getKey().toString() + ":" + pair.getValue().toString();
          result += ",";
       }
