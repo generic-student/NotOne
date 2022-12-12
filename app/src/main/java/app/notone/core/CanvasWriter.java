@@ -82,6 +82,7 @@ public class CanvasWriter implements Serializable {
         this.mStrokeColor = mStrokeColor;
 
         ((CanvasWriterPen)pens.get(DrawState.WRITE)).setStrokeColor(mStrokeColor);
+        ((CanvasWriterPen)pens.get(DrawState.SHAPE)).setStrokeColor(mStrokeColor);
     }
 
     public DrawState getDrawState() {
