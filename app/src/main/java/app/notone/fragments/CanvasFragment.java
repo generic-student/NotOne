@@ -264,6 +264,18 @@ public class CanvasFragment extends Fragment {
             mCanvasView.invalidate();
         });
 
+        ImageButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
+        buttonDetectShapes.setOnClickListener(v -> {
+            if(mCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
+                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, false);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
+            } else {
+                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, true);
+                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+            }
+        });
+        mImageButtonCanvasToolGroup.add(buttonDetectShapes);
+
         /* Test button */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 //        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
