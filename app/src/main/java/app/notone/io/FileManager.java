@@ -55,7 +55,9 @@ public class FileManager {
     }
 
     public static void saveToCache(Context context, String data) throws IOException {
-        File file = new File(context.getCacheDir(), "canvas.json");
+        Log.d(TAG, "Saving file to cache " + context.getFilesDir());
+
+        File file = new File(context.getFilesDir(), "canvas.json");
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(data);
@@ -63,6 +65,8 @@ public class FileManager {
     }
 
     public static void saveToFirebase(Context context, String data) {
+        Log.d(TAG, "Saving file to firebase");
+
         String userId = context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
         if(userId.isEmpty()) {
             throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
@@ -81,6 +85,8 @@ public class FileManager {
     }
 
     public static void saveToFilesystem(Context context, String data, CanvasView view) {
+        Log.d(TAG, "Saving file to filesystem " + view.getCurrentURI());
+
         Uri uri = view.getCurrentURI();
         try {
             ParcelFileDescriptor pfd = context.getContentResolver().
@@ -114,7 +120,9 @@ public class FileManager {
     }
 
     public static void loadFromCache(Context context, CanvasView view) throws IOException {
-        File file = new File(context.getCacheDir(), "canvas.json");
+        Log.d(TAG, "Loading file from cache " + context.getFilesDir());
+
+        File file = new File(context.getFilesDir(), "canvas.json");
         if (!file.exists()) {
             throw new FileNotFoundException("Could not find the active canvas. Has the cache been cleared?");
         }
@@ -131,10 +139,14 @@ public class FileManager {
     }
 
     public static void loadFromFirebase(Context context, CanvasView view) {
+        Log.d(TAG, "Loading file from firebase.");
+
         throw new NotImplementedError("Not implemented");
     }
 
     public static void loadFromFilesystem(Context context, CanvasView view) throws IOException {
+        Log.d(TAG, "Loading file from cache " + view.getCurrentURI());
+
         String content = "";
         InputStream in = context.getContentResolver().openInputStream(view.getCurrentURI());
 
