@@ -5,6 +5,7 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import app.notone.core.Stroke;
+import app.notone.core.Vector2f;
 
 public class StrokeToShapeConverter {
     private static final String TAG = StrokeToShapeConverter.class.getSimpleName();
@@ -23,7 +24,14 @@ public class StrokeToShapeConverter {
     }
 
     public static void convertStrokeToTriangle(Stroke stroke) {
-        Log.d(TAG, "support for triangles is pending.");
+        RectF bounds = new RectF();
+        stroke.computeBounds(bounds, true);
+        stroke.reset();
+
+        stroke.moveTo(bounds.left, bounds.bottom);
+        stroke.lineTo(bounds.right - bounds.width() / 2, bounds.top);
+        stroke.lineTo(bounds.right, bounds.bottom);
+        stroke.lineTo(bounds.left, bounds.bottom);
     }
 
     public static void convertStrokeToEllipse(Stroke stroke) {
