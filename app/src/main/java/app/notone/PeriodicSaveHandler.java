@@ -15,6 +15,7 @@ public class PeriodicSaveHandler {
     private int mInterval = 5000;
     private Handler mHandler;
     private Runnable mPeriodicSaveRunner;
+    boolean mIsRunning = false;
 
     private Context mContext;
 
@@ -49,10 +50,18 @@ public class PeriodicSaveHandler {
     }
 
     public void start() {
-        mPeriodicSaveRunner.run();
+        Log.d("PeriodicSaveHandler", "Starting PeriodicSaveHandler.");
+        //mPeriodicSaveRunner.run();
+        mIsRunning = true;
     }
 
     public void stop() {
-        mHandler.removeCallbacks(mPeriodicSaveRunner);
+        Log.d("PeriodicSaveHandler", "Stopping PeriodicSaveHandler.");
+        //mHandler.removeCallbacks(mPeriodicSaveRunner);
+        mIsRunning = false;
+    }
+
+    public boolean isRunning() {
+        return mIsRunning;
     }
 }

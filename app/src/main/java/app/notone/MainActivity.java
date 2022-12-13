@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     SimpleExpandableListAdapter mAdapter;
 
     boolean mToolbarVisibility = true;
-    private StringUriFixedSizeStack<String, Uri> mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4);
+    public static StringUriFixedSizeStack mNameUriMap = new StringUriFixedSizeStack(4);
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
             uri -> {
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
         String recentFiles = sharedPreferences.getString(RECENT_FILES_PREF_KEY, "");
         Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
         try {
-            mNameUriMap = new StringUriFixedSizeStack<String, Uri>(4, recentFiles);
+            mNameUriMap = new StringUriFixedSizeStack(4, recentFiles);
         } catch (ArrayIndexOutOfBoundsException a) {
             Log.e(TAG, "onCreate: couldnt load recent files");
         }

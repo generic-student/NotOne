@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 
+import app.notone.MainActivity;
 import app.notone.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
@@ -91,7 +92,13 @@ public class CanvasFragment extends Fragment {
         // TODO factorise to worker thread
         super.onStart();
 
-        periodicSaveHandler.start();
+        if(!periodicSaveHandler.isRunning()) {
+            periodicSaveHandler.start();
+        }
+
+        if(!MainActivity.mNameUriMap.isEmpty()) {
+            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
+        }
 //        Log.d(TAG, "onStart: RELOADING DATA");
 //        System.out.println(getResources().getDisplayMetrics());
 //        //load the data from the sharedPrefs
@@ -136,7 +143,9 @@ public class CanvasFragment extends Fragment {
 
     @Override
     public void onPause() {
-        periodicSaveHandler.stop();
+        if(periodicSaveHandler.isRunning()) {
+            periodicSaveHandler.stop();
+        }
 
         Log.d(TAG, "onPause: STORING DATA");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
@@ -194,7 +203,13 @@ public class CanvasFragment extends Fragment {
         FragmentActivity fragmentActivity = getActivity();
         mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
 
+        if(!MainActivity.mNameUriMap.isEmpty()) {
+            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
+            Log.d(TAG, "Set Uri to " +  MainActivity.mNameUriMap.getFirst().getValue());
+        }
+
         periodicSaveHandler = new PeriodicSaveHandler(getContext(), 10000);
+        periodicSaveHandler.start();
 
 
 //        MainActivity.mCanvasView = mCanvasView;
@@ -266,11 +281,16 @@ public class CanvasFragment extends Fragment {
 
         ImageButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
         buttonDetectShapes.setOnClickListener(v -> {
+            int color = mCanvasView.getStrokeColor();
+            int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
+            mCanvasView.setStrokeColor(transparent);
+            markerEnabled = false;
+
             if(mCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, false);
+                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, true);
                 mCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
             } else {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, true);
+                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, false);
                 mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             }
         });
