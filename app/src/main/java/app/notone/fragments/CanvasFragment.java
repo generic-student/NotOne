@@ -66,6 +66,7 @@ public class CanvasFragment extends Fragment {
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
     private boolean markerEnabled = false;
+    public static boolean isLoadingPdfPages = false;
 
     private PeriodicSaveHandler periodicSaveHandler;
 
@@ -78,6 +79,7 @@ public class CanvasFragment extends Fragment {
                     }
                     mCanvasView.resetViewMatrices();
                     mCanvasView.setScale(1f);
+                    isLoadingPdfPages = true;
                     PdfImporter.fromUri(getContext(), uri, mCanvasView.getPdfDocument());
 //                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
 //                    mCanvasView.invalidate();
@@ -99,15 +101,15 @@ public class CanvasFragment extends Fragment {
         if(!MainActivity.mNameUriMap.isEmpty()) {
             mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
         }
-//        Log.d(TAG, "onStart: RELOADING DATA");
-//        System.out.println(getResources().getDisplayMetrics());
-//        //load the data from the sharedPrefs
-//        String data = sharedPreferences.getString(CANVAS_STORAGE_PREF_KEY, "");
-//
-//        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(data, mCanvasView, true));
 
         try {
-            FileManager.load(getContext(), mCanvasView);
+            if(!isLoadingPdfPages) {
+                FileManager.load(getContext(), mCanvasView);
+            }
+            else {
+                Log.d(LOG_TAG, "Not loading canvas because pdf is still loading");
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

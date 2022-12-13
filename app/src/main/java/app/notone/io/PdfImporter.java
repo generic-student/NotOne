@@ -49,7 +49,9 @@ public class PdfImporter {
                 page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 page.close();
 
-                publishProgress((int) ((i / (float) amtPages) * 100));
+                System.out.println(String.format("Loaded Page with size %dx%d", page.getWidth(), page.getHeight()));
+
+                publishProgress((int) (((i+1) / (float) amtPages) * 100));
 
                 document.setPages(Arrays.copyOfRange(pages, 0, i));
             }
@@ -65,6 +67,8 @@ public class PdfImporter {
         }
 
         protected void onPostExecute(Void result) {
+            CanvasFragment.mCanvasView.invalidate();
+            CanvasFragment.isLoadingPdfPages = true;
         }
 
     }
