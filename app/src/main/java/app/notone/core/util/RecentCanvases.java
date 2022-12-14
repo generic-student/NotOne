@@ -1,10 +1,13 @@
 package app.notone.core.util;
 
+import android.net.Uri;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import app.notone.R;
@@ -19,9 +22,23 @@ public class RecentCanvases {
     }
 
     public void add(RecentCanvas rc) {
-        mRecentCanvases.add(rc);
+        //check if an element with the same name already exists
+        RecentCanvas recentCanvas = mRecentCanvases.stream().filter(e -> e.mUri.equals(rc.mUri)).findFirst().orElse(null);
+        //if it exists move it to the front
+        if(recentCanvas != null) {
+            mRecentCanvases.remove(recentCanvas);
+            recentCanvas.mName = rc.mName;
+            recentCanvas.mFileSize = rc.mFileSize;
+            mRecentCanvases.add(0, recentCanvas);
+            return;
+        }
+
+        //add the new element
+        mRecentCanvases.add(0, rc);
+
+        //delete the last element if the array exceeded its max size
         if(mRecentCanvases.size() > mMaxSize) {
-            mRecentCanvases.remove(0);
+            mRecentCanvases.remove(mRecentCanvases.size() - 1);
         }
     }
 
@@ -38,23 +55,17 @@ public class RecentCanvases {
     }
 
     public String[][] getFileList() {
-       return new String[][]{mRecentCanvases.stream().map(e -> e.mName).collect(Collectors.toList()).toArray(new String[0])};
-//        String[][] data = new String[2][mRecentCanvases.size()];
-//        for(int i = 0; i < mRecentCanvases.size(); i++) {
-//            data[i] = new String[]{mRecentCanvases.get(i).mName, mRecentCanvases.get(i).mUri.toString()};
-//        }
-//        return data;
-//        //return mRecentCanvases.stream().map(r -> new String[]{r.mName, r.mUri.toString()}).toArray(String[][]::new);
+       return new String[][]{mRecentCanvases.stream().map(e -> e.mName).toArray(String[]::new)};
     }
 
-    public static RecentCanvases fromJson(JSONObject json) {
+    public static RecentCanvases fromJson(JSONObject json, int maxSize) {
         RecentCanvases recent = new RecentCanvases(0);
         try {
-            final int maxSize = json.getInt("maxSize");
             recent = new RecentCanvases(maxSize);
 
             JSONArray entries = json.getJSONArray("entries");
-            for(int i = 0; i < entries.length(); i++) {
+            //the elements need to be added in reverse order because they are added to the front when using RecentCanvases.add
+            for(int i = entries.length() - 1; i >= 0; i--) {
                 RecentCanvas recentCanvas = RecentCanvas.fromJson(entries.getJSONObject(i));
                 if(recentCanvas != null) {
                     recent.add(recentCanvas);
@@ -70,7 +81,6 @@ public class RecentCanvases {
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         try {
-            json.put("maxSize", mMaxSize);
             JSONArray entries = new JSONArray(mRecentCanvases.stream().map(e -> e.toJson()).collect(Collectors.toList()));
             json.put("entries", entries);
         } catch (JSONException e) {

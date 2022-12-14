@@ -2,19 +2,14 @@ package app.notone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -37,6 +32,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +56,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasView;
-import app.notone.core.util.StringUriFixedSizeStack;
+import app.notone.core.util.RecentCanvas;
+import app.notone.core.util.RecentCanvases;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
@@ -71,8 +68,6 @@ import app.notone.views.NavigationDrawer;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
-
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private static final String RECENT_FILES_PREF_KEY = "recentfiles";
@@ -87,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
     SimpleExpandableListAdapter mAdapter;
 
     boolean mToolbarVisibility = true;
-    public static StringUriFixedSizeStack mNameUriMap = new StringUriFixedSizeStack(4);
+    //public static StringUriFixedSizeStack mNameUriMap = new StringUriFixedSizeStack(4);
+    public static RecentCanvases sRecentCanvases = new RecentCanvases(4);
 
     ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
             uri -> {
@@ -115,13 +111,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
-        String canvasData = CanvasFileManager.initNewFile(uri, 1);
-        try {
-            CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
-        } catch (JSONException e) {
-            Log.e(TAG, "new_file: ", e);
-        }
-        mCanvasView.invalidate();
+        CanvasFragment.mCanvasView.reset();
+        CanvasFragment.mCanvasView.setUri(uri);
+        mCanvasView = CanvasFragment.mCanvasView;
 
         persistUriPermission(getIntent(), uri);
 
@@ -139,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         openCanvasFile(uri);
+        persistUriPermission(getIntent(), uri);
     });
 
     ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
@@ -192,7 +185,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openCanvasFile(Uri uri) {
+        mCanvasView = CanvasFragment.mCanvasView;
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+
         String canvasData = CanvasFileManager.openCanvasFile(this, uri);
         try {
             CanvasImporter.initCanvasViewFromJSON(canvasData, mCanvasView, true);
@@ -205,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "file is empty", Toast.LENGTH_SHORT).show();
             return;
         }
+        //reorder the recent canvases to have the active one as the first element
+
         mCanvasView.invalidate();
 
         persistUriPermission(getIntent(), uri);
@@ -244,18 +241,26 @@ public class MainActivity extends AppCompatActivity {
         tvTitle.setText(title);
     }
 
+    private void saveRecentCanvases() {
+        if(sRecentCanvases.size() != 0) {
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            //Log.d(TAG, "onPause: storing recent files: " + mNameUriMap.toStringCereal());
+            String recentCanvasesString = sRecentCanvases.toJson().toString();
+            Log.d(TAG, "onPause: storing recent files: " + recentCanvasesString);
+            //editor.putString(RECENT_FILES_PREF_KEY, mNameUriMap.toStringCereal());
+            editor.putString(RECENT_FILES_PREF_KEY, recentCanvasesString);
+
+            editor.apply();
+        }
+    }
+
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: ");
         /* save recent files */
-        if (mNameUriMap.size() != 0) {
-            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            Log.d(TAG, "onPause: storing recent files: " + mNameUriMap.toStringCereal());
-            editor.putString(RECENT_FILES_PREF_KEY, mNameUriMap.toStringCereal());
-
-            editor.apply();
-        }
+        //if (mNameUriMap.size() != 0) {
+        saveRecentCanvases();
         super.onPause();
     }
 
@@ -264,10 +269,12 @@ public class MainActivity extends AppCompatActivity {
         /* reload recent files */
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
         String recentFiles = sharedPreferences.getString(RECENT_FILES_PREF_KEY, "");
-        Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
+        //Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
+        Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + sRecentCanvases);
         try {
-            mNameUriMap = new StringUriFixedSizeStack(4, recentFiles);
-        } catch (ArrayIndexOutOfBoundsException a) {
+            //mNameUriMap = new StringUriFixedSizeStack(4, recentFiles);
+            sRecentCanvases = RecentCanvases.fromJson(new JSONObject(recentFiles), 4);
+        } catch (ArrayIndexOutOfBoundsException | JSONException a) {
             Log.e(TAG, "onCreate: couldnt load recent files");
         }
 
@@ -276,13 +283,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addToRecentFiles(String mCanvasName, Uri uri) {
-        mNameUriMap.push(mCanvasName, uri);
-        Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
+        //mNameUriMap.push(mCanvasName, uri);
+        sRecentCanvases.add(new RecentCanvas(mCanvasName, uri, 0));
+        //Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
+        Log.d(TAG, "addToRecentFiles: " + mCanvasName + sRecentCanvases);
     }
 
     private void updateExpListRecentFiles() {
-        String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
-        Log.d(TAG, "updateExpListRecentFiles: AAAAAAAAAAAAAAAAAAAAAAAA" + Arrays.deepToString(recentFileList));
+        //String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        String[][] recentFileList = sRecentCanvases.getFileList();
+        Log.d(TAG, "updateExpListRecentFiles: " + Arrays.deepToString(recentFileList));
         mSimpleExpandableListView.invalidate();
         mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
         mAdapter = createSimpleExpListAdapterForRecentFiles(
@@ -291,6 +301,8 @@ public class MainActivity extends AppCompatActivity {
         mSimpleExpandableListView.invalidateViews();
         ((BaseExpandableListAdapter)mAdapter).notifyDataSetInvalidated();
         mAdapter.notifyDataSetChanged();
+
+        saveRecentCanvases();
     }
 
     /**
@@ -416,10 +428,14 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            Log.d(TAG, "onCreate: " + mNameUriMap.values());
+            //Log.d(TAG, "onCreate: " + mNameUriMap.values());
+            //Log.d(TAG, "onCreate: " + sRecentCanvases.values());
             String filename = mAdapter.getChild(groupPosition,childPosition).toString().replaceAll("\\{([A-Z])\\w+=","").replaceAll("\\}","");
-            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + mNameUriMap.get(filename));
-            openCanvasFile(mNameUriMap.get(filename));
+            //Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + mNameUriMap.get(filename));
+            Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + sRecentCanvases.getByFilename(filename).mUri);
+            //openCanvasFile(mNameUriMap.get(filename));
+            openCanvasFile(sRecentCanvases.getByFilename(filename).mUri);
+            findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             return false;
         });
 
@@ -569,7 +585,8 @@ public class MainActivity extends AppCompatActivity {
     //    @SuppressLint("WrongConstant") // breaks it ?!
     @SuppressLint("WrongConstant")
     private void persistUriPermission(Intent intent, Uri uri) {
-        int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        //int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         // Check for the freshest data.
         getContentResolver().takePersistableUriPermission(uri, takeFlags);
     }
