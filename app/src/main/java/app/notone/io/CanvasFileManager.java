@@ -95,7 +95,7 @@ public class CanvasFileManager {
                 "      ]\n" +
                 "   },\n" +
                 "   \"uri\": \"" + uri + "\",\n" +
-                "   \"pdf\":"  + "\"\"\n" +
+                "   \"pdf\":"  + "\"pages:[]\"\n" +
                 "}";
         return canvas;
     }
