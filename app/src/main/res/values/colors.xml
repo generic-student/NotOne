@@ -16,6 +16,8 @@
     <color name="pink_900">#ffae005c</color>
     <color name="teal_300">#ff50adf3</color>
     <color name="teal_900">#ff306892</color>
-
+    <color name="dlila_1">#800080</color>
+    <color name="dlila_2">#8B008B</color>
+    <color name="hlila_2">#9932CC</color>
 
 </resources>

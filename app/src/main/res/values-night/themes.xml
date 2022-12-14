@@ -6,7 +6,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_300</item>
         <!--        toolbar color -->
-        <item name="colorPrimaryVariant">@color/purple_900</item>
+        <item name="colorPrimaryVariant">@color/dlila_2</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_300</item>
