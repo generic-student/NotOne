@@ -72,6 +72,7 @@
             app:title="Synchronize with Server" />
 
         <ListPreference
+            app:enabled="false"
             android:dependency="sync"
             app:entries="@array/servers"
             app:entryValues="@array/servers"
