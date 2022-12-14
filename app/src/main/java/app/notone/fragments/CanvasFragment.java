@@ -163,6 +163,7 @@ public class CanvasFragment extends Fragment {
         /* export canvas */
         String jsonString = "";
         try {
+            Toast.makeText(getContext(), "Saving current canvas...bro", Toast.LENGTH_LONG).show();
             FileManager.save(getContext(), mCanvasView);
         } catch (IOException e) {
             e.printStackTrace();

@@ -58,6 +58,7 @@ import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasView;
 import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.RecentCanvases;
+import app.notone.core.util.SettingsHolder;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
@@ -334,7 +335,9 @@ public class MainActivity extends AppCompatActivity {
         boolean darkMode = (Configuration.UI_MODE_NIGHT_YES == (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK));
         if (!sharedPreferences.contains("darkmode"))
             spEditor.putBoolean("darkmode", darkMode).apply();
-        darkMode = sharedPreferences.getBoolean("darkmode", false);
+        SettingsHolder.update(sharedPreferences);
+
+        darkMode = SettingsHolder.isDarkMode();
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         /* base layouts for all navigations */
@@ -403,9 +406,12 @@ public class MainActivity extends AppCompatActivity {
         /* set state of the drawer quick settings */
         Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
 //        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
-        swAutoSave.setChecked(sharedPreferences.getBoolean("autosave", false));
+        swAutoSave.setChecked(SettingsHolder.isAutoSaveCanvas());
 //        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
-        swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("autosave", b).apply());
+        swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> {
+            spEditor.putBoolean("autosave", b).apply();
+            SettingsHolder.update(sharedPreferences);
+        });
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
         /* populate recents list */
@@ -488,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
             curGroupMap.put(TAG, groupItems[i]);
 
             List<Map<String, String>> children = new ArrayList<Map<String, String>>();
-            for (int j = recentFileNames[i].length - 1; j >= 0 ; j--) {
+            for (int j = 0; j < recentFileNames[i].length; j++) {
                 Map<String, String> curChildMap = new HashMap<String, String>();
                 children.add(curChildMap);
                 curChildMap.put(TAG, recentFileNames[i][j]);

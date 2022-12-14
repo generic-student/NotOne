@@ -19,6 +19,8 @@ import android.view.View;
 
 import java.util.List;
 
+import app.notone.core.util.SettingsHolder;
+import app.notone.fragments.SettingsFragment;
 import app.notone.io.PdfExporter;
 
 import androidx.preference.PreferenceManager;
@@ -163,7 +165,7 @@ public class CanvasView extends View {
 
         Paint borderPaint = new Paint();
         borderPaint.setStrokeWidth(3);
-        borderPaint.setColor(Color.BLACK);
+        borderPaint.setColor(SettingsHolder.isDarkMode() ? Color.WHITE : Color.BLACK);
         borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
         borderPaint.setStyle(Paint.Style.STROKE);
 
@@ -320,8 +322,7 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            if(sharedPreferences.getBoolean("twofingerpanning", false) && e2.getPointerCount() <= 1)
+            if(SettingsHolder.isRestrictedPanning() && e2.getPointerCount() <= 1)
                 return false; // if two finger panning is required and not fullfilled: dont pan
 
 

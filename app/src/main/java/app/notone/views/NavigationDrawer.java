@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
 
+import app.notone.core.util.SettingsHolder;
+
 /* a custom drawer enable and disable swiping to open the drawer based on preferences */
 public class NavigationDrawer extends DrawerLayout {
 
@@ -17,20 +19,17 @@ public class NavigationDrawer extends DrawerLayout {
 
     public NavigationDrawer(@NonNull Context context) {
         super(context);
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mSwipeOpenEnabled = sharedPreferences.getBoolean("drawerswipe", false);
+        mSwipeOpenEnabled = SettingsHolder.isDrawerSwipeOpen();
     }
 
     public NavigationDrawer(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mSwipeOpenEnabled = sharedPreferences.getBoolean("drawerswipe", false);
+        mSwipeOpenEnabled = SettingsHolder.isDrawerSwipeOpen();
     }
 
     public NavigationDrawer(Context context, AttributeSet attributeSet, int disp) {
         super(context, attributeSet, disp);
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mSwipeOpenEnabled = sharedPreferences.getBoolean("drawerswipe", false);
+        mSwipeOpenEnabled = SettingsHolder.isDrawerSwipeOpen();
     }
 
     @Override
