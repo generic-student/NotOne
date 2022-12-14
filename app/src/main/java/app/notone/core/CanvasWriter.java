@@ -132,10 +132,18 @@ public class CanvasWriter implements Serializable {
             }
         }
         else if(getCurrentPenType() == PenType.SELECTOR) {
-            setDrawState(DrawState.SELECT);
+            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+                setDrawState(DrawState.ERASE);
+            } else {
+                setDrawState(DrawState.SELECT);
+            }
         }
         else if(getCurrentPenType() == PenType.SHAPE_DETECTOR) {
-            setDrawState(DrawState.SHAPE);
+            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+                setDrawState(DrawState.ERASE);
+            } else {
+                setDrawState(DrawState.SHAPE);
+            }
         }
         else if(getCurrentPenType() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
