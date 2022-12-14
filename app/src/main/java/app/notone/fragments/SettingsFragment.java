@@ -16,6 +16,7 @@ import app.notone.core.CanvasView;
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     private static final String TAG = "SettingsFragment";
+    private static boolean sDarkMode = false;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -30,6 +31,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         boolean darkMode = sharedPreferences.getBoolean("darkmode", false);
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
+        sDarkMode = darkMode;
+
         return super.onPreferenceTreeClick(preference);
+    }
+
+    public static boolean isDarkMode() {
+        return sDarkMode;
     }
 }
