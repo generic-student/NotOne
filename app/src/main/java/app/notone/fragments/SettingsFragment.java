@@ -32,4 +32,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         return super.onPreferenceTreeClick(preference);
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        SettingsHolder.update(PreferenceManager.getDefaultSharedPreferences(getContext()));
+    }
 }

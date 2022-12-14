@@ -261,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onPause: ");
         /* save recent files */
         //if (mNameUriMap.size() != 0) {
+        SettingsHolder.update(PreferenceManager.getDefaultSharedPreferences(this));
         saveRecentCanvases();
         super.onPause();
     }
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         /* reload recent files */
+        SettingsHolder.update(PreferenceManager.getDefaultSharedPreferences(this));
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
         String recentFiles = sharedPreferences.getString(RECENT_FILES_PREF_KEY, "");
         //Log.d(TAG, "onResume: recentFiles: " + recentFiles + "replace old map: " + mNameUriMap);
