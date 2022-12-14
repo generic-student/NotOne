@@ -145,7 +145,7 @@ public class FileManager {
     }
 
     public static void loadFromFilesystem(Context context, CanvasView view) throws IOException {
-        Log.d(TAG, "Loading file from cache " + view.getCurrentURI());
+        Log.d(TAG, "Loading file from filesystem " + view.getCurrentURI());
 
         String content = "";
         InputStream in = context.getContentResolver().openInputStream(view.getCurrentURI());
@@ -162,7 +162,7 @@ public class FileManager {
         in.close();
         r.close();
 
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content.toString(), view, true));
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true));
     }
 
 }
