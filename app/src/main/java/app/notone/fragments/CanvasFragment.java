@@ -312,10 +312,6 @@ public class CanvasFragment extends Fragment {
 //            Log.d(TAG, sharedPreferences.getAll().toString());
 //            sharedPreferences.edit().clear().commit();
 //        });
-
-        /* draw bound depending on settings */
-        boolean pdfbounds = sharedPreferences.getBoolean("pdfbounds", false);
-        mCanvasView.setRenderBounds(pdfbounds);
     }
 
 

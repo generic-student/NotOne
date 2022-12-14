@@ -2,10 +2,17 @@ package app.notone.core;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.DisplayMetrics;
+
+import java.util.List;
+
+import app.notone.core.util.SettingsHolder;
+import app.notone.io.PdfExporter;
 
 public class PdfCanvasRenderer {
     private Paint pdfPaint;
@@ -14,15 +21,16 @@ public class PdfCanvasRenderer {
     private int padding;
 
     public PdfCanvasRenderer() {
-        borderPaint = new Paint();
-        borderPaint.setStrokeWidth(3);
-        borderPaint.setColor(Color.BLACK);
-        borderPaint.setStyle(Paint.Style.STROKE);
-
         pdfPaint = new Paint();
         pdfPaint.setAntiAlias(true);
         pdfPaint.setFilterBitmap(true);
         pdfPaint.setDither(true);
+
+        borderPaint = new Paint();
+        borderPaint.setStrokeWidth(3);
+        borderPaint.setColor(SettingsHolder.isDarkMode() ? Color.WHITE : Color.BLACK);
+        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
+        borderPaint.setStyle(Paint.Style.STROKE);
 
         scaling = 1f;
         padding = 0;
@@ -58,6 +66,14 @@ public class PdfCanvasRenderer {
 
     public void setPadding(int padding) {
         this.padding = padding;
+    }
+
+    public void renderBorder(CanvasView canvasView, Canvas canvas, DisplayMetrics metrics){
+            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(canvasView, (float) metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+            for (Rect b : bounds) {
+                canvas.drawRect(b, borderPaint);
+            }
+
     }
 
     public void render(CanvasPdfDocument doc, Canvas canvas) {

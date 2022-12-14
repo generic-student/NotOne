@@ -19,6 +19,7 @@ import android.view.View;
 
 import java.util.List;
 
+import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 import app.notone.fragments.SettingsFragment;
 import app.notone.io.PdfExporter;
@@ -43,7 +44,6 @@ public class CanvasView extends View {
 
     private CanvasPdfDocument mPdfDocument;
     private PdfCanvasRenderer mPdfRenderer;
-    private boolean renderBounds = true;
 
     /**
      * Constructor
@@ -160,23 +160,10 @@ public class CanvasView extends View {
 
         mCanvasWriter.renderStrokes(canvas);
 
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-
-        Paint borderPaint = new Paint();
-        borderPaint.setStrokeWidth(3);
-        borderPaint.setColor(SettingsHolder.isDarkMode() ? Color.WHITE : Color.BLACK);
-        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
-        borderPaint.setStyle(Paint.Style.STROKE);
-
-        // draw pdfbounds
-        if(renderBounds) {
-            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(this, (float) metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
-            for (Rect b : bounds) {
-                canvas.drawRect(b, borderPaint);
-            }
+        if(SettingsHolder.isShowPdfBounds()) {
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            mPdfRenderer.renderBorder(this, canvas, metrics);
         }
-
         super.onDraw(canvas);
     }
 
@@ -236,10 +223,6 @@ public class CanvasView extends View {
 
     public void setUri(Uri uri) {
         this.mCurrentURI = uri;
-    }
-
-    public void setRenderBounds(boolean pdfbounds) {
-        renderBounds = pdfbounds;
     }
 
     /**
