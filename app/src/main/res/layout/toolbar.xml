@@ -154,7 +154,7 @@
                             android:src="@drawable/ic_shape"
                             android:background="@android:color/transparent"
                             android:foreground="?android:attr/selectableItemBackground"
-                            android:contentDescription="MARKER"
+                            android:contentDescription="SHAPE DETECTION"
                             app:tint="@color/white"/>
 
                         <ImageButton
