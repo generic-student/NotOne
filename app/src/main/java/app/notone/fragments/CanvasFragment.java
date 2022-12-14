@@ -98,9 +98,12 @@ public class CanvasFragment extends Fragment {
             periodicSaveHandler.start();
         }
 
-        if(!MainActivity.mNameUriMap.isEmpty()) {
-            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
+        if(MainActivity.sRecentCanvases.size() > 0) {
+            mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
         }
+//        if(!MainActivity.mNameUriMap.isEmpty()) {
+//            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
+//        }
 
         try {
             if(!isLoadingPdfPages) {
@@ -205,10 +208,13 @@ public class CanvasFragment extends Fragment {
         FragmentActivity fragmentActivity = getActivity();
         mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
 
-        if(!MainActivity.mNameUriMap.isEmpty()) {
-            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
-            Log.d(TAG, "Set Uri to " +  MainActivity.mNameUriMap.getFirst().getValue());
+        if(MainActivity.sRecentCanvases.size() > 0) {
+            mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
         }
+//        if(!MainActivity.mNameUriMap.isEmpty()) {
+//            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
+//            Log.d(TAG, "Set Uri to " +  MainActivity.mNameUriMap.getFirst().getValue());
+//        }
 
         periodicSaveHandler = new PeriodicSaveHandler(getContext(), 10000);
         periodicSaveHandler.start();
