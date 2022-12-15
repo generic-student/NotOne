@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
     private void toggleToolbarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
-            int offset = 36; // add a offset to the toolbar height, as its partly hidden behind the android statusbar
+            int offset = 39; // add a offset to the toolbar height, as its partly hidden behind the android statusbar
             if(isInMultiWindowMode()){
                 offset = 0;
             }

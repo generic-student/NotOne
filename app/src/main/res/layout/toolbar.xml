@@ -10,7 +10,7 @@
         android:id="@+id/AppBar"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:paddingTop="20dp"
+        android:paddingTop="25dp"
         android:background="?colorPrimaryVariant">
 
         <androidx.appcompat.widget.Toolbar
@@ -26,11 +26,18 @@
                 android:id="@+id/tv_fragment_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:paddingVertical="20dp"
                 android:text="Document Name"
                 android:maxLength="13"
                 android:textColor="@color/white"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
                 android:textStyle=""
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                app:drawableEndCompat="@drawable/ic_cross"
+                android:contentDescription="Return to origin"
+                android:drawablePadding="5dp"
+                android:drawableTint="@color/white"/>
 
             <LinearLayout
                 android:id="@+id/canvas_tools_container"
@@ -40,19 +47,6 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 app:layout_anchor="@+id/AppBar">
-
-                <ImageButton
-                    android:id="@+id/button_return_to_origin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="20dp"
-                    android:paddingHorizontal="10dp"
-                    android:src="@drawable/ic_cross"
-                    android:background="@android:color/transparent"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:contentDescription="Return to origin"
-                    android:layout_gravity="start"
-                    app:tint="@color/white"/>
 
                 <ImageButton
                     android:id="@+id/button_insert"
@@ -68,9 +62,6 @@
                     android:contentDescription="Import"
                     android:layout_gravity="start"
                     app:tint="@color/white"/>
-
-
-
 
                 <HorizontalScrollView
                     android:id="@+id/canvas_tools_pen_scroller"
@@ -246,13 +237,12 @@
         android:contentDescription="Hide Toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="95dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="16dp"
         android:layout_gravity="top|end"
         android:foregroundTint="@color/white"
         android:tint="@android:color/white"
         android:src="@drawable/ic_arrow_head"
         android:backgroundTint="?attr/colorSecondary"/>
-    <!--    android:layout_marginTop="78dp"-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

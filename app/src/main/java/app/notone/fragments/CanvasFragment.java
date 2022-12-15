@@ -281,8 +281,9 @@ public class CanvasFragment extends Fragment {
         });
 
         /* return to origin button */
-        ImageButton buttonOrigin = fragmentActivity.findViewById(R.id.button_return_to_origin);
-        buttonOrigin.setOnClickListener(v -> {
+        TextView tvTitle = ((TextView) fragmentActivity.findViewById(R.id.tv_fragment_title));
+//        ImageButton buttonOrigin = fragmentActivity.findViewById(R.id.button_return_to_origin);
+        tvTitle.setOnClickListener(v -> {
             mCanvasView.resetViewMatrices();
             mCanvasView.setScale(1);
             mCanvasView.invalidate();
