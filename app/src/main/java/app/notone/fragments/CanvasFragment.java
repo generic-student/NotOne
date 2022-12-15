@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -19,9 +18,7 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -34,25 +31,16 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 
 import app.notone.MainActivity;
-import app.notone.PeriodicSaveHandler;
+import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
-import app.notone.core.util.InkRecognizer;
-import app.notone.io.CanvasExporter;
-import app.notone.io.CanvasImporter;
 import app.notone.io.FileManager;
 import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
 import app.notone.views.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 public class CanvasFragment extends Fragment {
 

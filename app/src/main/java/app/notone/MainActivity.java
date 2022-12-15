@@ -1,21 +1,17 @@
 package app.notone;
 
 import android.Manifest;
-import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -69,7 +64,6 @@ import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasExporter;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.CanvasImporter;
-import app.notone.io.PdfExporter;
 import app.notone.views.NavigationDrawer;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -77,88 +71,30 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String RECENT_FILES_PREF_KEY = "recentfiles";
-    private static CanvasView mCanvasView = null;
-    private static String mCanvasName = "Unsaved Doc";
-    String TAG = "NotOneMainActivity";
+    public static final String TAG = "NotOneMainActivity";
+    public static CanvasView mCanvasView = null;
+    protected static String mCanvasName = "Unsaved Doc";
     AppBarConfiguration mAppBarConfiguration;
     NavigationView mNavDrawerContainerNV;
     NavigationDrawer mmainActivityDrawer;
-
     ExpandableListView mSimpleExpandableListView;
     SimpleExpandableListAdapter mAdapter;
 
-    boolean mToolbarVisibility = true;
-    //public static StringUriFixedSizeStack mNameUriMap = new StringUriFixedSizeStack(4);
+    private static final String RECENT_FILES_PREF_KEY = "recentfiles";
     public static RecentCanvases sRecentCanvases = new RecentCanvases(4);
 
-    ActivityResultLauncher<String> mSavePdfDocument = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
-            uri -> {
-        if (uri == null) {
-            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
-            return;
-        }
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        PdfDocument doc = PdfExporter.exportPdfDocument(mCanvasView, (float) metrics.densityDpi / metrics.density, true);
-        CanvasFileManager.savePdfDocument(this, uri, doc);
-    });
+    boolean mToolbarVisibility = true;
 
-    ActivityResultLauncher<String> mNewCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json") {
-//        @NonNull
-//        @Override
-//        public Intent createIntent(@NonNull Context context, @NonNull String input) {
-//            Intent intent = super.createIntent(context, input);
-//            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getFilesDir()); // inital uri
-//            return intent;
-//        }
-    },
-            uri -> {
-        if (uri == null) {
-            Log.e(TAG, "mNewCanvasFile: file creation was aborted");
-            return;
-        }
-        Log.d(TAG, "mNewCanvasFile: Created a New File at: " + uri);
-        CanvasFragment.mCanvasView.reset();
-        CanvasFragment.mCanvasView.setUri(uri);
-        mCanvasView = CanvasFragment.mCanvasView;
+    ActivityResultLauncher<String> mSavePdfDocument = ActivityResultLauncherFactory.getNewPdfDocumentActivityResultLauncher(this);
 
-        persistUriPermission(getIntent(), uri);
+    ActivityResultLauncher<String> mNewCanvasFile = ActivityResultLauncherFactory.getNewCanvasFileActivityResultLauncher(this);
 
-        mCanvasName = getCanvasFileName(uri);
-        setCanvasTitle(mCanvasName);
-        addToRecentFiles(mCanvasName, uri);
-        updateExpListRecentFiles();
+    ActivityResultLauncher<String[]> mOpenCanvasFile = ActivityResultLauncherFactory.getOpenCanvasFileActivityResultLauncher(this);
 
-        Toast.makeText(this, "created a new file", Toast.LENGTH_SHORT).show();
-    });
+    ActivityResultLauncher<String> mSaveAsCanvasFile = ActivityResultLauncherFactory.getSaveAsCanvasFileActivityResultLauncher(this);
 
-    ActivityResultLauncher<String[]> mOpenCanvasFile = registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
-        if (uri == null) {
-            Log.e(TAG, "mOpenCanvasFile: file opening was aborted");
-            return;
-        }
-        openCanvasFile(uri);
-        persistUriPermission(getIntent(), uri);
-    });
-
-    ActivityResultLauncher<String> mSaveAsCanvasFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
-        if (uri == null) {
-            Log.e(TAG, "mOpenCanvasFile: file creation was aborted");
-            return;
-        }
-        mCanvasName = getCanvasFileName(uri);
-        setCanvasTitle(mCanvasName);
-        addToRecentFiles(mCanvasName, uri);
-        updateExpListRecentFiles();
-
-        saveCanvasFile(uri);
-        mCanvasView.setUri(uri);
-
-        persistUriPermission(getIntent(), uri);
-        Toast.makeText(this, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
-    });
-
-    private void saveCanvasFile(Uri uri) {
+//region File stuff
+    void saveCanvasFile(Uri uri) {
         Log.d(TAG, "mSaveAsCanvasFile to Json");
         // check for file access permissions || grant them, persistUriPermission() doesnt seem to work
         if (!checkFileAccessPermission()) {
@@ -184,14 +120,14 @@ public class MainActivity extends AppCompatActivity {
         }
         CanvasFileManager.saveCanvasFile(this, uri, canvasData);
 
-        mCanvasName = getCanvasFileName(uri);
+        mCanvasName = getCanvasFileName(uri, getContentResolver());
         setCanvasTitle(mCanvasName);
 
         Toast.makeText(this, "saved file", Toast.LENGTH_SHORT).show();
         return;
     }
 
-    private void openCanvasFile(Uri uri) {
+    void openCanvasFile(Uri uri) {
         mCanvasView = CanvasFragment.mCanvasView;
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
@@ -212,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         mCanvasView.invalidate();
 
         persistUriPermission(getIntent(), uri);
-        mCanvasName = getCanvasFileName(uri);
+        mCanvasName = getCanvasFileName(uri, getContentResolver());
         setCanvasTitle(mCanvasName);
         addToRecentFiles(mCanvasName, uri);
         updateExpListRecentFiles();
@@ -220,12 +156,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "opened a saved file", Toast.LENGTH_SHORT).show();
     }
 
-    private String getCanvasFileName(Uri uri) {
+    protected static String getCanvasFileName(Uri uri, ContentResolver contentResolver) {
         String FileName = "";
         String FileSize = "";
         try {
             Cursor returnCursor =
-                    getContentResolver().query(uri, null, null, null, null);
+                    contentResolver.query(uri, null, null, null, null);
             int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
@@ -239,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         return FileName + " : " + FileSize;
     }
 
-    private void setCanvasTitle(String title) {
+    void setCanvasTitle(String title) {
         if (title == null || title.equals("")) {
             Log.e(TAG, "setCanvasTitle: uri is probably empty, save first");
             return;
@@ -249,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveRecentCanvases() {
-        if(sRecentCanvases.size() != 0) {
+        if (sRecentCanvases.size() != 0) {
             SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             //Log.d(TAG, "onPause: storing recent files: " + mNameUriMap.toStringCereal());
@@ -261,6 +197,68 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
     }
+
+    void addToRecentFiles(String mCanvasName, Uri uri) {
+        //mNameUriMap.push(mCanvasName, uri);
+        sRecentCanvases.add(new RecentCanvas(mCanvasName, uri, 0));
+        //Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
+        Log.d(TAG, "addToRecentFiles: " + mCanvasName + sRecentCanvases);
+    }
+
+    void updateExpListRecentFiles() {
+        //String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
+        String[][] recentFileList = sRecentCanvases.getFileList();
+        Log.d(TAG, "updateExpListRecentFiles: " + Arrays.deepToString(recentFileList));
+        mSimpleExpandableListView.invalidate();
+        mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
+        mAdapter = createSimpleExpListAdapterForRecentFiles(
+                recentFileList);
+        mSimpleExpandableListView.setAdapter(mAdapter);
+        mSimpleExpandableListView.invalidateViews();
+        ((BaseExpandableListAdapter) mAdapter).notifyDataSetInvalidated();
+        mAdapter.notifyDataSetChanged();
+
+        saveRecentCanvases();
+    }
+    private void requestFileAccessPermission() {
+        // requesting permissions if not provided.
+        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+
+    }
+
+    private boolean checkFileAccessPermission() {
+        return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+    //    @SuppressLint("WrongConstant") // breaks it ?!
+    @SuppressLint("WrongConstant")
+    protected void persistUriPermission(Intent intent, Uri uri) {
+        //int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        // Check for the freshest data.
+        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 200) {
+            if (grantResults.length > 0) {
+
+                // after requesting permissions we are showing
+                // users a toast message of permission granted.
+                boolean writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if (writeStorage && readStorage) {
+                    Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        }
+    }
+//endregion
 
     @Override
     protected void onPause() {
@@ -289,29 +287,6 @@ public class MainActivity extends AppCompatActivity {
 
         updateExpListRecentFiles();
         super.onStart();
-    }
-
-    private void addToRecentFiles(String mCanvasName, Uri uri) {
-        //mNameUriMap.push(mCanvasName, uri);
-        sRecentCanvases.add(new RecentCanvas(mCanvasName, uri, 0));
-        //Log.d(TAG, "addToRecentFiles: " + mCanvasName + mNameUriMap);
-        Log.d(TAG, "addToRecentFiles: " + mCanvasName + sRecentCanvases);
-    }
-
-    private void updateExpListRecentFiles() {
-        //String[][] recentFileList = new String[][]{mNameUriMap.keySet().toArray(new String[0])};
-        String[][] recentFileList = sRecentCanvases.getFileList();
-        Log.d(TAG, "updateExpListRecentFiles: " + Arrays.deepToString(recentFileList));
-        mSimpleExpandableListView.invalidate();
-        mSimpleExpandableListView.setAdapter((ExpandableListAdapter) null);
-        mAdapter = createSimpleExpListAdapterForRecentFiles(
-                recentFileList);
-        mSimpleExpandableListView.setAdapter(mAdapter);
-        mSimpleExpandableListView.invalidateViews();
-        ((BaseExpandableListAdapter)mAdapter).notifyDataSetInvalidated();
-        mAdapter.notifyDataSetChanged();
-
-        saveRecentCanvases();
     }
 
     /**
@@ -424,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         /* populate recents list */
         mSimpleExpandableListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
         // string arrays for group and child items
-        String [][] mrecentfilenames = new String[][]{{"Default Value"}};
+        String[][] mrecentfilenames = new String[][]{{"Default Value"}};
         mAdapter = createSimpleExpListAdapterForRecentFiles(mrecentfilenames);
         mSimpleExpandableListView.setAdapter(mAdapter);
 
@@ -441,12 +416,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         mSimpleExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            //Log.d(TAG, "onCreate: " + mNameUriMap.values());
-            //Log.d(TAG, "onCreate: " + sRecentCanvases.values());
-            String filename = mAdapter.getChild(groupPosition,childPosition).toString().replaceAll("\\{([A-Z])\\w+=","").replaceAll("\\}","");
-            //Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + mNameUriMap.get(filename));
+            String filename = mAdapter.getChild(groupPosition, childPosition).toString().replaceAll("\\{([A-Z])\\w+=", "").replaceAll("\\}", "");
             Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + sRecentCanvases.getByFilename(filename).mUri);
-            //openCanvasFile(mNameUriMap.get(filename));
             openCanvasFile(sRecentCanvases.getByFilename(filename).mUri);
             findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             return false;
@@ -459,8 +430,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /* set toolbar padding depending on splitscreen */
-        if(isInMultiWindowMode()) {
-            appBar.setPadding(0,0,0,0);
+        if (isInMultiWindowMode()) {
+            appBar.setPadding(0, 0, 0, 0);
 
             float density = getApplicationContext().getResources().getDisplayMetrics().density;
             CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
@@ -497,6 +468,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Handle Navigation from the drawer menu with navcontoller
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
+        NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
+        return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Back Navigation via Android Button and Back Arrow in toolbar gets handled here
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        Log.d(TAG, "onSupportNavigateUp");
+        NavController navGraphController = findNavController(this, R.id.nav_main_host_fragment);
+        switch (navGraphController.getCurrentDestination().getId()) {
+            case R.id.settings_fragment:
+            case R.id.about_fragment:
+                Log.d(TAG, "onOptionsItemSelected: Navigate Up");
+                navGraphController.navigateUp();
+                return true;
+
+            case R.id.canvas_fragment:
+                mmainActivityDrawer.openDrawer(GravityCompat.START);
+        }
+        return navGraphController.navigateUp() || super.onSupportNavigateUp();
+    }
+
     private SimpleExpandableListAdapter createSimpleExpListAdapterForRecentFiles(
             String[][] recentFileNames) {
         // create lists for group and child items
@@ -531,17 +532,6 @@ public class MainActivity extends AppCompatActivity {
                 groupFrom, groupTo,
                 listItemData, R.layout.list_item,
                 childFrom, childTo) {
-//            @Override
-//            public void registerDataSetObserver(DataSetObserver observer) {
-//                super.registerDataSetObserver(observer);
-//                Log.d(TAG, "registerDataSetObserver: DATA changed");
-//            }
-
-//            @Override
-//            public void notifyDataSetChanged() {
-//                Log.d(TAG, "notifyDataSetChanged: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
-//                super.notifyDataSetChanged();
-//            }
         };
     }
 
@@ -555,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
             int offset = 39; // add a offset to the toolbar height, as its partly hidden behind the android statusbar
-            if(isInMultiWindowMode()){
+            if (isInMultiWindowMode()) {
                 offset = 0;
             }
             appBar.animate().translationY(-appBar.getHeight() + offset);
@@ -568,84 +558,4 @@ public class MainActivity extends AppCompatActivity {
             fabToolbarVisibility.animate().rotation(0);
         }
     }
-
-    /**
-     * Back Navigation via Android Button and Back Arrow in toolbar gets handled here
-     */
-    @Override
-    public boolean onSupportNavigateUp() {
-        Log.d(TAG, "onSupportNavigateUp");
-        NavController navGraphController = findNavController(this, R.id.nav_main_host_fragment);
-        switch (navGraphController.getCurrentDestination().getId()) {
-            case R.id.settings_fragment:
-            case R.id.about_fragment:
-                Log.d(TAG, "onOptionsItemSelected: Navigate Up");
-                navGraphController.navigateUp();
-                return true;
-
-            case R.id.canvas_fragment:
-                mmainActivityDrawer.openDrawer(GravityCompat.START);
-        }
-        return navGraphController.navigateUp() || super.onSupportNavigateUp();
-    }
-
-    /**
-     * Handle Navigation from the drawer menu with navcontoller
-     */
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected");
-        NavController navController = Navigation.findNavController(this, R.id.nav_main_host_fragment);
-        return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
-    }
-
-    private void requestFileAccessPermission() {
-        // requesting permissions if not provided.
-        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
-
-    }
-
-    private boolean checkFileAccessPermission() {
-        return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-    }
-
-    //    @SuppressLint("WrongConstant") // breaks it ?!
-    @SuppressLint("WrongConstant")
-    private void persistUriPermission(Intent intent, Uri uri) {
-        //int takeFlags = intent.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        // Check for the freshest data.
-        getContentResolver().takePersistableUriPermission(uri, takeFlags);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 200) {
-            if (grantResults.length > 0) {
-
-                // after requesting permissions we are showing
-                // users a toast message of permission granted.
-                boolean writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-
-                if (writeStorage && readStorage) {
-                    Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-        }
-    }
-
-    private boolean isSplitScreenMode(List<AccessibilityWindowInfo> windows) {
-        for (AccessibilityWindowInfo window : windows) {
-            if (window.getType() == AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
