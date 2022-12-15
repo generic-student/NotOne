@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -204,33 +205,32 @@
 
                     <ImageButton
                         android:id="@+id/button_undo"
+                        android:contentDescription="UNDO"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:translationZ="1dp"
-                        android:paddingStart="20dp"
                         android:padding="10dp"
+                        android:translationZ="1dp"
                         android:scaleY="1.6"
                         android:scaleX="1.6"
                         android:src="@drawable/ic_undo"
                         android:background="@android:color/transparent"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:contentDescription="UNDO"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white"
+                        tools:ignore="RtlSymmetry" />
 
                     <ImageButton
                         android:id="@+id/button_redo"
+                        android:contentDescription="REDO"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:scaleY="-1.6"
                         android:scaleX="1.6"
                         android:padding="10dp"
-                        android:paddingEnd="10dp"
                         android:src="@drawable/ic_redo"
                         android:background="@android:color/transparent"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:contentDescription="REDO"
                         app:tint="@color/white" />
                 </LinearLayout>
 
@@ -241,14 +241,15 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_toggle_toolbar"
+        android:contentDescription="Hide Toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
         android:layout_marginTop="78dp"
         android:layout_marginEnd="16dp"
-        android:contentDescription="Hide Toolbar"
-        android:src="@drawable/ic_arrow_head"
+        android:layout_gravity="top|end"
+        android:foregroundTint="@color/white"
         android:tint="@android:color/white"
-        android:backgroundTint="@color/teal_300"/>
+        android:src="@drawable/ic_arrow_head"
+        android:backgroundTint="?attr/colorSecondary"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

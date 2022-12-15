@@ -11,6 +11,6 @@
         android:layout_height="wrap_content"
         android:paddingStart="50dp"
         android:paddingVertical="10dp"
-        android:textColor="?colorTextDayNight"/>
+        android:textColor="?attr/colorText"/>
 
 </LinearLayout>

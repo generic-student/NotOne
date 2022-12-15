@@ -11,7 +11,7 @@
     </string-array>
     <array name="pen_color_values">
         <item>@color/black</item>
-        <item>@color/red_900</item>
+        <item>@color/red_1</item>
         <item>@android:color/holo_green_light</item>
         <item>@android:color/holo_blue_light</item>
         <item>@android:color/holo_orange_light</item>
