@@ -8,9 +8,10 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/AppBar"
-        android:background="?colorPrimaryVariant"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:background="?colorPrimaryVariant">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -25,7 +26,8 @@
                 android:id="@+id/tv_fragment_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="PlaceHolderTitle"
+                android:text="Document Name"
+                android:maxLength="13"
                 android:textColor="@color/white"
                 android:textStyle=""
                 android:textSize="20sp" />
@@ -244,12 +246,13 @@
         android:contentDescription="Hide Toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="78dp"
+        android:layout_marginTop="95dp"
         android:layout_marginEnd="16dp"
         android:layout_gravity="top|end"
         android:foregroundTint="@color/white"
         android:tint="@android:color/white"
         android:src="@drawable/ic_arrow_head"
         android:backgroundTint="?attr/colorSecondary"/>
+    <!--    android:layout_marginTop="78dp"-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

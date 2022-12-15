@@ -1,11 +1,13 @@
 package app.notone;
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
@@ -13,9 +15,12 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -46,6 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -342,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         darkMode = SettingsHolder.isDarkMode();
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
-        /* base layouts for all navigations */
+        /* init layouts and navigation stuff */
         mmainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
         Toolbar toolbar = findViewById(R.id.toolbar); // toolbar
@@ -360,7 +366,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
         /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
-
         mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
             mCanvasView = CanvasFragment.mCanvasView;
 
@@ -453,6 +458,16 @@ public class MainActivity extends AppCompatActivity {
             toggleToolbarVisibility(appBar, fabToolbarVisibility);
         });
 
+        /* set toolbar padding depending on splitscreen */
+        if(isInMultiWindowMode()) {
+            appBar.setPadding(0,0,0,0);
+
+            float density = getApplicationContext().getResources().getDisplayMetrics().density;
+            CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+            lp.gravity = Gravity.END;
+            lp.setMargins(0, (int) (78 * density), (int) (16 * density), 0);
+            fabToolbarVisibility.setLayoutParams(lp);
+        }
         /* set Title and Toolbar functions depending on Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
@@ -505,10 +520,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // define arrays for displaying data in Expandable list view
-        String groupFrom[] = {TAG};
-        int groupTo[] = {R.id.listGroupTitle};
-        String childFrom[] = {TAG};
-        int childTo[] = {R.id.listItemText};
+        String[] groupFrom = {TAG};
+        int[] groupTo = {R.id.listGroupTitle};
+        String[] childFrom = {TAG};
+        int[] childTo = {R.id.listItemText};
 
         // Set up the adapter
         return mAdapter = new SimpleExpandableListAdapter(this, groupData,
@@ -539,8 +554,12 @@ public class MainActivity extends AppCompatActivity {
     private void toggleToolbarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
-            appBar.animate().translationY(-appBar.getHeight());
-            fabToolbarVisibility.animate().translationY(-appBar.getHeight());
+            int offset = 36; // add a offset to the toolbar height, as its partly hidden behind the android statusbar
+            if(isInMultiWindowMode()){
+                offset = 0;
+            }
+            appBar.animate().translationY(-appBar.getHeight() + offset);
+            fabToolbarVisibility.animate().translationY(-appBar.getHeight() + offset);
             fabToolbarVisibility.animate().rotation(180);
         } else {
             mToolbarVisibility = true;
@@ -620,5 +639,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isSplitScreenMode(List<AccessibilityWindowInfo> windows) {
+        for (AccessibilityWindowInfo window : windows) {
+            if (window.getType() == AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
