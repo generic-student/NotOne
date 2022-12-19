@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -57,6 +56,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasView;
+import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     boolean mToolbarVisibility = true;
 
-    ActivityResultLauncher<String> mSavePdfDocument = ActivityResultLauncherFactory.getNewPdfDocumentActivityResultLauncher(this);
+    ActivityResultLauncher<String> mSavePdfDocument = ActivityResultLauncherFactory.getExportPdfActivityResultLauncher(this);
 
     ActivityResultLauncher<String> mNewCanvasFile = ActivityResultLauncherFactory.getNewCanvasFileActivityResultLauncher(this);
 
@@ -390,9 +390,19 @@ public class MainActivity extends AppCompatActivity {
 //        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(SettingsHolder.isAutoSaveCanvas());
 //        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
-        swAutoSave.setOnCheckedChangeListener((compoundButton, b) -> {
-            spEditor.putBoolean("autosave", b).apply();
+        swAutoSave.setOnCheckedChangeListener((compoundButton, autoSave) -> {
+            spEditor.putBoolean("autosave", autoSave).apply();
             SettingsHolder.update(sharedPreferences);
+
+            if(!PeriodicSaveHandler.isInitialized()) {
+                PeriodicSaveHandler.init(this);
+            }
+
+           if(autoSave) {
+               PeriodicSaveHandler.getInstance().start();
+           } else {
+               PeriodicSaveHandler.getInstance().stop();
+           }
         });
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 

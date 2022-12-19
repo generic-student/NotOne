@@ -2,9 +2,11 @@ package app.notone.fragments;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -18,6 +20,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.fragment_root_preferences, rootKey);
+
+        EditTextPreference saveIntervalPreference = findPreference("saveintervall");
+        if (saveIntervalPreference != null) {
+            saveIntervalPreference.setOnBindEditTextListener(
+                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
+        }
+
+        EditTextPreference syncIntervalPreference = findPreference("syncintervall");
+        if (syncIntervalPreference != null) {
+            syncIntervalPreference.setOnBindEditTextListener(
+                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
+        }
+
     }
 
     @Override

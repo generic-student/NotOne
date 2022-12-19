@@ -43,15 +43,18 @@ public class FileManager {
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
             saveToCache(context, jsonString);
+            view.setSaved(true);
             return;
         }
 
         if(view.getCurrentURI().toString().equals("firebase")) {
             saveToFirebase(context, jsonString);
+            view.setSaved(true);
             return;
         }
 
         saveToFilesystem(context, jsonString, view);
+        view.setSaved(true);
     }
 
     public static void saveToCache(Context context, String data) throws IOException {
@@ -108,15 +111,19 @@ public class FileManager {
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
             loadFromCache(context, view);
+            //if the canvas got loaded from disk it means its saved on disk
+            view.setSaved(true);
             return;
         }
 
         if(view.getCurrentURI().toString().equals("firebase")) {
             loadFromFirebase(context, view);
+            view.setSaved(true);
             return;
         }
 
         loadFromFilesystem(context, view);
+        view.setSaved(true);
     }
 
     public static void loadFromCache(Context context, CanvasView view) throws IOException {

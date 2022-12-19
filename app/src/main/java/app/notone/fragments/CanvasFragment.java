@@ -28,13 +28,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.preference.PreferenceManager;
 
 import app.notone.MainActivity;
 import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
+import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
 import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
@@ -47,7 +47,6 @@ public class CanvasFragment extends Fragment {
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
     private static final String TAG = "NotOneCanvasFragment";
     public static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
-    private static final String CANVAS_STORAGE_PREF_KEY = "lastOpenedCanvasWriter";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
     public static CanvasView mCanvasView; // TODO maybe static is bad
@@ -55,8 +54,6 @@ public class CanvasFragment extends Fragment {
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
     private boolean markerEnabled = false;
     public static boolean isLoadingPdfPages = false;
-
-    private PeriodicSaveHandler periodicSaveHandler;
 
     ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
             new ActivityResultCallback<Uri>() {
@@ -79,20 +76,14 @@ public class CanvasFragment extends Fragment {
      */
     @Override
     public void onStart() {
-        // TODO factorise to worker thread
         super.onStart();
 
-        if(!periodicSaveHandler.isRunning()) {
-            periodicSaveHandler.start();
-        }
-
+        //if a previous canvas was open get its uri
         if(MainActivity.sRecentCanvases.size() > 0) {
             mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
         }
-//        if(!MainActivity.mNameUriMap.isEmpty()) {
-//            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
-//        }
 
+        //try to load the canvas from file
         try {
             if(!isLoadingPdfPages) {
                 FileManager.load(getContext(), mCanvasView);
@@ -103,84 +94,100 @@ public class CanvasFragment extends Fragment {
 
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(getContext(), "Could not load previously opened canvas. Was it moved or deleted?", Toast.LENGTH_LONG).show();
+
+            //TODO: create a new canvas in the temp folder
+            //IMPORTANT
+            mCanvasView.setUri(null);
         }
 
+        ArrayList<PresetPenButton> pens = loadPresetPensFromSharedPreferences();
+        addPresetPensToLayout(pens);
+    }
 
+    @NonNull
+    private ArrayList<PresetPenButton> loadPresetPensFromSharedPreferences() {
         Log.d(TAG, "onStart: reloading canvas data saved in shared prefs");
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         /* restore old pens */
-        ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
+        ArrayList<PresetPenButton> presetPenButtons = new ArrayList<>();
         String pendata = sharedPreferences.getString(PEN_PRESETS_PREF_KEY, "");
         try {
-            mPresetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
+            presetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
                     pendata);
-//            Log.d(TAG, "onStart: got old preset pens " + mPresetPenButtons);
         } catch (JSONException e) {
             Log.e(TAG, "onStart: failed to extract Pens from json", e);
             e.printStackTrace();
         }
+
+        return presetPenButtons;
+    }
+
+    private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
         // add pen to container
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
         if(llayoutPenContainer.getChildCount() == 0) {
-            Log.d(TAG, "onStart: restoring old pens " + mPresetPenButtons);
-            mPresetPenButtons.forEach(presetPenButton -> {
-                Log.d(TAG, "restore old pen ");
+            Log.d(TAG, "onStart: restoring old pens " + pens);
+            pens.forEach(presetPenButton -> {
                 setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
                 llayoutPenContainer.addView(presetPenButton, 0);
                 mImageButtonCanvasToolGroup.add((ImageButton) presetPenButton);
             });
         } else {
-            Log.d(TAG, "onStart: didnt restore, Pens still there " + llayoutPenContainer.getChildCount());
+            Log.d(TAG, "onStart: could not restore all pens. Pens available: " + llayoutPenContainer.getChildCount());
         }
     }
 
     @Override
     public void onPause() {
-        if(periodicSaveHandler.isRunning()) {
-            periodicSaveHandler.stop();
+        //stop the periodic save handler if it is running as to not overwrite the canvasView while its empty
+        if(PeriodicSaveHandler.getInstance().isRunning()) {
+            PeriodicSaveHandler.getInstance().stop();
         }
 
-        Log.d(TAG, "onPause: STORING DATA");
+        //get the shared preferences
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        //TODO: add this to the FileManager.java
         if(!sharedPreferences.contains("firebase-userid")) {
             Log.d(TAG, "Setting userid for the FirebaseStorage.");
             editor.putString("firebase-userid", UUID.randomUUID().toString()).apply();
         }
 
-        /* export canvas */
-        String jsonString = "";
-        try {
-            Toast.makeText(getContext(), "Saving current canvas...bro", Toast.LENGTH_LONG).show();
-            FileManager.save(getContext(), mCanvasView);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+        //save the canvas if it is not already saved
+        if(!mCanvasView.isSaved()) {
+            /* export canvas */
+            try {
+                Toast.makeText(getContext(), "Saving current canvas", Toast.LENGTH_LONG).show();
+                FileManager.save(getContext(), mCanvasView);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-//        Log.d(TAG, "onPause: " + jsonString);
-        editor.putString(CANVAS_STORAGE_PREF_KEY, jsonString);
 
         /* export presetpens */
-        ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
-        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
-        for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
-            mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
-        }
-        String presetPenJson = "";
-        try {
-            presetPenJson = PenPorter.presetPensToJSON(mPresetPenButtons).toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
+        savePresetPensToSharedPreferences(editor);
 
-        /* export recent files */
-
-        // write changes to file
         editor.apply();
         super.onPause();
-//        Toast.makeText(getActivity(), "exported persistence data", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        if(!PeriodicSaveHandler.isInitialized()) {
+            PeriodicSaveHandler.init(getContext());
+        }
+
+        if(SettingsHolder.isAutoSaveCanvas() && !PeriodicSaveHandler.getInstance().isRunning()) {
+            Toast.makeText(getContext(), "Started Periodic Saving", Toast.LENGTH_LONG).show();
+            PeriodicSaveHandler.getInstance().start();
+        }
+
+        super.onResume();
     }
 
     @Override
@@ -190,6 +197,11 @@ public class CanvasFragment extends Fragment {
         return mCanvasFragmentView;
     }
 
+    /**
+     * Determines what happens when the view is fully created
+     * @param view the view this fragment resides in
+     * @param savedInstanceState data from when the instance was saved
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated");
@@ -200,13 +212,11 @@ public class CanvasFragment extends Fragment {
         if(MainActivity.sRecentCanvases.size() > 0) {
             mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
         }
-//        if(!MainActivity.mNameUriMap.isEmpty()) {
-//            mCanvasView.setUri(MainActivity.mNameUriMap.getFirst().getValue());
-//            Log.d(TAG, "Set Uri to " +  MainActivity.mNameUriMap.getFirst().getValue());
-//        }
 
-        periodicSaveHandler = new PeriodicSaveHandler(getContext(), 10000);
-        periodicSaveHandler.start();
+        if(!PeriodicSaveHandler.isInitialized()) {
+            PeriodicSaveHandler.init(getContext());
+        }
+        PeriodicSaveHandler.getInstance().start();
 
 
 //        MainActivity.mCanvasView = mCanvasView;
@@ -293,17 +303,15 @@ public class CanvasFragment extends Fragment {
             }
         });
         mImageButtonCanvasToolGroup.add(buttonDetectShapes);
-
-        /* Test button */
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-//        Button buttonTest = fragmentActivity.findViewById(R.id.button_test);
-//        buttonTest.setOnClickListener(v -> {
-//            Log.d(TAG, sharedPreferences.getAll().toString());
-//            sharedPreferences.edit().clear().commit();
-//        });
     }
 
 
+    /**
+     * Create a preset pen from the current canvas settings (color and width)
+     * @param fragmentActivity the activity to add the pen into
+     * @param llayoutPenContainer the layout to add the pen into
+     * @return a PresetPen
+     */
     @NonNull
     private PresetPenButton createPresetPenButton(FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
         PresetPenButton buttonPresetPen = new PresetPenButton(
@@ -315,6 +323,11 @@ public class CanvasFragment extends Fragment {
         return buttonPresetPen;
     }
 
+    /**
+     * Sets the onclick methods for the preset pens
+     * @param buttonPresetPen the individual preset pen
+     * @param llayoutPenContainer the container they are in
+     */
     private void setPresetPenButtonListeners(PresetPenButton buttonPresetPen, LinearLayout llayoutPenContainer) {
         buttonPresetPen.setOnClickListener(v1 -> {
             buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
@@ -331,6 +344,25 @@ public class CanvasFragment extends Fragment {
 //            mPresetPenButtons.remove(buttonPresetPen);
             return true;
         });
+    }
+
+    /**
+     * Saves the preset pens as a json string in the shared preferences
+     * @param editor the shared preferences to put the pens into
+     */
+    private void savePresetPensToSharedPreferences(SharedPreferences.Editor editor) {
+        ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
+        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
+        for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
+            mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
+        }
+        String presetPenJson = "";
+        try {
+            presetPenJson = PenPorter.presetPensToJSON(mPresetPenButtons).toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
     }
 
     private void setddMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickddMenuFunction onClickddMenuFunction) {

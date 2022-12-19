@@ -30,7 +30,9 @@ public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
     private final float MAX_SCALE = 5.f;
     private final float MIN_SCALE = 0.05f;
-    public Uri mCurrentURI = null;
+    private Uri mCurrentURI = null;
+    private boolean mSaved = false;
+    private boolean mLoaded = false;
 
     private CanvasWriter mCanvasWriter;
 
@@ -60,6 +62,9 @@ public class CanvasView extends View {
         mScaleDetector = new ScaleGestureDetector(context, new CanvasScaleListener());
         mScaleDetector.setStylusScaleEnabled(false);
         mGestureDetector = new GestureDetector(context, new CanvasGestureListener());
+
+        mSaved = false;
+        mLoaded = false;
 
         mPdfDocument = new CanvasPdfDocument();
         mPdfRenderer = new PdfCanvasRenderer();
@@ -135,6 +140,22 @@ public class CanvasView extends View {
         this.mPdfRenderer = mPdfRenderer;
     }
 
+    public boolean isSaved() {
+        return mSaved;
+    }
+
+    public void setSaved(boolean saved) {
+        mSaved = saved;
+    }
+
+    public boolean isLoaded() {
+        return mLoaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        mLoaded = loaded;
+    }
+
     public void resetViewMatrices() {
         mViewTransform = new Matrix();
         mViewTransform.invert(mInverseViewTransform);
@@ -154,6 +175,7 @@ public class CanvasView extends View {
      */
     @Override
     protected void onDraw(Canvas canvas) {
+        setSaved(false);
         canvas.setMatrix(mViewTransform); // transform here after having drawn paths instead of transforming paths directly
 
         mPdfRenderer.render(mPdfDocument, canvas);

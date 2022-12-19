@@ -8,27 +8,35 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import app.notone.core.util.SettingsHolder;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.FileManager;
 
+//sigleton instance
 public class PeriodicSaveHandler {
-    private int mInterval = 5000;
+    private static final String TAG = PeriodicSaveHandler.class.getSimpleName();
+    private static PeriodicSaveHandler sInstance = null;
+
     private Handler mHandler;
     private Runnable mPeriodicSaveRunner;
     boolean mIsRunning = false;
 
     private Context mContext;
 
-    public PeriodicSaveHandler(Context context) {
-        mContext = context;
-        mHandler = new Handler();
-
-        initRunnable();
+    public static void init(Context context) {
+        sInstance = new PeriodicSaveHandler(context);
     }
 
-    public PeriodicSaveHandler(Context context, int interval) {
+    public static boolean isInitialized() {
+        return sInstance != null;
+    }
+
+    public static PeriodicSaveHandler getInstance() {
+        return sInstance;
+    }
+
+    private PeriodicSaveHandler(Context context) {
         mContext = context;
-        mInterval = interval;
         mHandler = new Handler();
 
         initRunnable();
@@ -37,27 +45,45 @@ public class PeriodicSaveHandler {
     private void initRunnable() {
         mPeriodicSaveRunner = () -> {
             try {
-                FileManager.save(mContext, CanvasFragment.mCanvasView);
-                Log.d("PeriodicSaveHandler", "Saved canvas");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                if(CanvasFragment.mCanvasView.isLoaded()) {
+                    //FileManager.save(mContext, CanvasFragment.mCanvasView);
+                    Log.d(TAG, "Saved canvas to " + CanvasFragment.mCanvasView.getCurrentURI() + ".");
+                } else {
+                    Log.d(TAG, "Canvas is not fully loaded yet.");
+                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
             } finally {
-                mHandler.postDelayed(mPeriodicSaveRunner, mInterval);
+                if(SettingsHolder.isAutoSaveCanvas()) {
+                    mHandler.postDelayed(mPeriodicSaveRunner, SettingsHolder.getAutoSaveCanvasIntervalSeconds() * 1000);
+                } else {
+                    Log.d(TAG, "Stopped PeriodicSaveHandler.");
+                }
             }
         };
     }
 
     public void start() {
-        Log.d("PeriodicSaveHandler", "Starting PeriodicSaveHandler.");
-        //mPeriodicSaveRunner.run();
+        if(isRunning()) {
+            Log.d(TAG, "PeriodicSaveHandler is already running.");
+            return;
+        }
+        Log.d(TAG, "Starting PeriodicSaveHandler.");
+        mPeriodicSaveRunner.run();
+        Log.d(TAG, "Started PeriodicSaveHandler.");
         mIsRunning = true;
     }
 
     public void stop() {
-        Log.d("PeriodicSaveHandler", "Stopping PeriodicSaveHandler.");
-        //mHandler.removeCallbacks(mPeriodicSaveRunner);
+        if(!isRunning()) {
+            Log.d(TAG, "PeriodicSaveHandler is not running.");
+            return;
+        }
+        Log.d(TAG, "Stopping PeriodicSaveHandler.");
+        mHandler.removeCallbacks(mPeriodicSaveRunner);
+        Log.d(TAG, "Stopped PeriodicSaveHandler.");
         mIsRunning = false;
     }
 

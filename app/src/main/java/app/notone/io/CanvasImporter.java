@@ -74,11 +74,8 @@ public class CanvasImporter {
                     String uri = json.getString("uri");
                     canvasImportData.canvasView.setUri(Uri.parse(uri));
 
-//                    canvasImportData.canvasView.setScale(scale);
-//                    canvasImportData.canvasView.getViewTransform().setValues(viewTransformData);
-//                    canvasImportData.canvasView.getInverseViewTransform().setValues(inverseViewTransformData);
-//                    canvasImportData.canvasView.setCanvasWriter(writer);
-//                    canvasImportData.canvasView.setPdfDocument(document);
+                    Log.d(TAG, "Canvas is fully loaded!");
+                    canvasImportData.canvasView.setLoaded(true);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

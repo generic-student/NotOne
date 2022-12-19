@@ -25,10 +25,10 @@ public class SettingsHolder {
         //function
         sRestrictedPanning =  prefs.getBoolean("twofingerpanning", false);
         sDrawerSwipeOpen =  prefs.getBoolean("drawerswipe", false);
-        sAutoSaveCanvasIntervalSeconds =  Integer.valueOf(prefs.getString("saveintervall", "999999999"));
+        sAutoSaveCanvasIntervalSeconds =  Integer.parseInt(prefs.getString("saveintervall", "999999999"));
         sAutoSaveCanvas =  prefs.getBoolean("autosave", false);
         sSynchronizeWithServer =  prefs.getBoolean("sync", false);
-        sSynchronizeWithServerIntervalSeconds =  Integer.valueOf(prefs.getString("syncintervall", "999999999"));
+        sSynchronizeWithServerIntervalSeconds =  Integer.parseInt(prefs.getString("syncintervall", "999999999"));
 
     }
 

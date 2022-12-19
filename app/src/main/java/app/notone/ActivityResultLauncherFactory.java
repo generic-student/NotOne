@@ -15,7 +15,7 @@ import app.notone.io.PdfExporter;
 class ActivityResultLauncherFactory {
 
     @NonNull
-    public static ActivityResultLauncher<String> getNewPdfDocumentActivityResultLauncher(MainActivity mainActivity) {
+    public static ActivityResultLauncher<String> getExportPdfActivityResultLauncher(MainActivity mainActivity) {
         return mainActivity.registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"),
                 uri -> {
                     if (uri == null) {
