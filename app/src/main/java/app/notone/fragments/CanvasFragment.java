@@ -34,6 +34,8 @@ import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
+import app.notone.core.util.RecentCanvas;
+import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
 import app.notone.io.PdfImporter;
@@ -80,7 +82,15 @@ public class CanvasFragment extends Fragment {
 
         //if a previous canvas was open get its uri
         if(MainActivity.sRecentCanvases.size() > 0) {
-            mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
+            RecentCanvas recentCanvas = MainActivity.sRecentCanvases.get(0);
+            mCanvasView.setUri(recentCanvas.mUri);
+
+            if (recentCanvas.mName == null || recentCanvas.mName.equals("")) {
+                Log.e(TAG, "Cannot set the canvas title. Title is empty");
+                return;
+            }
+            TextView tvTitle = ((TextView) getActivity().findViewById(R.id.tv_fragment_title));
+            tvTitle.setText(recentCanvas.mName);
         }
 
         //try to load the canvas from file
