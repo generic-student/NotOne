@@ -1,5 +1,6 @@
 package app.notone.fragments;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
@@ -35,7 +36,6 @@ import app.notone.core.CanvasView;
 import app.notone.R;
 import app.notone.core.pens.PenType;
 import app.notone.core.util.RecentCanvas;
-import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
 import app.notone.io.PdfImporter;
@@ -180,7 +180,7 @@ public class CanvasFragment extends Fragment {
         }
 
         /* export presetpens */
-        savePresetPensToSharedPreferences(editor);
+        putPresetPensIntoSharedPreferences(getActivity(), editor);
 
         editor.apply();
         super.onPause();
@@ -360,9 +360,9 @@ public class CanvasFragment extends Fragment {
      * Saves the preset pens as a json string in the shared preferences
      * @param editor the shared preferences to put the pens into
      */
-    private void savePresetPensToSharedPreferences(SharedPreferences.Editor editor) {
+    private static void putPresetPensIntoSharedPreferences(Activity activity, SharedPreferences.Editor editor) {
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
-        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
+        LinearLayout llayoutPenContainer = activity.findViewById(R.id.canvas_pens_preset_container);
         for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
             mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
         }

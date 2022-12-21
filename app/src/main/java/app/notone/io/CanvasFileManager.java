@@ -1,12 +1,15 @@
 package app.notone.io;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,10 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import app.notone.MainActivity;
+import app.notone.core.CanvasView;
+import app.notone.core.util.RecentCanvas;
+import app.notone.fragments.CanvasFragment;
+
 public class CanvasFileManager {
     private final static String TAG = "CanvasFilemanager";
 
-    public static String openCanvasFile(Activity activity, Uri uri) {
+    public static String open(Activity activity, Uri uri) {
         Log.d(TAG, "openCanvasFile: " + uri);
         String content = "";
         try {
@@ -34,73 +42,43 @@ public class CanvasFileManager {
             r.close();
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "openCanvasFile: ERROR File not Found");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "openCanvasFile: ERROR IOException");
         }
         return content;
     }
 
+    public static void safeOpenCanvasFile(MainActivity mainActivity, Uri uri) {
+        MainActivity.sCanvasView = CanvasFragment.mCanvasView;
+        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
-    public static String initNewFile(Uri uri, int Type) {
-        String canvas = "{\n" +
-                "   \"scale\":0.09696853905916214,\n" +
-                "   \"viewTransform\":[\n" +
-                "      0.09696854,\n" +
-                "      0,\n" +
-                "      514.72797,\n" +
-                "      0,\n" +
-                "      0.09696854,\n" +
-                "      511.8249,\n" +
-                "      0,\n" +
-                "      0,\n" +
-                "      1\n" +
-                "   ],\n" +
-                "   \"inverseViewTransform\":[\n" +
-                "      100,\n" +
-                "      0,\n" +
-                "      -173288.36,\n" +
-                "      0,\n" +
-                "      100,\n" +
-                "      -55048.45,\n" +
-                "      0,\n" +
-                "      0,\n" +
-                "      1\n" +
-                "   ],\n" +
-                "   \"writer\":{\n" +
-                "      \"color\":-5242830,\n" +
-                "      \"weight\":5,\n" +
-                "      \"strokes\":[\n" +
-                "         {\n" +
-                "            \"color\":-65536,\n" +
-                "            \"weight\":1,\n" +
-                "            \"path\":[\n" +
-                "\t\t\t0,0,\n" +
-                "\t\t\t10,10\n" +
-                "            ]\n" +
-                "         },\n" +
-                "         {\n" +
-                "            \"color\":-65536,\n" +
-                "            \"weight\":1,\n" +
-                "            \"path\":[\n" +
-                "\t\t\t0,0\n" +
-                "            ]\n" +
-                "         }\n" +
-                "      ],\n" +
-                "      \"actions\":[\n" +
-                "         \n" +
-                "      ],\n" +
-                "      \"undoneActions\":[\n" +
-                "         \n" +
-                "      ]\n" +
-                "   },\n" +
-                "   \"uri\": \"" + uri + "\",\n" +
-                "   \"pdf\":"  + "\"pages:[]\"\n" +
-                "}";
-        return canvas;
+        String canvasData = CanvasFileManager.open(mainActivity, uri);
+        try {
+            CanvasImporter.initCanvasViewFromJSON(canvasData, MainActivity.sCanvasView, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+            Toast.makeText(mainActivity, "failed to parse file", Toast.LENGTH_SHORT).show();
+            return;
+        } catch (IllegalArgumentException i) {
+            Log.e(TAG, "mOpenCanvasFile: canvasFile was empty");
+            Toast.makeText(mainActivity, "file is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //reorder the recent canvases to have the active one as the first element
+
+        MainActivity.sCanvasView.invalidate();
+
+        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+        MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+        mainActivity.updateRecentCanvasesExpListView();
+
+        Toast.makeText(mainActivity, "opened a saved file", Toast.LENGTH_SHORT).show();
     }
 
-    public static void saveCanvasFile(Activity activity, Uri uri, String json) {
+    public static void save(Activity activity, Uri uri, String json) {
         try {
             ParcelFileDescriptor pfd = activity.getContentResolver().
                     openFileDescriptor(uri, "w");
@@ -111,11 +89,43 @@ public class CanvasFileManager {
             fileOutputStream.close();
             pfd.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveCanvasFile: IOException; probably invalid permissions");
         }
     }
 
-    public static void savePdfDocument(Activity activity, Uri uri, PdfDocument doc) {
+    public static void safeSave(MainActivity mainActivity, Context context, Uri uri, CanvasView canvasView) {
+        Log.d(TAG, "mSaveAsCanvasFile to Json");
+        // check for file access permissions || grant them, persistUriPermission() doesnt seem to work
+        if (!FileManager.checkFileAccessPermission(context)) {
+            Toast.makeText(mainActivity, "Permissions not granted", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "saveCanvasFile: Permissions not granted");
+            return;
+        }
+        try {
+            context.grantUriPermission(context.getPackageName(), uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (SecurityException se) {
+            /* permission for file access did not persist; user has to chose which file to override */
+            Log.e(TAG, "saveCanvasFile: Failed to save file as it cant be accessed");
+            mainActivity.mSaveAsCanvasFile.launch("canvasFile.json"); // this is recursive
+            return;
+        }
+
+        // save files
+        String canvasData = "";
+        try {
+            canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        CanvasFileManager.save(mainActivity, uri, canvasData);
+
+        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+
+        Toast.makeText(mainActivity, "saved file", Toast.LENGTH_SHORT).show();
+    }
+
+    public static void save2PDF(Activity activity, Uri uri, PdfDocument doc) {
         try {
             ParcelFileDescriptor pfd = activity.getContentResolver().
                     openFileDescriptor(uri, "w");
@@ -126,9 +136,7 @@ public class CanvasFileManager {
             fileOutputStream.close();
             pfd.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "savePdfDocument: IOException; probably invalid permissions");
         }
     }
-// https://developer.android.com/training/data-storage/shared/documents-files#java
-
 }

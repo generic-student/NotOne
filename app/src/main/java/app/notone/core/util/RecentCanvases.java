@@ -1,6 +1,7 @@
 package app.notone.core.util;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import app.notone.R;
 
 public class RecentCanvases {
+    private static String TAG = "RecentCanvases";
     private ArrayList<RecentCanvas> mRecentCanvases;
     private int mMaxSize;
 

@@ -1,10 +1,19 @@
 package app.notone.io;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.firebase.storage.FirebaseStorage;
@@ -28,8 +37,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.MissingResourceException;
 import java.util.UUID;
 
+import app.notone.MainActivity;
 import app.notone.core.CanvasView;
 import kotlin.NotImplementedError;
+
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class FileManager {
     private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
@@ -172,4 +185,36 @@ public class FileManager {
         new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true));
     }
 
+    @SuppressLint("WrongConstant")
+    public static void persistUriPermission(ContentResolver contentResolver, Uri uri) {
+        int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        contentResolver.takePersistableUriPermission(uri, takeFlags);
+    }
+
+    public static void requestFileAccessPermission(MainActivity mainActivity) {
+        // requesting permissions if not provided.
+        ActivityCompat.requestPermissions(mainActivity, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+    }
+
+    public static boolean checkFileAccessPermission(Context context) {
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public static String getFilenameFromUri(Uri uri, ContentResolver contentResolver) {
+        String fileName = "Unsaved Document";
+        String fileSize = "0";
+        try {
+            Cursor cursor =
+                    contentResolver.query(uri, null, null, null, null);
+            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            cursor.moveToFirst();
+            fileName = cursor.getString(nameIndex);
+            fileSize = Long.toString(cursor.getLong(sizeIndex));
+            cursor.close();
+        } catch (NullPointerException n) {
+            Log.e(TAG, "getCanvasFileName: couldnt extract Filename from uri");
+        }
+        return fileName; // fileName + " : " + fileSize; // to nerdy for production
+    }
 }

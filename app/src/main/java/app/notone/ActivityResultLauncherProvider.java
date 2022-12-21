@@ -8,11 +8,13 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import app.notone.core.util.RecentCanvas;
 import app.notone.fragments.CanvasFragment;
 import app.notone.io.CanvasFileManager;
+import app.notone.io.FileManager;
 import app.notone.io.PdfExporter;
 
-class ActivityResultLauncherFactory {
+class ActivityResultLauncherProvider {
 
     @NonNull
     public static ActivityResultLauncher<String> getExportPdfActivityResultLauncher(MainActivity mainActivity) {
@@ -23,8 +25,8 @@ class ActivityResultLauncherFactory {
                         return;
                     }
                     DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
-                    PdfDocument doc = PdfExporter.exportPdfDocument(MainActivity.mCanvasView, (float) metrics.densityDpi / metrics.density, true);
-                    CanvasFileManager.savePdfDocument(mainActivity, uri, doc);
+                    PdfDocument doc = PdfExporter.exportPdfDocument(MainActivity.sCanvasView, (float) metrics.densityDpi / metrics.density, true);
+                    CanvasFileManager.save2PDF(mainActivity, uri, doc);
                 });
     }
 
@@ -39,14 +41,14 @@ class ActivityResultLauncherFactory {
                     Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
                     CanvasFragment.mCanvasView.reset();
                     CanvasFragment.mCanvasView.setUri(uri);
-                    MainActivity.mCanvasView = CanvasFragment.mCanvasView;
+                    MainActivity.sCanvasView = CanvasFragment.mCanvasView;
 
-                    mainActivity.persistUriPermission(mainActivity.getIntent(), uri);
+                    FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
 
-                    MainActivity.mCanvasName = MainActivity.getCanvasFileName(uri, mainActivity.getContentResolver());
-                    mainActivity.setCanvasTitle(MainActivity.mCanvasName);
-                    mainActivity.addToRecentFiles(MainActivity.mCanvasName, uri);
-                    mainActivity.updateExpListRecentFiles();
+                    MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+                    mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+                    MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+                    mainActivity.updateRecentCanvasesExpListView();
 
                     Toast.makeText(mainActivity, "created a new file", Toast.LENGTH_SHORT).show();
                 });
@@ -56,11 +58,11 @@ class ActivityResultLauncherFactory {
     public static ActivityResultLauncher<String[]> getOpenCanvasFileActivityResultLauncher(MainActivity mainActivity) {
         return mainActivity.registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
             if (uri == null) {
-                Log.e(mainActivity.TAG, "mOpenCanvasFile: file opening was aborted");
+                Log.e(MainActivity.TAG, "mOpenCanvasFile: file opening was aborted");
                 return;
             }
-            mainActivity.openCanvasFile(uri);
-            mainActivity.persistUriPermission(mainActivity.getIntent(), uri);
+            CanvasFileManager.safeOpenCanvasFile(mainActivity, uri);
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
         });
     }
 
@@ -72,15 +74,15 @@ class ActivityResultLauncherFactory {
                 return;
             }
 
-            MainActivity.mCanvasName = MainActivity.getCanvasFileName(uri, mainActivity.getContentResolver());
-            mainActivity.setCanvasTitle(MainActivity.mCanvasName);
-            mainActivity.addToRecentFiles(MainActivity.mCanvasName, uri);
-            mainActivity.updateExpListRecentFiles();
+            MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+            mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+            MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+            mainActivity.updateRecentCanvasesExpListView();
 
-            mainActivity.saveCanvasFile(uri);
-            MainActivity.mCanvasView.setUri(uri);
+            CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, MainActivity.sCanvasView);
+            MainActivity.sCanvasView.setUri(uri);
 
-            mainActivity.persistUriPermission(mainActivity.getIntent(), uri);
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
             Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
         });
     }
