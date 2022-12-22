@@ -2,7 +2,7 @@
 <resources>
     <string-array
         name="pen_colors">
-        <item>Color</item>
+        <item>Colors</item>
         <item>RED</item>
         <item>GREEN</item>
         <item>BLUE</item>
@@ -11,7 +11,7 @@
     </string-array>
     <array name="pen_color_values">
         <item>@color/black</item>
-        <item>@color/red_1</item>
+        <item>@android:color/holo_red_light</item>
         <item>@android:color/holo_green_light</item>
         <item>@android:color/holo_blue_light</item>
         <item>@android:color/holo_orange_light</item>
@@ -19,7 +19,7 @@
     </array>
     <string-array
         name="pen_weights">
-        <item>1</item>
+        <item>Size</item>
         <item>5</item>
         <item>10</item>
         <item>20</item>
