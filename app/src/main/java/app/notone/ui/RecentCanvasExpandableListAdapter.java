@@ -1,4 +1,4 @@
-package app.notone.views;
+package app.notone.ui;
 
 import android.content.Context;
 import android.widget.SimpleExpandableListAdapter;

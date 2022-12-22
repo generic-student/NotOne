@@ -1,14 +1,12 @@
-package app.notone.views;
+package app.notone.ui;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.preference.PreferenceManager;
 
 import app.notone.core.util.SettingsHolder;
 

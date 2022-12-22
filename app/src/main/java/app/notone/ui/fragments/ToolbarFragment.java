@@ -1,4 +1,4 @@
-package app.notone.fragments;
+package app.notone.ui.fragments;
 
 import android.os.Bundle;
 import android.util.Log;

@@ -1,7 +1,6 @@
 package app.notone.io;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import androidx.fragment.app.FragmentActivity;
-import app.notone.views.PresetPenButton;
+import app.notone.ui.PresetPenButton;
 
 /**
  * Export Preset Pen Data to Json
@@ -28,12 +27,12 @@ public class PenPorter {
         for(int i = 0; i < presetPenButtons.size(); i++){
             PresetPenButton penButton = presetPenButtons.get(i);
             JSONObject pen = new JSONObject();
-            pen.put("colorindexmapid", penButton.mcolorindexMapId);
-            pen.put("mddowncolorid", penButton.mddMenuColorId);
-            pen.put("mddownweightid", penButton.mddMenuWeightId);
-            pen.put("mddownColorIndex", penButton.mddMenuColorIndex);
-            pen.put("mddownWeightIndex", penButton.mddMenuWeightIndex);
-            pen.put("mddownmWeight", penButton.mddMenuWeightValue);
+            pen.put("colorindexmapid", penButton.mColor2IndexMapId);
+            pen.put("mddowncolorid", penButton.mDDMenuColorId);
+            pen.put("mddownweightid", penButton.mDDMenuWeightId);
+            pen.put("mddownColorIndex", penButton.mDDMenuColorIndex);
+            pen.put("mddownWeightIndex", penButton.mDDMenuWeightIndex);
+            pen.put("mddownmWeight", penButton.mDDMenuWeightValue);
             pens.put(pen);
 //            Log.d(TAG, "penPresetsToJSON: converted pen to json");
         }

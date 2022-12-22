@@ -1,14 +1,10 @@
 package app.notone.core;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.net.Uri;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.DisplayMetrics;
@@ -17,14 +13,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import java.util.List;
-
-import app.notone.R;
 import app.notone.core.util.SettingsHolder;
-import app.notone.fragments.SettingsFragment;
-import app.notone.io.PdfExporter;
-
-import androidx.preference.PreferenceManager;
 
 public class CanvasView extends View {
     private static final String LOG_TAG = CanvasView.class.getSimpleName();

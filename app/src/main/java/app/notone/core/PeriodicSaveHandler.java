@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import app.notone.core.util.SettingsHolder;
-import app.notone.fragments.CanvasFragment;
+import app.notone.ui.fragments.CanvasFragment;
 
 //sigleton instance
 public class PeriodicSaveHandler {

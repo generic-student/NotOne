@@ -1,9 +1,9 @@
-package app.notone.fragments;
+package app.notone.ui.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -38,40 +36,29 @@ import app.notone.core.pens.PenType;
 import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
-import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
-import app.notone.views.PresetPenButton;
+import app.notone.ui.ActivityResultLauncherProvider;
+import app.notone.ui.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class CanvasFragment extends Fragment {
 
+    public static final String TAG = "NotOneCanvasFragment";
     private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
-    private static final String TAG = "NotOneCanvasFragment";
     public static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
-    public static CanvasView sCanvasView; // TODO maybe static is bad
+    public static CanvasView sCanvasView;
     private View mCanvasFragmentView;
-    private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
-    private boolean markerEnabled = false;
-    public static boolean sIsLoadingPdfPages = false;
 
-    ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
-                    if(uri == null){
-                        return;
-                    }
-                    sCanvasView.resetViewMatrices();
-                    sCanvasView.setScale(1f);
-                    sIsLoadingPdfPages = true;
-                    PdfImporter.fromUri(getContext(), uri, sCanvasView.getPdfDocument());
-//                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
-//                    mCanvasView.invalidate();
-                }
-            });
+    public static boolean sIsLoadingPdfPages = false;
+    private static boolean sIsMarkerEnabled = false;
+    private static ArrayList<ImageButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
+
+    ActivityResultLauncher<String> mGetPdfDocument = ActivityResultLauncherProvider.getImportPdfActivityResultLauncher(this);
+
+// region Android Lifecycle
 
     /**
      * Store Data in Shared Prefs to enable persistence
@@ -113,39 +100,6 @@ public class CanvasFragment extends Fragment {
 
         ArrayList<PresetPenButton> pens = loadPresetPensFromSharedPreferences();
         addPresetPensToLayout(pens);
-    }
-
-    @NonNull
-    private ArrayList<PresetPenButton> loadPresetPensFromSharedPreferences() {
-        Log.d(TAG, "onStart: reloading canvas data saved in shared prefs");
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
-        /* restore old pens */
-        ArrayList<PresetPenButton> presetPenButtons = new ArrayList<>();
-        String pendata = sharedPreferences.getString(PEN_PRESETS_PREF_KEY, "");
-        try {
-            presetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
-                    pendata);
-        } catch (JSONException e) {
-            Log.e(TAG, "onStart: failed to extract Pens from json", e);
-            e.printStackTrace();
-        }
-
-        return presetPenButtons;
-    }
-
-    private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
-        // add pen to container
-        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
-        if(llayoutPenContainer.getChildCount() == 0) {
-            Log.d(TAG, "onStart: restoring old pens " + pens);
-            pens.forEach(presetPenButton -> {
-                setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
-                llayoutPenContainer.addView(presetPenButton, 0);
-                mImageButtonCanvasToolGroup.add((ImageButton) presetPenButton);
-            });
-        } else {
-            Log.d(TAG, "onStart: could not restore all pens. Pens available: " + llayoutPenContainer.getChildCount());
-        }
     }
 
     @Override
@@ -243,41 +197,41 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
             if (sCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
+                setToolSelection(sCanvasToolGroup, buttonEraser, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
-                markerEnabled = false;
-                setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
+                sIsMarkerEnabled = false;
+                setToolSelection(sCanvasToolGroup, buttonEraser, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonMarker.setOnClickListener(v -> {
-            if(!markerEnabled) {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, true);
+            if(!sIsMarkerEnabled) {
+                setToolSelection(sCanvasToolGroup, buttonMarker, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
                 int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(90, Color.red(color), Color.green(color), Color.blue(color));
                 sCanvasView.setStrokeColor(transparent);
             } else {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, false);
+                setToolSelection(sCanvasToolGroup, buttonMarker, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
                 int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
                 sCanvasView.setStrokeColor(transparent);
             }
-            markerEnabled = !markerEnabled;
+            sIsMarkerEnabled = !sIsMarkerEnabled;
         });
         buttonUndo.setOnClickListener(v -> sCanvasView.undo());
         buttonRedo.setOnClickListener(v -> sCanvasView.redo());
-        mImageButtonCanvasToolGroup.add(buttonEraser);
-        mImageButtonCanvasToolGroup.add(buttonMarker);
+        sCanvasToolGroup.add(buttonEraser);
+        sCanvasToolGroup.add(buttonMarker);
 
         /* create pen presets  */
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
         buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = createPresetPenButton(fragmentActivity, llayoutPenContainer);
-            mImageButtonCanvasToolGroup.add((ImageButton) buttonPresetPen);
+            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
+            sCanvasToolGroup.add((ImageButton) buttonPresetPen);
             llayoutPenContainer.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
@@ -302,62 +256,49 @@ public class CanvasFragment extends Fragment {
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
             sCanvasView.setStrokeColor(transparent);
-            markerEnabled = false;
+            sIsMarkerEnabled = false;
 
             if(sCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, true);
+                setToolSelection(sCanvasToolGroup, buttonDetectShapes, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
             } else {
-                setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, false);
+                setToolSelection(sCanvasToolGroup, buttonDetectShapes, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             }
         });
-        mImageButtonCanvasToolGroup.add(buttonDetectShapes);
+        sCanvasToolGroup.add(buttonDetectShapes);
     }
 
+// endregion
+
+// region Preset Pens
 
     /**
-     * Create a preset pen from the current canvas settings (color and width)
-     * @param fragmentActivity the activity to add the pen into
-     * @param llayoutPenContainer the layout to add the pen into
-     * @return a PresetPen
+     * loads the preset pens from a json string saved in the shared preferences
+     * @return
      */
     @NonNull
-    private PresetPenButton createPresetPenButton(FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
-        PresetPenButton buttonPresetPen = new PresetPenButton(
-                getContext(), fragmentActivity,
-                R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
-                R.array.pen_color_values);
-        setPresetPenButtonListeners(buttonPresetPen, llayoutPenContainer);
-        Log.d(TAG, "generatePresetPenButton: generated Preset Pen Button");
-        return buttonPresetPen;
+    private ArrayList<PresetPenButton> loadPresetPensFromSharedPreferences() {
+        Log.d(TAG, "onStart: reloading canvas data saved in shared prefs");
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
+        /* restore old pens */
+        ArrayList<PresetPenButton> presetPenButtons = new ArrayList<>();
+        String pendata = sharedPreferences.getString(PEN_PRESETS_PREF_KEY, "");
+        try {
+            presetPenButtons = PenPorter.presetPensFromJSON(getContext(), getActivity(),
+                    pendata);
+        } catch (JSONException e) {
+            Log.e(TAG, "onStart: failed to extract Pens from json", e);
+            e.printStackTrace();
+        }
+
+        return presetPenButtons;
     }
 
     /**
-     * Sets the onclick methods for the preset pens
-     * @param buttonPresetPen the individual preset pen
-     * @param llayoutPenContainer the container they are in
-     */
-    private void setPresetPenButtonListeners(PresetPenButton buttonPresetPen, LinearLayout llayoutPenContainer) {
-        buttonPresetPen.setOnClickListener(v1 -> {
-            buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
-            buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
-            sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
-            markerEnabled = false;
-            int color = sCanvasView.getStrokeColor();
-            int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
-            sCanvasView.setStrokeColor(transparent);
-            setOrToggleToolSelection(buttonPresetPen, false);
-        });
-        buttonPresetPen.setOnLongClickListener(view1 -> {
-            llayoutPenContainer.removeView(buttonPresetPen);
-//            mPresetPenButtons.remove(buttonPresetPen);
-            return true;
-        });
-    }
-
-    /**
-     * Saves the preset pens as a json string in the shared preferences
+     * puts the preset pens as a json string in the shared preferences
+     * afterwards editor.apply() has to be called
+     *
      * @param editor the shared preferences to put the pens into
      */
     private static void putPresetPensIntoSharedPreferences(Activity activity, SharedPreferences.Editor editor) {
@@ -375,7 +316,124 @@ public class CanvasFragment extends Fragment {
         editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
     }
 
-    private void setddMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickddMenuFunction onClickddMenuFunction) {
+    private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
+        // add pen to container
+        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
+        if(llayoutPenContainer.getChildCount() == 0) {
+            Log.d(TAG, "onStart: restoring old pens " + pens);
+            pens.forEach(presetPenButton -> {
+                setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
+                llayoutPenContainer.addView(presetPenButton, 0);
+                sCanvasToolGroup.add((ImageButton) presetPenButton);
+            });
+        } else {
+            Log.d(TAG, "onStart: could not restore all pens. Pens available: " + llayoutPenContainer.getChildCount());
+        }
+    }
+
+    /**
+     * Create a preset pen from the current canvas settings (color and width)
+     * @param fragmentActivity the activity to add the pen into
+     * @param llayoutPenContainer the layout to add the pen into
+     * @return a PresetPen
+     */
+    @NonNull
+    private static PresetPenButton createPresetPenButton(Context context, FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
+        PresetPenButton buttonPresetPen = new PresetPenButton(
+                context, fragmentActivity,
+                R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
+                R.array.pen_color_values);
+        setPresetPenButtonListeners(buttonPresetPen, llayoutPenContainer);
+        Log.d(TAG, "generatePresetPenButton: generated Preset Pen Button");
+        return buttonPresetPen;
+    }
+
+    /**
+     * Sets the onclick methods for the preset pens
+     * @param buttonPresetPen the individual preset pen
+     * @param llayoutPenContainer the container they are in
+     */
+    private static void setPresetPenButtonListeners(PresetPenButton buttonPresetPen, LinearLayout llayoutPenContainer) {
+        buttonPresetPen.setOnClickListener(v1 -> {
+            buttonPresetPen.mDDMenuColor.setSelection(buttonPresetPen.mDDMenuColorIndex, true);
+            buttonPresetPen.mDDMenWeight.setSelection(buttonPresetPen.mDDMenuWeightIndex, true);
+            sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+            sIsMarkerEnabled = false;
+            int color = sCanvasView.getStrokeColor();
+            int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
+            sCanvasView.setStrokeColor(transparent);
+            setOrToggleToolSelection(buttonPresetPen, false);
+        });
+        buttonPresetPen.setOnLongClickListener(view1 -> {
+            llayoutPenContainer.removeView(buttonPresetPen);
+//            mPresetPenButtons.remove(buttonPresetPen);
+            return true;
+        });
+    }
+
+// endregion
+
+// region Tool Selection
+
+    /**
+     * selects a button and deselects all others
+     * if toggle is true it can be turned on and of by clicking again
+     *
+     * @param activeButton
+     * @param toggleable
+     */
+    private static void setOrToggleToolSelection(ImageButton activeButton, boolean toggleable) {
+        boolean result = true;
+        for (ImageButton imageButton : sCanvasToolGroup) {
+            if (imageButton != activeButton) { // if non active button
+                // deselect all else
+                imageButton.setSelected(false);
+                imageButton.setBackgroundColor(Color.TRANSPARENT);
+                continue;
+            }
+            if (!toggleable) { // if not toggleable
+                // select
+                imageButton.setSelected(true);
+                imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
+                continue;
+            }
+            if (imageButton.isSelected()) { // if toggleable and selected
+                // deselect
+                result = false;
+                imageButton.setSelected(false);
+                imageButton.setBackgroundColor(Color.TRANSPARENT);
+                continue;
+            }
+            // if toggleable and not selected
+            // select
+            imageButton.setSelected(true);
+            imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
+        }
+    }
+
+    private void setToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
+        if (enabled) { // if selected
+            for (ImageButton imageButton : imageButtonGroup) {
+                if (imageButton != activeButton) { // if non active button
+                    // deselect all else
+                    imageButton.setSelected(false);
+                    imageButton.setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    // select
+                    Log.d(TAG, "setActiveState: select Button");
+                    imageButton.setSelected(true);
+                    imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
+                }
+            }
+        } else {
+            activeButton.setSelected(false);
+            activeButton.setBackgroundColor(Color.TRANSPARENT);
+        }
+    }
+
+//endregion
+
+    private void setddMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickDDMenuFunction onClickddMenuFunction) {
         ArrayAdapter<CharSequence> ddMenuAAdapter = new ArrayAdapter<CharSequence>(getActivity(), R.layout.spinner_dropdown_pen_field, getResources().getStringArray(ddMenuContentArrayId)) {
             @Override
             public boolean isEnabled(int position) {
@@ -419,66 +477,8 @@ public class CanvasFragment extends Fragment {
         ddMenu.setSelection(1, false);
     }
 
-    /**
-     * selects a button and deselects all others
-     * if toggle is true it can be turned on and of by clicking again
-     *
-     * @param activeButton
-     * @param toggleable
-     * @return state of the clicked button
-     */
-    private boolean setOrToggleToolSelection(ImageButton activeButton, boolean toggleable) {
-        boolean result = true;
-        for (ImageButton imageButton : mImageButtonCanvasToolGroup) {
-            if (imageButton != activeButton) { // if non active button
-                // deselect all else
-                imageButton.setSelected(false);
-                imageButton.setBackgroundColor(Color.TRANSPARENT);
-                continue;
-            }
-            if (!toggleable) { // if not toggleable
-                // select
-                imageButton.setSelected(true);
-                imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-                continue;
-            }
-            if (imageButton.isSelected()) { // if toggleable and selected
-                // deselect
-                result = false;
-                imageButton.setSelected(false);
-                imageButton.setBackgroundColor(Color.TRANSPARENT);
-                continue;
-            }
-            // if toggleable and not selected
-            // select
-            imageButton.setSelected(true);
-            imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-        }
-        return result;
-    }
-
-    private void setToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
-        if (enabled) { // if selected
-            for (ImageButton imageButton : imageButtonGroup) {
-                if (imageButton != activeButton) { // if non active button
-                    // deselect all else
-                    imageButton.setSelected(false);
-                    imageButton.setBackgroundColor(Color.TRANSPARENT);
-                } else {
-                    // select
-                    Log.d(TAG, "setActiveState: select Button");
-                    imageButton.setSelected(true);
-                    imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-                }
-            }
-        } else {
-            activeButton.setSelected(false);
-            activeButton.setBackgroundColor(Color.TRANSPARENT);
-        }
-    }
-
     @FunctionalInterface
-    private interface onClickddMenuFunction {
+    private interface onClickDDMenuFunction {
         void onClick(AdapterView<?> adapterView, View view, int i, long l);
     }
 }

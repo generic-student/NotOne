@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import app.notone.core.CanvasPdfDocument;
-import app.notone.fragments.CanvasFragment;
+import app.notone.ui.fragments.CanvasFragment;
 
 public class PdfImporter {
     public static final float FACTOR_72PPI_TO_320PPI = 4.4444444f;

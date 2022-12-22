@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import app.notone.MainActivity;
 import app.notone.core.CanvasView;
 import app.notone.core.util.RecentCanvas;
-import app.notone.fragments.CanvasFragment;
+import app.notone.ui.fragments.CanvasFragment;
 
 public class CanvasFileManager {
     private final static String TAG = "CanvasFilemanager";

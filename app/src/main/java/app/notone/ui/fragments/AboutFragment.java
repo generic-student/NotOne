@@ -1,4 +1,4 @@
-package app.notone.fragments;
+package app.notone.ui.fragments;
 
 import android.content.Intent;
 import android.net.Uri;

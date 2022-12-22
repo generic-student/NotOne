@@ -11,7 +11,7 @@ import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 import app.notone.core.util.InkRecognizer;
 import app.notone.core.util.StrokeToShapeConverter;
-import app.notone.fragments.CanvasFragment;
+import app.notone.ui.fragments.CanvasFragment;
 
 public class CanvasShapePen extends CanvasWriterPen{
     private static final String TAG = CanvasShapePen.class.getSimpleName();

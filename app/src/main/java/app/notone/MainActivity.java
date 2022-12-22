@@ -49,11 +49,12 @@ import app.notone.core.CanvasView;
 import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
-import app.notone.fragments.CanvasFragment;
+import app.notone.ui.fragments.CanvasFragment;
 import app.notone.io.CanvasFileManager;
 import app.notone.io.FileManager;
-import app.notone.views.NavigationDrawer;
-import app.notone.views.RecentCanvasExpandableListAdapter;
+import app.notone.ui.ActivityResultLauncherProvider;
+import app.notone.ui.NavigationDrawer;
+import app.notone.ui.RecentCanvasExpandableListAdapter;
 
 import static androidx.navigation.Navigation.findNavController;
 
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     public static String sCanvasName = "Unsaved Doc";
     public static RecentCanvases sRecentCanvases = new RecentCanvases(4);
     boolean mToolbarVisibility = true;
+
+//region Persistence
 
     /* Persistence */
     private static final String RECENT_CANVAE_LIST_PREF_KEY = "recentfiles";
@@ -103,7 +106,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//endregion
+
 //region Navigation Callbacks
+
     /**
      * Set up call back receivers that handle the ui for file handling
      */
@@ -223,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 //endregion
+
 //region ANDROID Lifecycle
 
     /**

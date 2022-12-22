@@ -1,4 +1,4 @@
-package app.notone.views;
+package app.notone.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -14,25 +14,34 @@ import androidx.fragment.app.FragmentActivity;
 import app.notone.R;
 
 public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageButton {
-    private final String TAG = "NotOnePresetPenButton";
+    private static final String TAG = "NotOnePresetPenButton";
 
-    public Spinner ddMenuColor;
-    public Spinner ddMenWeight;
-    public int mddMenuColorId;
-    public int mddMenuWeightId;
-    public int mcolorindexMapId;
-    public int mddMenuColorIndex;
-    public int mddMenuWeightIndex;
-    public float mddMenuWeightValue;
+    public Spinner mDDMenuColor;
+    public Spinner mDDMenWeight;
+    public int mDDMenuColorId;
+    public int mDDMenuWeightId;
+    public int mColor2IndexMapId;
+    public int mDDMenuColorIndex;
+    public int mDDMenuWeightIndex;
+    public float mDDMenuWeightValue;
 
+    /**
+     * xml inflation constructors
+     */
     public PresetPenButton(@NonNull Context context) {
         super(context);
     }
 
+    /**
+     * xml inflation constructors
+     */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
+    /**
+     * xml inflation constructors
+     */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
@@ -49,16 +58,17 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
                            int ddownmpencolorsid, int ddownmpenweightsid,
                            int colorindexmapid) {
         super(context);
-        this.mddMenuColorId = ddownmpencolorsid;
-        this.mddMenuWeightId = ddownmpenweightsid;
-        this.mcolorindexMapId = colorindexmapid;
 
-        this.ddMenuColor = fragmentActivity.findViewById(mddMenuColorId);
-        this.ddMenWeight = fragmentActivity.findViewById(mddMenuWeightId);
+        this.mDDMenuColorId = ddownmpencolorsid;
+        this.mDDMenuWeightId = ddownmpenweightsid;
+        this.mColor2IndexMapId = colorindexmapid;
 
-        this.mddMenuColorIndex = ddMenuColor.getSelectedItemPosition();
-        this.mddMenuWeightIndex = ddMenWeight.getSelectedItemPosition();
-        this.mddMenuWeightValue = Float.parseFloat(ddMenWeight.getSelectedItem().toString());
+        this.mDDMenuColor = fragmentActivity.findViewById(mDDMenuColorId);
+        this.mDDMenWeight = fragmentActivity.findViewById(mDDMenuWeightId);
+
+        this.mDDMenuColorIndex = mDDMenuColor.getSelectedItemPosition();
+        this.mDDMenuWeightIndex = mDDMenWeight.getSelectedItemPosition();
+        this.mDDMenuWeightValue = Float.parseFloat(mDDMenWeight.getSelectedItem().toString());
 
         setLayout(context);
     }
@@ -70,32 +80,36 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
      * @param ddownmpencolorsid
      * @param ddownmpenweightsid
      * @param colorindexmapid
-     * @param mddMenuColorIndex
+     * @param mDDMenuColorIndex
      * @param mmdownWeightindex
      * @param ddMenuWeightValue
      */
     public PresetPenButton(Context context, FragmentActivity fragmentActivity,
                            int ddownmpencolorsid, int ddownmpenweightsid,
-                           int colorindexmapid, int mddMenuColorIndex, int mmdownWeightindex, float ddMenuWeightValue){
+                           int colorindexmapid, int mDDMenuColorIndex, int mmdownWeightindex, float ddMenuWeightValue){
         super(context);
 
-        this.mddMenuColorId = ddownmpencolorsid;
-        this.mddMenuWeightId = ddownmpenweightsid;
-        this.mcolorindexMapId = colorindexmapid;
+        this.mDDMenuColorId = ddownmpencolorsid;
+        this.mDDMenuWeightId = ddownmpenweightsid;
+        this.mColor2IndexMapId = colorindexmapid;
 
-        this.ddMenuColor = fragmentActivity.findViewById(mddMenuColorId);
-        this.ddMenWeight = fragmentActivity.findViewById(mddMenuWeightId);
+        this.mDDMenuColor = fragmentActivity.findViewById(mDDMenuColorId);
+        this.mDDMenWeight = fragmentActivity.findViewById(mDDMenuWeightId);
 
-        this.mddMenuColorIndex = mddMenuColorIndex;
-        this.mddMenuWeightIndex = mmdownWeightindex;
-        this.mddMenuWeightValue = ddMenuWeightValue;
+        this.mDDMenuColorIndex = mDDMenuColorIndex;
+        this.mDDMenuWeightIndex = mmdownWeightindex;
+        this.mDDMenuWeightValue = ddMenuWeightValue;
 
         setLayout(context);
     }
 
+    /**
+     * inialize the layout of the button
+     * @param context
+     */
     public void setLayout(Context context) {
         /* position */
-        float scale = (float) ((2 - 2 * Math.exp(-mddMenuWeightValue / 8)));
+        float scale = (float) ((2 - 2 * Math.exp(-mDDMenuWeightValue / 8)));
         scale = scale < 0.5 ? 1 : scale;
         setScaleX(scale);
         setScaleY(scale);
@@ -105,8 +119,8 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
         setLayoutParams(params);
 
         /* color and res */
-        int[] colorIndexMap = getResources().getIntArray(mcolorindexMapId);
-        setColorFilter(colorIndexMap[mddMenuColorIndex]);
+        int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
+        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
         setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(
