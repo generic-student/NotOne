@@ -60,9 +60,7 @@ public class CanvasFragment extends Fragment {
 
 // region Android Lifecycle
 
-    /**
-     * Store Data in Shared Prefs to enable persistence
-     */
+
     @Override
     public void onStart() {
         super.onStart();
@@ -102,6 +100,9 @@ public class CanvasFragment extends Fragment {
         addPresetPensToLayout(pens);
     }
 
+    /**
+     * Store Data if canvas and pens in Shared Prefs to enable persistence
+     */
     @Override
     public void onPause() {
         //stop the periodic save handler if it is running as to not overwrite the canvasView while its empty
@@ -127,9 +128,9 @@ public class CanvasFragment extends Fragment {
                 Toast.makeText(getContext(), "Saving current canvas", Toast.LENGTH_LONG).show();
                 FileManager.save(getContext(), sCanvasView);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "onPause: Failed to save Canvas; missing permissions likely", e);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, "onPause: Failed to save Canvas as the JSON is corrupted ", e);
             }
         }
 
@@ -169,28 +170,27 @@ public class CanvasFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated");
-
         FragmentActivity fragmentActivity = getActivity();
         sCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
-
-        if(MainActivity.sRecentCanvases.size() > 0) {
-            sCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
-        }
-
         if(!PeriodicSaveHandler.isInitialized()) {
             PeriodicSaveHandler.init(getContext());
         }
         PeriodicSaveHandler.getInstance().start();
 
 
-//        MainActivity.mCanvasView = mCanvasView;
+        if(MainActivity.sRecentCanvases.size() > 0) {
+            sCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
+        }
+
 
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
-        setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> sCanvasView.setStrokeColor(penColorValues[i]));
-        setddMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> sCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        setDDMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> sCanvasView.setStrokeColor(penColorValues[i]));
+        setDDMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> sCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
-        /* Undo, Redo, activate Eraser Actions */
+
+
+        /* Setup Undo, Redo, activate Eraser Action Buttons */
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
         ImageButton buttonMarker = fragmentActivity.findViewById(R.id.button_marker);
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
@@ -226,7 +226,9 @@ public class CanvasFragment extends Fragment {
         sCanvasToolGroup.add(buttonEraser);
         sCanvasToolGroup.add(buttonMarker);
 
-        /* create pen presets  */
+
+
+        /* Setup Add Preset Pen Button */
         ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
         buttonAddPresetPen.setOnClickListener(v -> {
@@ -236,13 +238,17 @@ public class CanvasFragment extends Fragment {
             Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
         });
 
-        /* insert PDF button */
+
+
+        /* Setup insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
             mGetPdfDocument.launch("application/pdf");
         });
 
-        /* return to origin button */
+
+
+        /* Setup return to origin button */
         TextView tvTitle = ((TextView) fragmentActivity.findViewById(R.id.tv_fragment_title));
 //        ImageButton buttonOrigin = fragmentActivity.findViewById(R.id.button_return_to_origin);
         tvTitle.setOnClickListener(v -> {
@@ -251,6 +257,9 @@ public class CanvasFragment extends Fragment {
             sCanvasView.invalidate();
         });
 
+
+
+        /* Setup Shape Detection Button */
         ImageButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
         buttonDetectShapes.setOnClickListener(v -> {
             int color = sCanvasView.getStrokeColor();
@@ -316,6 +325,10 @@ public class CanvasFragment extends Fragment {
         editor.putString(PEN_PRESETS_PREF_KEY, presetPenJson);
     }
 
+    /**
+     * add a list of preset pens to the layout
+     * @param pens list of the preset pens
+     */
     private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
         // add pen to container
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
@@ -332,7 +345,7 @@ public class CanvasFragment extends Fragment {
     }
 
     /**
-     * Create a preset pen from the current canvas settings (color and width)
+     * Create a preset pen from the current canvas settings (color and weight)
      * @param fragmentActivity the activity to add the pen into
      * @param llayoutPenContainer the layout to add the pen into
      * @return a PresetPen
@@ -362,7 +375,7 @@ public class CanvasFragment extends Fragment {
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
             sCanvasView.setStrokeColor(transparent);
-            setOrToggleToolSelection(buttonPresetPen, false);
+            setOrToggleToolSelection(sCanvasToolGroup, buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {
             llayoutPenContainer.removeView(buttonPresetPen);
@@ -382,9 +395,9 @@ public class CanvasFragment extends Fragment {
      * @param activeButton
      * @param toggleable
      */
-    private static void setOrToggleToolSelection(ImageButton activeButton, boolean toggleable) {
+    private static void setOrToggleToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean toggleable) {
         boolean result = true;
-        for (ImageButton imageButton : sCanvasToolGroup) {
+        for (ImageButton imageButton : imageButtonGroup) {
             if (imageButton != activeButton) { // if non active button
                 // deselect all else
                 imageButton.setSelected(false);
@@ -411,6 +424,12 @@ public class CanvasFragment extends Fragment {
         }
     }
 
+    /**
+     * Lorem Ipsum
+     * @param imageButtonGroup
+     * @param activeButton
+     * @param enabled
+     */
     private void setToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
         if (enabled) { // if selected
             for (ImageButton imageButton : imageButtonGroup) {
@@ -433,16 +452,18 @@ public class CanvasFragment extends Fragment {
 
 //endregion
 
-    private void setddMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickDDMenuFunction onClickddMenuFunction) {
+    /**
+     * set up the drop down menu with the data
+     * @param ddMenuId id of the dd menu
+     * @param ddMenuContentArrayId id of its contents
+     * @param onClickddMenuFunction callback function
+     */
+    private void setDDMenuContent(int ddMenuId, int ddMenuContentArrayId, onClickDDMenuFunction onClickddMenuFunction) {
         ArrayAdapter<CharSequence> ddMenuAAdapter = new ArrayAdapter<CharSequence>(getActivity(), R.layout.spinner_dropdown_pen_field, getResources().getStringArray(ddMenuContentArrayId)) {
             @Override
             public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    return false;
-                } else {
-                    return true;
-                }
+                // Disable the first item from Spinner
+                return position != 0;
             }
 
             @Override
