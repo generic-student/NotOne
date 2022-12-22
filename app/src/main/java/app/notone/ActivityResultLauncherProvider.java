@@ -39,14 +39,14 @@ class ActivityResultLauncherProvider {
                         return;
                     }
                     Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
-                    CanvasFragment.mCanvasView.reset();
-                    CanvasFragment.mCanvasView.setUri(uri);
-                    MainActivity.sCanvasView = CanvasFragment.mCanvasView;
+                    CanvasFragment.sCanvasView.reset();
+                    CanvasFragment.sCanvasView.setUri(uri);
+                    MainActivity.sCanvasView = CanvasFragment.sCanvasView;
 
                     FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
 
                     MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-                    mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+                    mainActivity.setToolbarTitle(MainActivity.sCanvasName);
                     MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
                     mainActivity.updateRecentCanvasesExpListView();
 
@@ -75,7 +75,7 @@ class ActivityResultLauncherProvider {
             }
 
             MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-            mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+            mainActivity.setToolbarTitle(MainActivity.sCanvasName);
             MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
             mainActivity.updateRecentCanvasesExpListView();
 

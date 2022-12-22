@@ -51,11 +51,11 @@ public class CanvasFragment extends Fragment {
     public static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 
-    public static CanvasView mCanvasView; // TODO maybe static is bad
+    public static CanvasView sCanvasView; // TODO maybe static is bad
     private View mCanvasFragmentView;
     private ArrayList<ImageButton> mImageButtonCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
     private boolean markerEnabled = false;
-    public static boolean isLoadingPdfPages = false;
+    public static boolean sIsLoadingPdfPages = false;
 
     ActivityResultLauncher<String> mGetPdfDocument = registerForActivityResult(new ActivityResultContracts.GetContent(),
             new ActivityResultCallback<Uri>() {
@@ -64,10 +64,10 @@ public class CanvasFragment extends Fragment {
                     if(uri == null){
                         return;
                     }
-                    mCanvasView.resetViewMatrices();
-                    mCanvasView.setScale(1f);
-                    isLoadingPdfPages = true;
-                    PdfImporter.fromUri(getContext(), uri, mCanvasView.getPdfDocument());
+                    sCanvasView.resetViewMatrices();
+                    sCanvasView.setScale(1f);
+                    sIsLoadingPdfPages = true;
+                    PdfImporter.fromUri(getContext(), uri, sCanvasView.getPdfDocument());
 //                    mCanvasView.setPdfDocument(PdfImporter.fromUri(getContext(), uri, PdfImporter.FACTOR_72PPI_TO_320PPI / 2.f));
 //                    mCanvasView.invalidate();
                 }
@@ -83,7 +83,7 @@ public class CanvasFragment extends Fragment {
         //if a previous canvas was open get its uri
         if(MainActivity.sRecentCanvases.size() > 0) {
             RecentCanvas recentCanvas = MainActivity.sRecentCanvases.get(0);
-            mCanvasView.setUri(recentCanvas.mUri);
+            sCanvasView.setUri(recentCanvas.mUri);
 
             if (recentCanvas.mName == null || recentCanvas.mName.equals("")) {
                 Log.e(TAG, "Cannot set the canvas title. Title is empty");
@@ -95,8 +95,8 @@ public class CanvasFragment extends Fragment {
 
         //try to load the canvas from file
         try {
-            if(!isLoadingPdfPages) {
-                FileManager.load(getContext(), mCanvasView);
+            if(!sIsLoadingPdfPages) {
+                FileManager.load(getContext(), sCanvasView);
             }
             else {
                 Log.d(LOG_TAG, "Not loading canvas because pdf is still loading");
@@ -108,7 +108,7 @@ public class CanvasFragment extends Fragment {
 
             //TODO: create a new canvas in the temp folder
             //IMPORTANT
-            mCanvasView.setUri(null);
+            sCanvasView.setUri(null);
         }
 
         ArrayList<PresetPenButton> pens = loadPresetPensFromSharedPreferences();
@@ -167,11 +167,11 @@ public class CanvasFragment extends Fragment {
 
 
         //save the canvas if it is not already saved
-        if(!mCanvasView.isSaved()) {
+        if(!sCanvasView.isSaved()) {
             /* export canvas */
             try {
                 Toast.makeText(getContext(), "Saving current canvas", Toast.LENGTH_LONG).show();
-                FileManager.save(getContext(), mCanvasView);
+                FileManager.save(getContext(), sCanvasView);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -217,10 +217,10 @@ public class CanvasFragment extends Fragment {
         Log.d(TAG, "onViewCreated");
 
         FragmentActivity fragmentActivity = getActivity();
-        mCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
+        sCanvasView = mCanvasFragmentView.findViewById(R.id.canvasView);
 
         if(MainActivity.sRecentCanvases.size() > 0) {
-            mCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
+            sCanvasView.setUri(MainActivity.sRecentCanvases.get(0).mUri);
         }
 
         if(!PeriodicSaveHandler.isInitialized()) {
@@ -233,8 +233,8 @@ public class CanvasFragment extends Fragment {
 
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
-        setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> mCanvasView.setStrokeColor(penColorValues[i]));
-        setddMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> mCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        setddMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> sCanvasView.setStrokeColor(penColorValues[i]));
+        setddMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> sCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
         /* Undo, Redo, activate Eraser Actions */
         ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
@@ -242,33 +242,33 @@ public class CanvasFragment extends Fragment {
         ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
         ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
-            if (mCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
+            if (sCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, false);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
                 markerEnabled = false;
                 setToolSelection(mImageButtonCanvasToolGroup, buttonEraser, true);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonMarker.setOnClickListener(v -> {
             if(!markerEnabled) {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, true);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
-                int color = mCanvasView.getStrokeColor();
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(90, Color.red(color), Color.green(color), Color.blue(color));
-                mCanvasView.setStrokeColor(transparent);
+                sCanvasView.setStrokeColor(transparent);
             } else {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonMarker, false);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
-                int color = mCanvasView.getStrokeColor();
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
-                mCanvasView.setStrokeColor(transparent);
+                sCanvasView.setStrokeColor(transparent);
             }
             markerEnabled = !markerEnabled;
         });
-        buttonUndo.setOnClickListener(v -> mCanvasView.undo());
-        buttonRedo.setOnClickListener(v -> mCanvasView.redo());
+        buttonUndo.setOnClickListener(v -> sCanvasView.undo());
+        buttonRedo.setOnClickListener(v -> sCanvasView.redo());
         mImageButtonCanvasToolGroup.add(buttonEraser);
         mImageButtonCanvasToolGroup.add(buttonMarker);
 
@@ -292,24 +292,24 @@ public class CanvasFragment extends Fragment {
         TextView tvTitle = ((TextView) fragmentActivity.findViewById(R.id.tv_fragment_title));
 //        ImageButton buttonOrigin = fragmentActivity.findViewById(R.id.button_return_to_origin);
         tvTitle.setOnClickListener(v -> {
-            mCanvasView.resetViewMatrices();
-            mCanvasView.setScale(1);
-            mCanvasView.invalidate();
+            sCanvasView.resetViewMatrices();
+            sCanvasView.setScale(1);
+            sCanvasView.invalidate();
         });
 
         ImageButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
         buttonDetectShapes.setOnClickListener(v -> {
-            int color = mCanvasView.getStrokeColor();
+            int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
-            mCanvasView.setStrokeColor(transparent);
+            sCanvasView.setStrokeColor(transparent);
             markerEnabled = false;
 
-            if(mCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
+            if(sCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, true);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
             } else {
                 setToolSelection(mImageButtonCanvasToolGroup, buttonDetectShapes, false);
-                mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+                sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             }
         });
         mImageButtonCanvasToolGroup.add(buttonDetectShapes);
@@ -342,11 +342,11 @@ public class CanvasFragment extends Fragment {
         buttonPresetPen.setOnClickListener(v1 -> {
             buttonPresetPen.ddMenuColor.setSelection(buttonPresetPen.mddMenuColorIndex, true);
             buttonPresetPen.ddMenWeight.setSelection(buttonPresetPen.mddMenuWeightIndex, true);
-            mCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
+            sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             markerEnabled = false;
-            int color = mCanvasView.getStrokeColor();
+            int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
-            mCanvasView.setStrokeColor(transparent);
+            sCanvasView.setStrokeColor(transparent);
             setOrToggleToolSelection(buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {

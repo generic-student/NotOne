@@ -50,7 +50,7 @@ public class CanvasFileManager {
     }
 
     public static void safeOpenCanvasFile(MainActivity mainActivity, Uri uri) {
-        MainActivity.sCanvasView = CanvasFragment.mCanvasView;
+        MainActivity.sCanvasView = CanvasFragment.sCanvasView;
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
         String canvasData = CanvasFileManager.open(mainActivity, uri);
@@ -71,7 +71,7 @@ public class CanvasFileManager {
 
         FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
         MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-        mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+        mainActivity.setToolbarTitle(MainActivity.sCanvasName);
         MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
         mainActivity.updateRecentCanvasesExpListView();
 
@@ -120,7 +120,7 @@ public class CanvasFileManager {
         CanvasFileManager.save(mainActivity, uri, canvasData);
 
         MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-        mainActivity.setCanvasTitle(MainActivity.sCanvasName);
+        mainActivity.setToolbarTitle(MainActivity.sCanvasName);
 
         Toast.makeText(mainActivity, "saved file", Toast.LENGTH_SHORT).show();
     }

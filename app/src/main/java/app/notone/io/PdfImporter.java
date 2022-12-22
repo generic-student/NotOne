@@ -63,12 +63,12 @@ public class PdfImporter {
 
         protected void onProgressUpdate(Integer... progress) {
             System.out.println("PdfImporter " + progress[0] + " % done.");
-            CanvasFragment.mCanvasView.invalidate();
+            CanvasFragment.sCanvasView.invalidate();
         }
 
         protected void onPostExecute(Void result) {
-            CanvasFragment.mCanvasView.invalidate();
-            CanvasFragment.isLoadingPdfPages = true;
+            CanvasFragment.sCanvasView.invalidate();
+            CanvasFragment.sIsLoadingPdfPages = true;
         }
 
     }

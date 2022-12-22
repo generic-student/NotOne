@@ -4,13 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-
 import app.notone.core.util.SettingsHolder;
 import app.notone.fragments.CanvasFragment;
-import app.notone.io.FileManager;
 
 //sigleton instance
 public class PeriodicSaveHandler {
@@ -45,9 +40,9 @@ public class PeriodicSaveHandler {
     private void initRunnable() {
         mPeriodicSaveRunner = () -> {
             try {
-                if(CanvasFragment.mCanvasView.isLoaded()) {
+                if(CanvasFragment.sCanvasView.isLoaded()) {
                     //FileManager.save(mContext, CanvasFragment.mCanvasView);
-                    Log.d(TAG, "Saved canvas to " + CanvasFragment.mCanvasView.getCurrentURI() + ".");
+                    Log.d(TAG, "Saved canvas to " + CanvasFragment.sCanvasView.getCurrentURI() + ".");
                 } else {
                     Log.d(TAG, "Canvas is not fully loaded yet.");
                 }

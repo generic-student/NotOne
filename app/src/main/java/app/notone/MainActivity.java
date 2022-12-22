@@ -30,11 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -65,9 +61,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "NotOneMainActivity";
 
     /* Programmatic Layout Variables */
-    private AppBarConfiguration mAppBarConfiguration;
-    private NavigationView mNavDrawerContainerNV;
-    private NavigationDrawer mMainActivityDrawer;
+    private NavigationView mNavDrawerView;
+    private NavigationDrawer mMainDrawerActivity;
     private ExpandableListView mSimExpListView;
     private SimpleExpandableListAdapter mAdapter;
 
@@ -79,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     /* Persistence */
     private static final String RECENT_CANVAE_LIST_PREF_KEY = "recentfiles";
 
+    /**
+     * Store the recent canvases in shared prefs as json
+     */
     private static void saveRecentCanvases2SharedPreferences(Context context) {
         if (MainActivity.sRecentCanvases.size() != 0) {
             SharedPreferences sharedPreferences = context.getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
@@ -91,7 +89,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * load the recent canvases from the shared prefs
+     */
+    private static void loadRecentCanvasesFromSharedPreferences(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
+        String recentCanvasList = sharedPreferences.getString(RECENT_CANVAE_LIST_PREF_KEY, "");
+        Log.d(TAG, "onResume: recentCanvasList: " + recentCanvasList + "replace old map: " + sRecentCanvases);
+        try {
+            sRecentCanvases = RecentCanvases.fromJson(new JSONObject(recentCanvasList), 4);
+        } catch (ArrayIndexOutOfBoundsException | JSONException a) {
+            Log.e(TAG, "onCreate: couldnt load recent files");
+        }
+    }
+
 //region Navigation Callbacks
+    /**
+     * Set up call back receivers that handle the ui for file handling
+     */
     /* Callback Functions */
     private final ActivityResultLauncher<String> mSavePdfDocument = ActivityResultLauncherProvider.getExportPdfActivityResultLauncher(this);
     private final ActivityResultLauncher<String> mNewCanvasFile = ActivityResultLauncherProvider.getNewCanvasFileActivityResultLauncher(this);
@@ -123,43 +138,54 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.canvas_fragment:
-                mMainActivityDrawer.openDrawer(GravityCompat.START);
+                mMainDrawerActivity.openDrawer(GravityCompat.START);
         }
         return navGraphController.navigateUp() || super.onSupportNavigateUp();
     }
 
+    /**
+     * receive the result of a permission request and show the user the result
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 200) {
             if (grantResults.length > 0) {
+                boolean writeStoragePermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean readStoragePermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
-                // after requesting permissions we are showing
-                // users a toast message of permission granted.
-                boolean writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-
-                if (writeStorage && readStorage) {
-                    Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
+                if (writeStoragePermission && readStoragePermission) {
+                    Toast.makeText(this, "Permissions Granted.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission(s) Denied.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
         }
     }
+
 //endregion
 
 //region User Interface Setters
-    public void setCanvasTitle(String title) {
+
+    /**
+     * Set the Title in the Toolbar
+     * shows the filename
+     *
+     * @param title usually the filename
+     */
+    public void setToolbarTitle(String title) {
         if (title == null || title.equals("")) {
-            Log.e(TAG, "setCanvasTitle: uri is probably empty, save first");
+            Log.e(TAG, "setToolbarTitle: uri is probably empty, save first");
             return;
         }
         TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
         tvTitle.setText(title);
     }
 
+    /**
+     * Update the Files shown in the recent Canvases List view
+     */
     public void updateRecentCanvasesExpListView() {
         String[][] recentCanvasList = sRecentCanvases.getFileList();
         Log.d(TAG, "updateExpListRecentFiles: " + Arrays.deepToString(recentCanvasList));
@@ -175,12 +201,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * for the FAB that hides the toolbar
-     *
-     * @param appBar
-     * @param fabToolbarVisibility
+     * Toggle the visbility of the toolbar
+     * used by the FAB
      */
-    private void toggleToolbarVisibility(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
+    private void toggleToolbarVisibilityResponsively(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
         if (mToolbarVisibility) {
             mToolbarVisibility = false;
             int offset = 39; // add a offset to the toolbar height, as its partly hidden behind the android statusbar
@@ -197,9 +221,14 @@ public class MainActivity extends AppCompatActivity {
             fabToolbarVisibility.animate().rotation(0);
         }
     }
-//endregion
 
+//endregion
 //region ANDROID Lifecycle
+
+    /**
+     * update Settings in the SettingsHolder
+     * Store Recent Canvases List to SharedPreferences
+     */
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: ");
@@ -208,77 +237,91 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    /**
+     * update Settings in the SettingsHolder
+     * Reload Recent Canvases List from SharedPreferences
+     */
     @Override
     protected void onStart() {
         SettingsHolder.update(PreferenceManager.getDefaultSharedPreferences(this));
 
         /* reload recent files */
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
-        String recentCanvasList = sharedPreferences.getString(RECENT_CANVAE_LIST_PREF_KEY, "");
-        Log.d(TAG, "onResume: recentCanvasList: " + recentCanvasList + "replace old map: " + sRecentCanvases);
-        try {
-            sRecentCanvases = RecentCanvases.fromJson(new JSONObject(recentCanvasList), 4);
-        } catch (ArrayIndexOutOfBoundsException | JSONException a) {
-            Log.e(TAG, "onCreate: couldnt load recent files");
-        }
+        loadRecentCanvasesFromSharedPreferences(getApplicationContext());
         updateRecentCanvasesExpListView();
         super.onStart();
     }
 
     /**
+     * Contains the Ui logic of the basic app framework
+     * each fragment has additonal ui code
+     *
      * Main onCreate of the App
-     * Set the Main Activity View
-     * Burger Menu and Title State
-     * Fragment Navigation
-     * Toolbar state
+     * init filestorage
+     * set theme preference on first start
+     * configure appbar
+     * handle drawer menu clicks
+     * drawer quick settings state
+     * recent canvases list
+     * fabbutton to hide toolbar
+     * toolbar padding
      *
      * @param savedInstanceState
      */
     @SuppressLint({"NonConstantResourceId", "UseSwitchCompatOrMaterialCode"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate Main");
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
-
         setContentView(R.layout.activity_main);
 
+
+        /* Init File Storage */
         FileManager.requestFileAccessPermission(this);
+        FirebaseStorage.getInstance().useEmulator("192.168.178.49", 9199); // debug database
 
-        FirebaseStorage.getInstance().useEmulator("192.168.178.49", 9199);
 
-        /* set theme Preference on first start if it has never been set before */
+
+        /* Set theme Preference on first start if it has never been set before */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
 
-        boolean darkMode = (Configuration.UI_MODE_NIGHT_YES == (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK));
-        if (!sharedPreferences.contains("darkmode"))
-            spEditor.putBoolean("darkmode", darkMode).apply();
+        boolean darkModeActive = (Configuration.UI_MODE_NIGHT_YES == (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)); // get system darkmode config
+        if (!sharedPreferences.contains("darkmode")) {
+            spEditor.putBoolean("darkmode", darkModeActive).apply();
+        }
         SettingsHolder.update(sharedPreferences);
 
-        darkMode = SettingsHolder.isDarkMode();
-        AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        darkModeActive = SettingsHolder.isDarkMode();
+        AppCompatDelegate.setDefaultNightMode(darkModeActive ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
-        /* init layouts and navigation stuff */
-        mMainActivityDrawer = findViewById(R.id.drawer_activity_main); // main base layout
+
+
+        /* Init layouts and navigation vars */
+        mMainDrawerActivity = findViewById(R.id.drawer_activity_main); // main base layout
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_main_host_fragment); // container of the fragments
-        Toolbar toolbar = findViewById(R.id.toolbar); // toolbar
-        AppBarLayout appBar = findViewById(R.id.AppBar); // toolbar container
-        mNavDrawerContainerNV = findViewById(R.id.navdrawercontainer_view); // drawer menu container
         NavController navGraphController = navHostFragment.getNavController(); // nav_graph of the app
+        mNavDrawerView = findViewById(R.id.navdrawercontainer_view); // drawer menu container
+        AppBarLayout toolbarContainer = findViewById(R.id.AppBar); // toolbar container
+        Toolbar toolbar = findViewById(R.id.toolbar); // toolbar
 
-        /* configure AppBar with burger and title */
+
+
+        /* Configure AppBar with burger button and title */
         setSupportActionBar(toolbar);
-        mAppBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
-                .setOpenableLayout(mMainActivityDrawer) // setDrawerLayout // define burger button for toplevel
+        // getGraph => topLevelDestinations
+        // setDrawerLayout // define burger button for toplevel
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
+                .setOpenableLayout(mMainDrawerActivity) // setDrawerLayout // define burger button for toplevel
                 .build();
+        NavigationUI.setupActionBarWithNavController(this, navGraphController, appBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
+        NavigationUI.setupWithNavController(mNavDrawerView, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
-        NavigationUI.setupActionBarWithNavController(this, navGraphController, mAppBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
-        NavigationUI.setupWithNavController(mNavDrawerContainerNV, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
 
-        /* catch menu clicks for setting actions, forward clicks to the navController for destination change */
-        mNavDrawerContainerNV.setNavigationItemSelectedListener(menuItem -> {
-            sCanvasView = CanvasFragment.mCanvasView;
+
+        /* Handle menu clicks for setting actions, forward clicks to the navController for destination change */
+        mNavDrawerView.setNavigationItemSelectedListener(menuItem -> {
+            sCanvasView = CanvasFragment.sCanvasView;
 
             /* handle action button clicks */
             if (sCanvasView == null) {
@@ -317,35 +360,40 @@ public class MainActivity extends AppCompatActivity {
             /* forward click to the navigation controller if a navigation item is clicked*/
             if (navGraphController.getGraph().findNode(menuItem.getItemId()) != null) {
                 navGraphController.navigate(menuItem.getItemId()); // onOptionsItemSelected
-                mMainActivityDrawer.closeDrawers();
+                mMainDrawerActivity.closeDrawers();
             }
             return true;
         });
-        /* set state of the drawer quick settings */
-        Switch swAutoSave = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
-//        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+
+
+
+        /* Set state of the drawer quick settings */
+        Switch swAutoSave = mNavDrawerView.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(SettingsHolder.isAutoSaveCanvas());
-//        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
         swAutoSave.setOnCheckedChangeListener((compoundButton, autoSave) -> {
             spEditor.putBoolean("autosave", autoSave).apply();
             SettingsHolder.update(sharedPreferences);
 
-            if(!PeriodicSaveHandler.isInitialized()) {
+            if (!PeriodicSaveHandler.isInitialized()) {
                 PeriodicSaveHandler.init(this);
             }
 
-           if(autoSave) {
-               PeriodicSaveHandler.getInstance().start();
-           } else {
-               PeriodicSaveHandler.getInstance().stop();
-           }
+            if (autoSave) {
+                PeriodicSaveHandler.getInstance().start();
+            } else {
+                PeriodicSaveHandler.getInstance().stop();
+            }
         });
+//        Not MVP
+//        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
+//        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
 
-        /* populate recents list */
-        mSimExpListView = mNavDrawerContainerNV.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
-        // string arrays for group and child items
-        String[][] initialRecentFileNames = new String[][]{{"Default Value"}};
+
+
+        /* Setup recent Canvases list */
+        mSimExpListView = mNavDrawerView.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
+        String[][] initialRecentFileNames = new String[][]{{"Default Value"}}; // string arrays for child entries
         mAdapter = RecentCanvasExpandableListAdapter.getRecentCanvasExpListAdapter(this, initialRecentFileNames);
         mSimExpListView.setAdapter(mAdapter);
 
@@ -369,15 +417,20 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+
+
         /* FAButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
         fabToolbarVisibility.setOnClickListener(view -> {
-            toggleToolbarVisibility(appBar, fabToolbarVisibility);
+            toggleToolbarVisibilityResponsively(toolbarContainer, fabToolbarVisibility);
         });
 
-        /* set toolbar padding depending on splitscreen */
+
+
+        /* Set toolbar padding depending on splitscreen state */
+        // in multiwindow mode the screen has a clear border and cant be behind system ui
         if (isInMultiWindowMode()) {
-            appBar.setPadding(0, 0, 0, 0);
+            toolbarContainer.setPadding(0, 0, 0, 0);
 
             float density = getApplicationContext().getResources().getDisplayMetrics().density;
             CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
@@ -385,6 +438,9 @@ public class MainActivity extends AppCompatActivity {
             lp.setMargins(0, (int) (78 * density), (int) (16 * density), 0);
             fabToolbarVisibility.setLayoutParams(lp);
         }
+
+
+
         /* set Title and Toolbar functions depending on Fragment */
         navGraphController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             TextView tvTitle = ((TextView) findViewById(R.id.tv_fragment_title));
@@ -410,9 +466,8 @@ public class MainActivity extends AppCompatActivity {
                     throw new IllegalStateException("Destination changed to unexpected value: " + destination.getId());
             }
             mToolbarVisibility = false; // to toggle to right state
-            toggleToolbarVisibility(appBar, fabToolbarVisibility);
+            toggleToolbarVisibilityResponsively(toolbarContainer, fabToolbarVisibility);
         });
     }
 //endregion
-
 }

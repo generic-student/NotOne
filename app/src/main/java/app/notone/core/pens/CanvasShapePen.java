@@ -110,6 +110,6 @@ public class CanvasShapePen extends CanvasWriterPen{
             default:
                 break;
         }
-        CanvasFragment.mCanvasView.invalidate();
+        CanvasFragment.sCanvasView.invalidate();
     }
 }
