@@ -1,9 +1,12 @@
 package app.notone.ui;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -108,24 +111,28 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
      * @param context
      */
     public void setLayout(Context context) {
-        /* position */
-        float scale = (float) ((2 - 2 * Math.exp(-mDDMenuWeightValue / 8)));
+        /* positioning */
+        float scale = (float) ((2 - 2 * Math.exp(-mDDMenuWeightValue / 8))); // 0 to 2
         scale = scale < 0.5 ? 1 : scale;
-        setScaleX(scale);
-        setScaleY(scale);
-        // setPadding(0,0,0,0); // TODO improve padding to make it consistent between all pens
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)(100/scale), LinearLayout.LayoutParams.MATCH_PARENT);
+        int sizeXY = (int) (70 * scale);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeXY, sizeXY);
         params.gravity = Gravity.CENTER;
+
+        setScaleType(ScaleType.FIT_CENTER);
         setLayoutParams(params);
 
         /* color and res */
         int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
-        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
-        setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));
-        TypedValue outValue = new TypedValue();
+
+        TypedValue selectableItemBackgroundResourceHolder = new TypedValue();
         context.getTheme().resolveAttribute(
-                android.R.attr.selectableItemBackground, outValue, true);
-        setForeground(ContextCompat.getDrawable(context, outValue.resourceId));
-        setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_pen));
+                android.R.attr.selectableItemBackground, selectableItemBackgroundResourceHolder, true);
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
+//        icon.set
+
+        setForeground(ContextCompat.getDrawable(context, selectableItemBackgroundResourceHolder.resourceId));
+        setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));
+        setImageDrawable(icon);
+        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
     }
 }
