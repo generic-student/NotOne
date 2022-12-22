@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+@author default-student
+-->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,7 +17,7 @@
         android:id="@+id/settings_fragment"
         android:name="app.notone.ui.fragments.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/root_preferences"/>
+        tools:layout="@xml/fragment_root_preferences"/>
 <!--res/xml/root_preferences.xml-->
     <fragment
         android:id="@+id/about_fragment"

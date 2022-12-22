@@ -11,6 +11,11 @@ import android.widget.Button;
 import androidx.fragment.app.Fragment;
 import app.notone.R;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
 public class AboutFragment extends Fragment {
 
     @Override

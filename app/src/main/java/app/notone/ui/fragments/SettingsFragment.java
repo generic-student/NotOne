@@ -13,6 +13,11 @@ import androidx.preference.PreferenceManager;
 import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     private static final String TAG = "SettingsFragment";

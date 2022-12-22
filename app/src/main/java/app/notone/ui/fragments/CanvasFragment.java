@@ -42,6 +42,10 @@ import app.notone.ui.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
 public class CanvasFragment extends Fragment {
 
     public static final String TAG = "NotOneCanvasFragment";

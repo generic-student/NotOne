@@ -17,6 +17,11 @@ import app.notone.io.PdfExporter;
 import app.notone.io.PdfImporter;
 import app.notone.ui.fragments.CanvasFragment;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
 public class ActivityResultLauncherProvider {
 
     @NonNull

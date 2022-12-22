@@ -1,3 +1,6 @@
+<!--
+@author default-student
+-->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.NotOne" parent="Theme.MaterialComponents.DayNight.DarkActionBar">

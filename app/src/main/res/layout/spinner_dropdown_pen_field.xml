@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+@author default-student
+-->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
     style="@style/spinnerItemStyle"
     android:maxLines="1"
-    android:text="AAAAAAAAAA"
+    android:text="DDItemText"
     android:textStyle="bold"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

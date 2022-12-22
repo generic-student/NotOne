@@ -9,6 +9,11 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import app.notone.R;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
 class ToolbarFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.

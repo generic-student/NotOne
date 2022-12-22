@@ -58,6 +58,11 @@ import app.notone.ui.RecentCanvasExpandableListAdapter;
 
 import static androidx.navigation.Navigation.findNavController;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "NotOneMainActivity";
 

@@ -23,6 +23,13 @@ import app.notone.core.CanvasView;
 import app.notone.core.util.RecentCanvas;
 import app.notone.ui.fragments.CanvasFragment;
 
+/**
+ * @deprecated replaced by Filemanager
+ * @author default-student
+ * @since 202212XX
+ */
+
+@Deprecated
 public class CanvasFileManager {
     private final static String TAG = "CanvasFilemanager";
 

@@ -12,9 +12,11 @@ import androidx.fragment.app.FragmentActivity;
 import app.notone.ui.PresetPenButton;
 
 /**
- * Export Preset Pen Data to Json
- * @author Hackel
+ * Export preset pen data to json
+ * @author default-student
+ * @since 202212XX
  */
+
 public class PenPorter {
 
     private final static String TAG = "NotOnePenPorter";

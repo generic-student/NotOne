@@ -10,6 +10,12 @@ import java.util.Map;
 
 import app.notone.R;
 
+/**
+ * @author default-student
+ * @since 202212XX
+ */
+
+
 public class RecentCanvasExpandableListAdapter {
     private final static String TAG = "BaseExpandableListAdapter";
 
