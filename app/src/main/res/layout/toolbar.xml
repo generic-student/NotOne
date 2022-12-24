@@ -32,6 +32,8 @@
                 android:paddingVertical="20dp"
                 android:text="Document Name"
                 android:maxLength="13"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textColor="@color/white"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"

@@ -48,9 +48,9 @@ public class RecentCanvasExpandableListAdapter {
 
         // Set up and return adapter
         return new SimpleExpandableListAdapter(context, groupData,
-                R.layout.list_group,
+                R.layout.exp_list_group,
                 groupFrom, groupTo,
-                listItemData, R.layout.list_item,
+                listItemData, R.layout.exp_list_item,
                 childFrom, childTo);
     }
 }
