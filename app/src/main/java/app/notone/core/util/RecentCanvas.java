@@ -2,9 +2,14 @@ package app.notone.core.util;
 
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Describes a Canvas by name, save location and filesize
+ */
 public class RecentCanvas {
     public String mName;
     public Uri mUri;
@@ -16,7 +21,12 @@ public class RecentCanvas {
         this.mFileSize = mFileSize;
     }
 
-    public static RecentCanvas fromJson(JSONObject json) {
+    /**
+     * Builds an Instance from JSON
+     * @param json
+     * @return Instance of RecentCanvas
+     */
+    public static RecentCanvas fromJson(@NonNull JSONObject json) {
         try {
             String name = json.getString("name");
             Uri uri = Uri.parse(json.getString("uri"));
@@ -29,6 +39,10 @@ public class RecentCanvas {
         return null;
     }
 
+    /**
+     * Create a JSON representation of the data in this class
+     * @return instance of JSONObject
+     */
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         try {

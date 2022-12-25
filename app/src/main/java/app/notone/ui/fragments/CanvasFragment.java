@@ -151,7 +151,7 @@ public class CanvasFragment extends Fragment {
             PeriodicSaveHandler.init(getContext());
         }
 
-        if(SettingsHolder.isAutoSaveCanvas() && !PeriodicSaveHandler.getInstance().isRunning()) {
+        if(SettingsHolder.shouldAutoSaveCanvas() && !PeriodicSaveHandler.getInstance().isRunning()) {
             Toast.makeText(getContext(), "Started Periodic Saving", Toast.LENGTH_LONG).show();
             PeriodicSaveHandler.getInstance().start();
         }

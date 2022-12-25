@@ -171,7 +171,7 @@ public class CanvasView extends View {
 
         mCanvasWriter.renderStrokes(canvas);
 
-        if(SettingsHolder.isShowPdfBounds()) {
+        if(SettingsHolder.shouldShowPdfBounds()) {
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             mPdfRenderer.renderBorder(this, canvas, metrics);
         }
@@ -316,7 +316,7 @@ public class CanvasView extends View {
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if(SettingsHolder.isRestrictedPanning() && e2.getPointerCount() <= 1)
+            if(SettingsHolder.isPanningRestricted() && e2.getPointerCount() <= 1)
                 return false; // if two finger panning is required and not fullfilled: dont pan
 
 

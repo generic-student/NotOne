@@ -16,6 +16,10 @@ public class SettingsHolder {
     private static boolean sSynchronizeWithServer = false;
     private static int sSynchronizeWithServerIntervalSeconds = 0;
 
+    /**
+     * Update the values in the SettingsHolder from the shared preferences
+     * @param prefs
+     */
     public static void update(SharedPreferences prefs) {
         //visuals
         sDarkMode = prefs.getBoolean("darkmode", false);
@@ -36,7 +40,7 @@ public class SettingsHolder {
         return sDarkMode;
     }
 
-    public static boolean isShowPdfBounds() {
+    public static boolean shouldShowPdfBounds() {
         return sShowPdfBounds;
     }
 
@@ -44,7 +48,7 @@ public class SettingsHolder {
         return sTextMarkerOpacityAdding;
     }
 
-    public static boolean isRestrictedPanning() {
+    public static boolean isPanningRestricted() {
         return sRestrictedPanning;
     }
 
@@ -52,7 +56,7 @@ public class SettingsHolder {
         return sDrawerSwipeOpen;
     }
 
-    public static boolean isAutoSaveCanvas() {
+    public static boolean shouldAutoSaveCanvas() {
         return sAutoSaveCanvas;
     }
 
@@ -60,7 +64,7 @@ public class SettingsHolder {
         return sAutoSaveCanvasIntervalSeconds;
     }
 
-    public static boolean isSynchronizeWithServer() {
+    public static boolean shouldSynchronizeWithServer() {
         return sSynchronizeWithServer;
     }
 

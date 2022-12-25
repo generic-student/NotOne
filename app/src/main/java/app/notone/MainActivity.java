@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* Set state of the drawer quick settings */
         Switch swAutoSave = mNavDrawerView.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
-        swAutoSave.setChecked(SettingsHolder.isAutoSaveCanvas());
+        swAutoSave.setChecked(SettingsHolder.shouldAutoSaveCanvas());
         swAutoSave.setOnCheckedChangeListener((compoundButton, autoSave) -> {
             spEditor.putBoolean("autosave", autoSave).apply();
             SettingsHolder.update(sharedPreferences);

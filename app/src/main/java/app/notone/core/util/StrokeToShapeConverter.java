@@ -7,9 +7,16 @@ import android.util.Log;
 import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 
+/**
+ * Helper class to convert strokes, that have been classified by the InkRecognizer as certain shapes, to their shape.
+ */
 public class StrokeToShapeConverter {
     private static final String TAG = StrokeToShapeConverter.class.getSimpleName();
 
+    /**
+     * Converts a stroke to a rectangle
+     * @param stroke
+     */
     public static void convertStrokeToRectangle(Stroke stroke) {
         RectF bounds = new RectF();
         stroke.computeBounds(bounds, true);
@@ -23,6 +30,10 @@ public class StrokeToShapeConverter {
 
     }
 
+    /**
+     * Converts a stroke to a triangle
+     * @param stroke
+     */
     public static void convertStrokeToTriangle(Stroke stroke) {
         RectF bounds = new RectF();
         stroke.computeBounds(bounds, true);
@@ -34,6 +45,10 @@ public class StrokeToShapeConverter {
         stroke.lineTo(bounds.left, bounds.bottom);
     }
 
+    /**
+     * Converts a stroke to an ellipse
+     * @param stroke
+     */
     public static void convertStrokeToEllipse(Stroke stroke) {
         RectF bounds = new RectF();
         stroke.computeBounds(bounds, true);
@@ -50,6 +65,10 @@ public class StrokeToShapeConverter {
 
     }
 
+    /**
+     * Converts a Stroke to a line
+     * @param stroke
+     */
     public static void convertStrokeToArrow(Stroke stroke) {
         Log.d(TAG, "support for arrows is pending.");
     }

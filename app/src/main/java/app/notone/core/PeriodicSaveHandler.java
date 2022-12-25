@@ -51,7 +51,7 @@ public class PeriodicSaveHandler {
 //            } catch (IOException e) {
 //                e.printStackTrace();
             } finally {
-                if(SettingsHolder.isAutoSaveCanvas()) {
+                if(SettingsHolder.shouldAutoSaveCanvas()) {
                     mHandler.postDelayed(mPeriodicSaveRunner, SettingsHolder.getAutoSaveCanvasIntervalSeconds() * 1000);
                 } else {
                     Log.d(TAG, "Stopped PeriodicSaveHandler.");
