@@ -20,5 +20,10 @@
     <string name="drawer_menu_settings_item_text">Settings</string>
     <string name="drawer_menu_about_item_text">About</string>
     <string name="drawer_menu_save_as_item_text">Save</string>
-    <string name="third_party_licenses">AAAAAAAAA\nBBBBBBBBB\nCCCCCCCCCC\n</string>
+    <string name="third_party_licenses">
+        AAAAAAAAA\n
+        BBBBBBBBB\n
+        CCCCCCCCCC\n
+    </string>
+    <string name="canvas_title_default">Document Name</string>
 </resources>
