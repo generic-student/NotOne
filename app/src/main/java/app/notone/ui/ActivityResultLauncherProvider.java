@@ -103,8 +103,10 @@ public class ActivityResultLauncherProvider {
             CanvasFragment.sCanvasView.resetViewMatrices();
             CanvasFragment.sCanvasView.setScale(1f);
             CanvasFragment.sIsLoadingPdfPages = true;
-            PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
-            CanvasFragment.sCanvasView.invalidate();
+            //PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
+            //CanvasFragment.sCanvasView.invalidate();
+            CanvasFragment.sSettings.setUri(uri);
+            CanvasFragment.sSettings.setLoadPdf(true);
         });
     }
 }
