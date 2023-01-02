@@ -9,6 +9,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import org.json.JSONException;
+
+import java.io.IOException;
+
 import app.notone.MainActivity;
 import app.notone.core.util.RecentCanvas;
 import app.notone.io.CanvasFileManager;
@@ -45,8 +50,17 @@ public class ActivityResultLauncherProvider {
                 return;
             }
             Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
-            CanvasFragment.sCanvasView.reset();
+//            CanvasFragment.sCanvasView.reset();
             CanvasFragment.sCanvasView.setUri(uri);
+//
+            //save the canvas to add the basic json layout to the file (otherwise the created file is empty and cannot be reopened)
+            try {
+                FileManager.save(mainActivity.getApplicationContext(), CanvasFragment.sCanvasView);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
 
@@ -56,6 +70,7 @@ public class ActivityResultLauncherProvider {
             mainActivity.updateRecentCanvasesExpListView();
 
             Toast.makeText(mainActivity, "created a new file", Toast.LENGTH_SHORT).show();
+            CanvasFragment.sSettings.setNewFile(false);
         });
     }
 
@@ -66,8 +81,10 @@ public class ActivityResultLauncherProvider {
                 Log.e(MainActivity.TAG, "mOpenCanvasFile: file opening was aborted");
                 return;
             }
+            CanvasFragment.sCanvasView.setUri(uri);
             CanvasFileManager.safeOpenCanvasFile(mainActivity, uri);
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+
         });
     }
 
@@ -89,6 +106,7 @@ public class ActivityResultLauncherProvider {
 
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
             Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
+
         });
     }
 
@@ -101,11 +119,8 @@ public class ActivityResultLauncherProvider {
             }
             CanvasFragment.sCanvasView.resetViewMatrices();
             CanvasFragment.sCanvasView.setScale(1f);
-            CanvasFragment.sIsLoadingPdfPages = true;
-            //PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
-            //CanvasFragment.sCanvasView.invalidate();
-            CanvasFragment.sSettings.setUri(uri);
-            CanvasFragment.sSettings.setLoadPdf(true);
+            PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
+
         });
     }
 }

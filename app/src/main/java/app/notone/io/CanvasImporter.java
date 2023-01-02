@@ -1,5 +1,6 @@
 package app.notone.io;
 
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.util.Log;
 
@@ -14,12 +15,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
 import app.notone.core.CanvasPdfDocument;
 import app.notone.core.CanvasView;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
+import app.notone.ui.CanvasFragmentSettings;
+import app.notone.ui.fragments.CanvasFragment;
 
 public class CanvasImporter {
 
@@ -29,11 +31,13 @@ public class CanvasImporter {
         CanvasView canvasView;
         String jsonString;
         boolean loadUndoTree;
+        CanvasFragmentSettings canvasFragmentSettings;
 
-        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree) {
+        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree, CanvasFragmentSettings canvasFragmentSettings) {
             this.canvasView = canvasView;
             this.jsonString = jsonString;
             this.loadUndoTree = loadUndoTree;
+            this.canvasFragmentSettings = canvasFragmentSettings;
         }
     }
 
@@ -67,9 +71,14 @@ public class CanvasImporter {
                     canvasImportData.canvasView.setCanvasWriter(writer);
                     canvasImportData.canvasView.invalidate();
 
-                    CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
-                    canvasImportData.canvasView.setPdfDocument(document);
-                    canvasImportData.canvasView.invalidate();
+                    //determine if the pdf import should be loaded from the save file or from a uri.
+                    //it will be loaded from a uri if the importPdf action had been called earlier.
+                    if(canvasImportData.canvasFragmentSettings == null || !canvasImportData.canvasFragmentSettings.shouldLoadPdf()) {
+                        CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
+                        canvasImportData.canvasView.setPdfDocument(document);
+                        Log.d("PDF", "(CanvasImporter) loaded from file");
+                        canvasImportData.canvasView.invalidate();
+                    }
 
                     String uri = json.getString("uri");
                     canvasImportData.canvasView.setUri(Uri.parse(uri));
@@ -89,7 +98,9 @@ public class CanvasImporter {
         }
 
         protected void onPostExecute(Void result) {
-
+            CanvasFragment.sSettings.setOpenFile(false);
+            CanvasFragment.sSettings.setNewFile(false);
+            CanvasFragment.sCanvasView.invalidate();
         }
 
     }

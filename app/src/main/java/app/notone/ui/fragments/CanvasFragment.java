@@ -36,7 +36,6 @@ import app.notone.core.pens.PenType;
 import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
-import app.notone.io.PdfImporter;
 import app.notone.io.PenPorter;
 import app.notone.ui.ActivityResultLauncherProvider;
 import app.notone.ui.CanvasFragmentSettings;
@@ -58,14 +57,12 @@ public class CanvasFragment extends Fragment {
     public static CanvasView sCanvasView;
     private View mCanvasFragmentView;
 
-    public static CanvasFragmentSettings sSettings = new CanvasFragmentSettings(null, false, false);
-    public static boolean sIsLoadingPdfPages = false;
+    public static CanvasFragmentSettings sSettings = new CanvasFragmentSettings();
     private static ArrayList<ImageButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
     ActivityResultLauncher<String> mGetPdfDocument = ActivityResultLauncherProvider.getImportPdfActivityResultLauncher(this);
 
 // region Android Lifecycle
-
 
     @Override
     public void onStart() {
@@ -84,9 +81,8 @@ public class CanvasFragment extends Fragment {
             tvTitle.setText(recentCanvas.mName);
         }
 
-        //try to load the canvas from file
         try {
-            FileManager.load(getContext(), sCanvasView);
+            FileManager.load(getContext(), sCanvasView, sSettings);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Could not load previously opened canvas. Was it moved or deleted?", Toast.LENGTH_LONG).show();
@@ -143,6 +139,8 @@ public class CanvasFragment extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d("PDF", "(Fragment) active: " + sCanvasView.getPdfDocument().toString());
+
         if(!PeriodicSaveHandler.isInitialized()) {
             PeriodicSaveHandler.init(getContext());
         }
@@ -150,11 +148,6 @@ public class CanvasFragment extends Fragment {
         if(SettingsHolder.shouldAutoSaveCanvas() && !PeriodicSaveHandler.getInstance().isRunning()) {
             Toast.makeText(getContext(), "Started Periodic Saving", Toast.LENGTH_LONG).show();
             PeriodicSaveHandler.getInstance().start();
-        }
-
-        if(sSettings.isLoadPdf() && sSettings.getUri() != null) {
-            PdfImporter.fromUri(getContext(), sSettings.getUri(), sCanvasView.getPdfDocument());
-            sSettings.setLoadPdf(false);
         }
 
         super.onResume();
@@ -248,6 +241,7 @@ public class CanvasFragment extends Fragment {
         /* Setup insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
+            CanvasFragment.sSettings.setLoadPdf(true);
             mGetPdfDocument.launch("application/pdf");
         });
 

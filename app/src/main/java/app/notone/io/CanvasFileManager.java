@@ -60,17 +60,18 @@ public class CanvasFileManager {
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
         String canvasData = CanvasFileManager.open(mainActivity, uri);
-        try {
-            CanvasImporter.initCanvasViewFromJSON(canvasData, CanvasFragment.sCanvasView, true);
-        } catch (JSONException e) {
-            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
-            Toast.makeText(mainActivity, "failed to parse file", Toast.LENGTH_SHORT).show();
-            return;
-        } catch (IllegalArgumentException i) {
-            Log.e(TAG, "mOpenCanvasFile: canvasFile was empty");
-            Toast.makeText(mainActivity, "file is empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(canvasData, CanvasFragment.sCanvasView, true, null));
+//        try {
+//            CanvasImporter.initCanvasViewFromJSON(canvasData, CanvasFragment.sCanvasView, true);
+//        } catch (JSONException e) {
+//            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
+//            Toast.makeText(mainActivity, "failed to parse file", Toast.LENGTH_SHORT).show();
+//            return;
+//        } catch (IllegalArgumentException i) {
+//            Log.e(TAG, "mOpenCanvasFile: canvasFile was empty");
+//            Toast.makeText(mainActivity, "file is empty", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         //reorder the recent canvases to have the active one as the first element
 
         CanvasFragment.sCanvasView.invalidate();

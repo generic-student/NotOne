@@ -342,10 +342,12 @@ public class MainActivity extends AppCompatActivity {
                 /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:
                     Log.d(TAG, "onNavigationItemSelected: New File");
+                    CanvasFragment.sSettings.setNewFile(true);
                     mNewCanvasFile.launch("canvasFile.json");
                     return false;
                 /* chose a existing file with uri and open it in the current canvas */
                 case R.id.open_file:
+                    CanvasFragment.sSettings.setOpenFile(true);
                     mOpenCanvasFile.launch(new String[]{"application/json"});
                     return false;
                 /* save file to existing uri of current view */

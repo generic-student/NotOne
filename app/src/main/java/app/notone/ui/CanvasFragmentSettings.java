@@ -6,11 +6,23 @@ public class CanvasFragmentSettings {
     private Uri mUri;
     private boolean mLoadPdf;
     private boolean mMarkerEnabled;
+    private boolean mNewFile;
+    private boolean mOpenFile;
 
-    public CanvasFragmentSettings(Uri uri, boolean loadPdf, boolean markerEnabled) {
+    public CanvasFragmentSettings() {
+        this.mUri = null;
+        this.mLoadPdf = false;
+        this.mMarkerEnabled = false;
+        this.mNewFile = false;
+        this.mOpenFile = false;
+    }
+
+    public CanvasFragmentSettings(Uri uri, boolean loadPdf, boolean markerEnabled, boolean newFile, boolean openFile) {
         this.mUri = uri;
         this.mLoadPdf = loadPdf;
         this.mMarkerEnabled = markerEnabled;
+        this.mNewFile = newFile;
+        this.mOpenFile = openFile;
     }
 
     public Uri getUri() {
@@ -21,7 +33,7 @@ public class CanvasFragmentSettings {
         this.mUri = mUri;
     }
 
-    public boolean isLoadPdf() {
+    public boolean shouldLoadPdf() {
         return mLoadPdf;
     }
 
@@ -35,5 +47,21 @@ public class CanvasFragmentSettings {
 
     public void setMarkerEnabled(boolean mMarkerEnabled) {
         this.mMarkerEnabled = mMarkerEnabled;
+    }
+
+    public boolean isNewFile() {
+        return mNewFile;
+    }
+
+    public void setNewFile(boolean mNewFile) {
+        this.mNewFile = mNewFile;
+    }
+
+    public boolean isOpenFile() {
+        return mOpenFile;
+    }
+
+    public void setOpenFile(boolean mOpenFile) {
+        this.mOpenFile = mOpenFile;
     }
 }

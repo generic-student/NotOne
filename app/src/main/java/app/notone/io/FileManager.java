@@ -12,6 +12,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -36,6 +37,8 @@ import java.util.MissingResourceException;
 
 import app.notone.MainActivity;
 import app.notone.core.CanvasView;
+import app.notone.ui.CanvasFragmentSettings;
+import app.notone.ui.fragments.CanvasFragment;
 import kotlin.NotImplementedError;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -125,26 +128,35 @@ public class FileManager {
 
     //loading
 
-    public static void load(Context context, CanvasView view) throws IOException {
+    public static void load(@NonNull Context context, @NonNull CanvasView view, @NonNull CanvasFragmentSettings settings) throws IOException {
+        if(settings.isOpenFile()) {
+            return;
+        }
+
+        if(settings.isNewFile()) {
+            initNewFile(context, settings);
+            return;
+        }
+
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
-            loadFromInternalDir(context, view);
+            loadFromInternalDir(context, view, settings);
             //if the canvas got loaded from disk it means its saved on disk
             view.setSaved(true);
             return;
         }
 
         if(view.getCurrentURI().toString().equals("firebase")) {
-            loadFromFirebase(context, view);
+            loadFromFirebase(context, view, settings);
             view.setSaved(true);
             return;
         }
 
-        loadFromFilesystem(context, view);
+        loadFromFilesystem(context, view, settings);
         view.setSaved(true);
     }
 
-    public static void loadFromInternalDir(Context context, CanvasView view) throws IOException {
+    public static void loadFromInternalDir(Context context, CanvasView view, CanvasFragmentSettings settings) throws IOException {
         Log.d(TAG, "Loading file from internal directory " + context.getFilesDir());
 
         File file = new File(context.getFilesDir(), "canvas.json");
@@ -160,16 +172,16 @@ public class FileManager {
             content.append(line);
         }
 
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content.toString(), view, true));
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content.toString(), view, true, settings));
     }
 
-    public static void loadFromFirebase(Context context, CanvasView view) {
+    public static void loadFromFirebase(Context context, CanvasView view, CanvasFragmentSettings settings) {
         Log.d(TAG, "Loading file from firebase.");
 
         throw new NotImplementedError("Not implemented");
     }
 
-    public static void loadFromFilesystem(Context context, CanvasView view) throws IOException {
+    public static void loadFromFilesystem(Context context, CanvasView view, CanvasFragmentSettings settings) throws IOException {
         Log.d(TAG, "Loading file from filesystem " + view.getCurrentURI());
 
         String content = "";
@@ -187,7 +199,7 @@ public class FileManager {
         in.close();
         r.close();
 
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true));
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, settings));
     }
 
     @SuppressLint("WrongConstant")
@@ -221,5 +233,10 @@ public class FileManager {
             Log.e(TAG, "getCanvasFileName: couldnt extract Filename from uri");
         }
         return fileName; // fileName + " : " + fileSize; // to nerdy for production
+    }
+
+    private static void initNewFile(Context context, CanvasFragmentSettings settings) {
+        CanvasFragment.sCanvasView.reset();
+        CanvasFragment.sCanvasView.setLoaded(true);
     }
 }

@@ -7,6 +7,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -34,6 +35,8 @@ public class PdfImporter {
             PdfImporterTaskData data = args[0];
             PdfRenderer renderer = data.renderer;
             CanvasPdfDocument document = data.document;
+
+            Log.d("PDF", "Loaded into: " + document.toString());
 
             final float scaling = FACTOR_72PPI_TO_320PPI / 2f;
 
@@ -68,7 +71,7 @@ public class PdfImporter {
 
         protected void onPostExecute(Void result) {
             CanvasFragment.sCanvasView.invalidate();
-            CanvasFragment.sIsLoadingPdfPages = true;
+            CanvasFragment.sSettings.setLoadPdf(false);
         }
 
     }

@@ -119,6 +119,7 @@ public class CanvasView extends View {
 
     public void setPdfDocument(CanvasPdfDocument mPdfDocument) {
         this.mPdfDocument = mPdfDocument;
+        Log.d("PDF", "(CanvasView) changed: " + getPdfDocument().toString());
     }
 
     public PdfCanvasRenderer getPdfRenderer() {
