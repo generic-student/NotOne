@@ -11,6 +11,7 @@ import android.util.DisplayMetrics;
 
 import java.util.List;
 
+import app.notone.core.util.PageSize;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.PdfExporter;
 
@@ -69,7 +70,7 @@ public class PdfCanvasRenderer {
     }
 
     public void renderBorder(CanvasView canvasView, Canvas canvas, DisplayMetrics metrics){
-            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(canvasView, (float) metrics.densityDpi / metrics.density, PdfExporter.PageSize.A4);
+            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(canvasView, (float) metrics.densityDpi / metrics.density, PageSize.A4);
             for (Rect b : bounds) {
                 canvas.drawRect(b, borderPaint);
             }

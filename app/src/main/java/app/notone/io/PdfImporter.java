@@ -7,6 +7,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import app.notone.core.CanvasPdfDocument;
+import app.notone.core.util.PageSize;
 import app.notone.ui.fragments.CanvasFragment;
 
 public class PdfImporter {
@@ -23,10 +25,12 @@ public class PdfImporter {
     public static class PdfImporterTaskData {
         PdfRenderer renderer;
         CanvasPdfDocument document;
+        float dpi;
 
-        public PdfImporterTaskData(PdfRenderer renderer, CanvasPdfDocument document) {
+        public PdfImporterTaskData(PdfRenderer renderer, CanvasPdfDocument document, float dpi) {
             this.renderer = renderer;
             this.document = document;
+            this.dpi = dpi;
         }
     }
 
@@ -48,7 +52,11 @@ public class PdfImporter {
 
             for(int i = 0; i < amtPages; i++) {
                 PdfRenderer.Page page = renderer.openPage(i);
-                pages[i] = Bitmap.createBitmap((int) (page.getWidth() * scaling), (int) (page.getHeight() * scaling), Bitmap.Config.ARGB_4444);
+                final float widthScaling = PageSize.A4.getWidthPixels(data.dpi) / (float)page.getWidth();
+                final float heightScaling = PageSize.A4.getHeightPixels(data.dpi) / (float)page.getHeight();
+                transform.setScale(widthScaling, heightScaling);
+
+                pages[i] = Bitmap.createBitmap((int) (page.getWidth() * widthScaling), (int) (page.getHeight() * heightScaling), Bitmap.Config.ARGB_4444);
                 page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 page.close();
 
@@ -81,7 +89,10 @@ public class PdfImporter {
             ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
             PdfRenderer renderer = new PdfRenderer(fileDescriptor);
 
-            new PdfImporter.ImportPdfTask().execute(new PdfImporterTaskData(renderer, document));
+            final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            final float dpi = (float) metrics.densityDpi / metrics.density;
+
+            new PdfImporter.ImportPdfTask().execute(new PdfImporterTaskData(renderer, document, dpi));
 
         } catch (IOException e) {
             e.printStackTrace();
