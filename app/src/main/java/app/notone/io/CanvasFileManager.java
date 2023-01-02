@@ -57,12 +57,11 @@ public class CanvasFileManager {
     }
 
     public static void safeOpenCanvasFile(MainActivity mainActivity, Uri uri) {
-        MainActivity.sCanvasView = CanvasFragment.sCanvasView;
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
         String canvasData = CanvasFileManager.open(mainActivity, uri);
         try {
-            CanvasImporter.initCanvasViewFromJSON(canvasData, MainActivity.sCanvasView, true);
+            CanvasImporter.initCanvasViewFromJSON(canvasData, CanvasFragment.sCanvasView, true);
         } catch (JSONException e) {
             Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
             Toast.makeText(mainActivity, "failed to parse file", Toast.LENGTH_SHORT).show();
@@ -74,7 +73,7 @@ public class CanvasFileManager {
         }
         //reorder the recent canvases to have the active one as the first element
 
-        MainActivity.sCanvasView.invalidate();
+        CanvasFragment.sCanvasView.invalidate();
 
         FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
         MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());

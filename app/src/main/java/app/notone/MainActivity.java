@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private ExpandableListView mSimExpListView;
     private SimpleExpandableListAdapter mAdapter;
 
-    public static CanvasView sCanvasView = null;
     public static String sCanvasName = "Unsaved Doc";
     public static RecentCanvases sRecentCanvases = new RecentCanvases(4);
     boolean mToolbarVisibility = true;
@@ -333,10 +332,9 @@ public class MainActivity extends AppCompatActivity {
 
         /* Handle menu clicks for setting actions, forward clicks to the navController for destination change */
         mNavDrawerView.setNavigationItemSelectedListener(menuItem -> {
-            sCanvasView = CanvasFragment.sCanvasView;
 
             /* handle action button clicks */
-            if (sCanvasView == null) {
+            if (CanvasFragment.sCanvasView == null) {
                 Log.e(TAG, "onCreate: Canvasview has not been initalized");
                 return false;
             }
@@ -352,12 +350,12 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 /* save file to existing uri of current view */
                 case R.id.save_file:
-                    if (sCanvasView.getCurrentURI().equals(Uri.parse(""))) { // shouldnt happen
+                    if (CanvasFragment.sCanvasView.getCurrentURI().equals(Uri.parse(""))) { // shouldnt happen
                         /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                         mSaveAsCanvasFile.launch("canvasFile.json");
                         return false;
                     }
-                    CanvasFileManager.safeSave(this, getApplicationContext(), sCanvasView.getCurrentURI(), sCanvasView);
+                    CanvasFileManager.safeSave(this, getApplicationContext(), CanvasFragment.sCanvasView.getCurrentURI(), CanvasFragment.sCanvasView);
                     return false;
                 /* export a file to pdf */
                 case R.id.export:

@@ -32,7 +32,7 @@ public class ActivityResultLauncherProvider {
                 return;
             }
             DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
-            PdfDocument doc = PdfExporter.exportPdfDocument(MainActivity.sCanvasView, (float) metrics.densityDpi / metrics.density, true);
+            PdfDocument doc = PdfExporter.exportPdfDocument(CanvasFragment.sCanvasView, (float) metrics.densityDpi / metrics.density, true);
             CanvasFileManager.save2PDF(mainActivity, uri, doc);
         });
     }
@@ -47,7 +47,6 @@ public class ActivityResultLauncherProvider {
             Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
             CanvasFragment.sCanvasView.reset();
             CanvasFragment.sCanvasView.setUri(uri);
-            MainActivity.sCanvasView = CanvasFragment.sCanvasView;
 
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
 
@@ -85,8 +84,8 @@ public class ActivityResultLauncherProvider {
             MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
             mainActivity.updateRecentCanvasesExpListView();
 
-            CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, MainActivity.sCanvasView);
-            MainActivity.sCanvasView.setUri(uri);
+            CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, CanvasFragment.sCanvasView);
+            CanvasFragment.sCanvasView.setUri(uri);
 
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
             Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
