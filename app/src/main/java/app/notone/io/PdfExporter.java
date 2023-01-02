@@ -158,9 +158,10 @@ public class PdfExporter {
             PdfDocument.Page page = document.startPage(info);
 
             Canvas canvas = page.getCanvas();
-            Matrix offset = new Matrix();
-            offset.setTranslate(-pageRect.left, -pageRect.top);
-            canvas.setMatrix(offset);
+            Matrix transform = new Matrix();
+            transform.setTranslate(-pageRect.left, -pageRect.top);
+            transform.postScale(.5f, .5f);
+            canvas.setMatrix(transform);
 
             view.getPdfRenderer().render(view.getPdfDocument(), canvas);
             view.getCanvasWriter().renderStrokes(canvas);
