@@ -14,7 +14,6 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -32,10 +31,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.MissingResourceException;
-import java.util.UUID;
 
 import app.notone.MainActivity;
 import app.notone.core.CanvasView;
@@ -49,7 +46,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  * @since 202212XX
  */
 
-
+/**
+ *
+ */
 public class FileManager {
     private static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
     private static final String TAG = FileManager.class.getSimpleName();
@@ -61,7 +60,7 @@ public class FileManager {
 
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
-            saveToCache(context, jsonString);
+            saveToInternalDir(context, jsonString);
             view.setSaved(true);
             return;
         }
@@ -76,8 +75,8 @@ public class FileManager {
         view.setSaved(true);
     }
 
-    public static void saveToCache(Context context, String data) throws IOException {
-        Log.d(TAG, "Saving file to cache " + context.getFilesDir());
+    public static void saveToInternalDir(Context context, String data) throws IOException {
+        Log.d(TAG, "Saving file to internal dir " + context.getFilesDir());
 
         File file = new File(context.getFilesDir(), "canvas.json");
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
@@ -129,7 +128,7 @@ public class FileManager {
     public static void load(Context context, CanvasView view) throws IOException {
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
-            loadFromCache(context, view);
+            loadFromInternalDir(context, view);
             //if the canvas got loaded from disk it means its saved on disk
             view.setSaved(true);
             return;
@@ -145,8 +144,8 @@ public class FileManager {
         view.setSaved(true);
     }
 
-    public static void loadFromCache(Context context, CanvasView view) throws IOException {
-        Log.d(TAG, "Loading file from cache " + context.getFilesDir());
+    public static void loadFromInternalDir(Context context, CanvasView view) throws IOException {
+        Log.d(TAG, "Loading file from internal directory " + context.getFilesDir());
 
         File file = new File(context.getFilesDir(), "canvas.json");
         if (!file.exists()) {
