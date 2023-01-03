@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 
 import app.notone.MainActivity;
@@ -36,9 +37,7 @@ public class ActivityResultLauncherProvider {
                 Log.e(MainActivity.TAG, "mNewCanvasFile: file creation was aborted");
                 return;
             }
-            DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
-            PdfDocument doc = PdfExporter.exportPdfDocument(CanvasFragment.sCanvasView, (float) metrics.densityDpi / metrics.density, true);
-            CanvasFileManager.save2PDF(mainActivity, uri, doc);
+            FileManager.exportPdfDocumentToUri(mainActivity, uri);
         });
     }
 
@@ -49,28 +48,7 @@ public class ActivityResultLauncherProvider {
                 Log.e(MainActivity.TAG, "mNewCanvasFile: file creation was aborted");
                 return;
             }
-            Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
-//            CanvasFragment.sCanvasView.reset();
-            CanvasFragment.sCanvasView.setUri(uri);
-//
-            //save the canvas to add the basic json layout to the file (otherwise the created file is empty and cannot be reopened)
-            try {
-                FileManager.save(mainActivity.getApplicationContext(), CanvasFragment.sCanvasView);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
-
-            MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-            mainActivity.setToolbarTitle(MainActivity.sCanvasName);
-            MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
-            mainActivity.updateRecentCanvasesExpListView();
-
-            Toast.makeText(mainActivity, "created a new file", Toast.LENGTH_SHORT).show();
-            CanvasFragment.sSettings.setNewFile(false);
+            FileManager.createNewCanvasFileAtUri(mainActivity, uri);
         });
     }
 
@@ -81,10 +59,7 @@ public class ActivityResultLauncherProvider {
                 Log.e(MainActivity.TAG, "mOpenCanvasFile: file opening was aborted");
                 return;
             }
-            CanvasFragment.sCanvasView.setUri(uri);
-            CanvasFileManager.safeOpenCanvasFile(mainActivity, uri);
-            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
-
+            FileManager.openCanvasFileFromUri(mainActivity, uri);
         });
     }
 
@@ -95,18 +70,7 @@ public class ActivityResultLauncherProvider {
                 Log.e(MainActivity.TAG, "mOpenCanvasFile: file creation was aborted");
                 return;
             }
-
-            MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
-            mainActivity.setToolbarTitle(MainActivity.sCanvasName);
-            MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
-            mainActivity.updateRecentCanvasesExpListView();
-
-            CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, CanvasFragment.sCanvasView);
-            CanvasFragment.sCanvasView.setUri(uri);
-
-            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
-            Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
-
+            FileManager.saveCanvasFileToUri(mainActivity, uri);
         });
     }
 
@@ -117,10 +81,7 @@ public class ActivityResultLauncherProvider {
                 Log.e(CanvasFragment.TAG, "getImportPdfActivityResultLauncher: file selection was aborted");
                 return;
             }
-            CanvasFragment.sCanvasView.resetViewMatrices();
-            CanvasFragment.sCanvasView.setScale(1f);
-            PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
-
+            FileManager.importPdfDocumentFromUri(canvasFragment, uri);
         });
     }
 }

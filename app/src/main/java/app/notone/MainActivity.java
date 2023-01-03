@@ -31,6 +31,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -345,17 +346,9 @@ public class MainActivity extends AppCompatActivity {
             }
             switch (menuItem.getItemId()) {
                 case R.id.open_server_file:
-                    CanvasFragment.sCanvasView.reset();
-                    CanvasFragment.sCanvasView.setUri(Uri.parse("firebase"));
-                    try {
-                        FileManager.load(this, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
-                        sCanvasName = FileManager.getFilenameFromUri(CanvasFragment.sCanvasView.getCurrentURI(), getContentResolver());
-                        setToolbarTitle(MainActivity.sCanvasName);
-                        sRecentCanvases.add(new RecentCanvas(sCanvasName, CanvasFragment.sCanvasView.getCurrentURI(), 0));
-                        updateRecentCanvasesExpListView();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    final Uri firebaseUri = Uri.parse("firebase");
+                    CanvasFragment.sSettings.setOpenFile(true);
+                    FileManager.openCanvasFileFromUri(this, firebaseUri);
 
                     return false;
                 case R.id.delete_pdf_import:
@@ -375,12 +368,15 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 /* save file to existing uri of current view */
                 case R.id.save_file:
-                    if (CanvasFragment.sCanvasView.getCurrentURI().equals(Uri.parse(""))) { // shouldnt happen
+                    //check if the canvas has a uri.
+                    //Open the 'save as' dialog if the canvas does not have a uri.
+                    if (CanvasFragment.sCanvasView.getCurrentURI().equals(Uri.parse(""))) {
                         /* save as to new uri (should not happen as there shouldnt be any current canvases without uri) */
                         mSaveAsCanvasFile.launch("canvasFile.json");
                         return false;
                     }
-                    CanvasFileManager.safeSave(this, getApplicationContext(), CanvasFragment.sCanvasView.getCurrentURI(), CanvasFragment.sCanvasView);
+                    FileManager.saveCanvasFileToUri(this, CanvasFragment.sCanvasView.getCurrentURI());
+                    //CanvasFileManager.safeSave(this, getApplicationContext(), CanvasFragment.sCanvasView.getCurrentURI(), CanvasFragment.sCanvasView);
                     return false;
                 /* export a file to pdf */
                 case R.id.export:
@@ -447,7 +443,11 @@ public class MainActivity extends AppCompatActivity {
         mSimExpListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             String filename = mAdapter.getChild(groupPosition, childPosition).toString().replaceAll("\\{([A-Z])\\w+=", "").replaceAll("\\}", "");
             Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + sRecentCanvases.getByFilename(filename).mUri);
-            CanvasFileManager.safeOpenCanvasFile(this, sRecentCanvases.getByFilename(filename).mUri);
+            //CanvasFileManager.safeOpenCanvasFile(this, sRecentCanvases.getByFilename(filename).mUri);
+            CanvasFragment.sSettings.setOpenFile(true);
+            FileManager.openCanvasFileFromUri(this, sRecentCanvases.getByFilename(filename).mUri);
+
+
             findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             return false;
         });

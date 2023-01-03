@@ -7,14 +7,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FileDownloadTask;
@@ -40,6 +44,7 @@ import java.util.MissingResourceException;
 
 import app.notone.MainActivity;
 import app.notone.core.CanvasView;
+import app.notone.core.util.RecentCanvas;
 import app.notone.ui.CanvasFragmentSettings;
 import app.notone.ui.fragments.CanvasFragment;
 import kotlin.NotImplementedError;
@@ -271,5 +276,80 @@ public class FileManager {
     private static void initNewFile(Context context, CanvasFragmentSettings settings) {
         CanvasFragment.sCanvasView.reset();
         CanvasFragment.sCanvasView.setLoaded(true);
+    }
+
+
+    /////////////
+    public static void exportPdfDocumentToUri(MainActivity mainActivity, Uri uri) {
+        DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
+        PdfDocument doc = PdfExporter.exportPdfDocument(CanvasFragment.sCanvasView, (float) metrics.densityDpi / metrics.density, true);
+
+        try {
+            ParcelFileDescriptor pfd = mainActivity.getContentResolver().
+                    openFileDescriptor(uri, "w");
+            FileOutputStream fileOutputStream =
+                    new FileOutputStream(pfd.getFileDescriptor());
+            doc.writeTo(fileOutputStream);
+            // Let the document provider know you're done by closing the stream.
+            fileOutputStream.close();
+            pfd.close();
+        } catch (IOException e) {
+            Log.e(TAG, "savePdfDocument: IOException; probably invalid permissions");
+        }
+    }
+
+    public static void createNewCanvasFileAtUri(MainActivity mainActivity, Uri uri) {
+        Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
+        CanvasFragment.sCanvasView.setUri(uri);
+
+        //save the canvas to add the basic json layout to the file (otherwise the created file is empty and cannot be reopened)
+        try {
+            FileManager.save(mainActivity.getApplicationContext(), CanvasFragment.sCanvasView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //persist the uri permission so that we can access the file at a later date
+        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+
+        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        mainActivity.setToolbarTitle(MainActivity.sCanvasName);
+        MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+        mainActivity.updateRecentCanvasesExpListView();
+
+        Toast.makeText(mainActivity, "created a new file", Toast.LENGTH_SHORT).show();
+        CanvasFragment.sSettings.setNewFile(false);
+    }
+
+    public static void openCanvasFileFromUri(MainActivity mainActivity, Uri uri) {
+        CanvasFragment.sCanvasView.setUri(uri);
+        //TODO: embed deprecated call to CanvasFileManager in this function
+        CanvasFileManager.safeOpenCanvasFile(mainActivity, uri);
+        //FileManager.openCanvasFile(mainActivity, uri);
+        if(!uri.toString().equals("firebase")) {
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        }
+    }
+
+    public static void saveCanvasFileToUri(MainActivity mainActivity, Uri uri) {
+        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        mainActivity.setToolbarTitle(MainActivity.sCanvasName);
+        MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+        mainActivity.updateRecentCanvasesExpListView();
+
+        //TODO: embed deprecated call to CanvasFileManager in this function
+        CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, CanvasFragment.sCanvasView);
+        CanvasFragment.sCanvasView.setUri(uri);
+
+        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void importPdfDocumentFromUri(Fragment canvasFragment, Uri uri) {
+        CanvasFragment.sCanvasView.resetViewMatrices();
+        CanvasFragment.sCanvasView.setScale(1f);
+        PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
     }
 }
