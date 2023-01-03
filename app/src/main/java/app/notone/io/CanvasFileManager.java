@@ -3,6 +3,7 @@ package app.notone.io;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -59,8 +60,23 @@ public class CanvasFileManager {
     public static void safeOpenCanvasFile(MainActivity mainActivity, Uri uri) {
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
-        String canvasData = CanvasFileManager.open(mainActivity, uri);
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(canvasData, CanvasFragment.sCanvasView, true, null));
+//        CanvasFragment.sCanvasView.setUri(uri);
+//        try {
+//            FileManager.load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        CanvasFragment.sSettings.setUri(uri);
+        if(uri.toString().equals("firebase")) {
+            CanvasFragment.sCanvasView.setUri(uri);
+            FileManager.loadFromFirebase(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+        }
+        else {
+            String canvasData = CanvasFileManager.open(mainActivity, uri);
+            new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(canvasData, CanvasFragment.sCanvasView, true, null));
+        }
+        CanvasFragment.sSettings.setOpenFile(true);
+
 //        try {
 //            CanvasImporter.initCanvasViewFromJSON(canvasData, CanvasFragment.sCanvasView, true);
 //        } catch (JSONException e) {
@@ -76,7 +92,10 @@ public class CanvasFileManager {
 
         CanvasFragment.sCanvasView.invalidate();
 
-        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        if(!uri.toString().equals("firebase")) {
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        }
+
         MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
         mainActivity.setToolbarTitle(MainActivity.sCanvasName);
         MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
@@ -85,20 +104,20 @@ public class CanvasFileManager {
         Toast.makeText(mainActivity, "opened a saved file", Toast.LENGTH_SHORT).show();
     }
 
-    public static void save(Activity activity, Uri uri, String json) {
-        try {
-            ParcelFileDescriptor pfd = activity.getContentResolver().
-                    openFileDescriptor(uri, "w");
-            FileOutputStream fileOutputStream =
-                    new FileOutputStream(pfd.getFileDescriptor());
-            fileOutputStream.write((json).getBytes());
-            // Let the document provider know you're done by closing the stream.
-            fileOutputStream.close();
-            pfd.close();
-        } catch (IOException e) {
-            Log.e(TAG, "saveCanvasFile: IOException; probably invalid permissions");
-        }
-    }
+//    public static void save(Activity activity, Uri uri, String json) {
+//        try {
+//            ParcelFileDescriptor pfd = activity.getContentResolver().
+//                    openFileDescriptor(uri, "w");
+//            FileOutputStream fileOutputStream =
+//                    new FileOutputStream(pfd.getFileDescriptor());
+//            fileOutputStream.write((json).getBytes());
+//            // Let the document provider know you're done by closing the stream.
+//            fileOutputStream.close();
+//            pfd.close();
+//        } catch (IOException e) {
+//            Log.e(TAG, "saveCanvasFile: IOException; probably invalid permissions");
+//        }
+//    }
 
     public static void safeSave(MainActivity mainActivity, Context context, Uri uri, CanvasView canvasView) {
         Log.d(TAG, "mSaveAsCanvasFile to Json");

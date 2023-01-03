@@ -51,6 +51,7 @@ import androidx.preference.PreferenceManager;
 import app.notone.core.CanvasPdfDocument;
 import app.notone.core.CanvasView;
 import app.notone.core.PeriodicSaveHandler;
+import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
 import app.notone.ui.fragments.CanvasFragment;
@@ -350,6 +351,8 @@ public class MainActivity extends AppCompatActivity {
                         FileManager.load(this, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
                         sCanvasName = FileManager.getFilenameFromUri(CanvasFragment.sCanvasView.getCurrentURI(), getContentResolver());
                         setToolbarTitle(MainActivity.sCanvasName);
+                        sRecentCanvases.add(new RecentCanvas(sCanvasName, CanvasFragment.sCanvasView.getCurrentURI(), 0));
+                        updateRecentCanvasesExpListView();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
