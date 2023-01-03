@@ -117,14 +117,21 @@ public class CanvasFileManager {
             return;
         }
 
-        // save files
-        String canvasData = "";
+//        // save files
+//        String canvasData = "";
+//        try {
+//            canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        CanvasFileManager.save(mainActivity, uri, canvasData);
         try {
-            canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
+            FileManager.save(mainActivity, canvasView);
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        CanvasFileManager.save(mainActivity, uri, canvasData);
 
         MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
         mainActivity.setToolbarTitle(MainActivity.sCanvasName);

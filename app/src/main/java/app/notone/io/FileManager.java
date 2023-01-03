@@ -16,7 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -91,14 +94,14 @@ public class FileManager {
     public static void saveToFirebase(Context context, String data) {
         Log.d(TAG, "Saving file to firebase");
 
-        String userId = context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
+        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
         if(userId.isEmpty()) {
             throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
         }
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
-        StorageReference userStorageReference = storageReference.child(String.format("%s/canvas.json", userId));
+        StorageReference userStorageReference = storageReference.child(String.format("%s/FirebaseCanvas.json", userId));
 
         UploadTask uploadTask  = userStorageReference.putBytes(data.getBytes(StandardCharsets.UTF_8));
         uploadTask.addOnFailureListener(exception ->
@@ -178,7 +181,32 @@ public class FileManager {
     public static void loadFromFirebase(Context context, CanvasView view, CanvasFragmentSettings settings) {
         Log.d(TAG, "Loading file from firebase.");
 
-        throw new NotImplementedError("Not implemented");
+        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
+        if(userId.isEmpty()) {
+            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
+        }
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference();
+        StorageReference userStorageReference = storageReference.child(String.format("%s/FirebaseCanvas.json", userId));
+
+        Task<byte[]> downloadTask = userStorageReference.getBytes(10_000_000);
+        downloadTask.addOnFailureListener(exception -> {
+            Log.d(TAG, "Failed to retrieve file.");
+            int errorCode = ((StorageException) exception).getErrorCode();
+            try {
+                save(context, view);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        });
+        downloadTask.addOnSuccessListener(result -> {
+            String content = new String(result, StandardCharsets.UTF_8);
+            new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, settings));
+        });
     }
 
     public static void loadFromFilesystem(Context context, CanvasView view, CanvasFragmentSettings settings) throws IOException {
@@ -220,6 +248,11 @@ public class FileManager {
     public static String getFilenameFromUri(Uri uri, ContentResolver contentResolver) {
         String fileName = "Unsaved Document";
         String fileSize = "0";
+
+        if(uri.toString().equals("firebase")) {
+            return "FirebaseCanvas.json";
+        }
+
         try {
             Cursor cursor =
                     contentResolver.query(uri, null, null, null, null);

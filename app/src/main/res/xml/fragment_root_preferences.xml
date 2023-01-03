@@ -70,6 +70,7 @@
             app:useSimpleSummaryProvider="true"/>
 
         <SwitchPreferenceCompat
+            app:enabled="false"
             android:defaultValue="false"
             app:icon="@drawable/ic_sync"
             app:key="sync"
@@ -85,6 +86,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            app:enabled="false"
             android:dependency="sync"
             android:defaultValue="60"
             android:key="syncintervall"

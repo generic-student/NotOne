@@ -17,6 +17,10 @@
             android:icon="@drawable/ic_save_as"
             android:title="@string/drawer_menu_new_item_text" />
         <item
+            android:id="@+id/open_server_file"
+            android:icon="@drawable/ic_folder_open_file"
+            android:title= "@string/drawer_menu_new_server_item_text" />
+        <item
             android:id="@+id/open_file"
             android:icon="@drawable/ic_folder_open_file"
             android:title="@string/drawer_menu_open_item_text" />
@@ -28,6 +32,10 @@
             android:id="@+id/export"
             android:icon="@drawable/ic_export"
             android:title="@string/drawer_menu_export_item_text" />
+        <item
+            android:id="@+id/delete_pdf_import"
+            android:icon="@drawable/ic_eraser"
+            android:title="@string/drawer_menu_delete_pdf_import_text" />
         <item
             android:id="@+id/recent_files"
             app:actionLayout="@layout/drawer_expandablelist"/>

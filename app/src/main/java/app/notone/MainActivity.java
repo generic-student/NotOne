@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -45,6 +47,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+
+import app.notone.core.CanvasPdfDocument;
 import app.notone.core.CanvasView;
 import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.util.RecentCanvases;
@@ -289,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* Init File Storage */
         FileManager.requestFileAccessPermission(this);
-        FirebaseStorage.getInstance().useEmulator("192.168.178.49", 9199); // debug database
+        FirebaseStorage.getInstance();//.useEmulator("192.168.178.49", 9199); // debug database
 
 
 
@@ -339,6 +343,22 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
             switch (menuItem.getItemId()) {
+                case R.id.open_server_file:
+                    CanvasFragment.sCanvasView.reset();
+                    CanvasFragment.sCanvasView.setUri(Uri.parse("firebase"));
+                    try {
+                        FileManager.load(this, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+                        sCanvasName = FileManager.getFilenameFromUri(CanvasFragment.sCanvasView.getCurrentURI(), getContentResolver());
+                        setToolbarTitle(MainActivity.sCanvasName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    return false;
+                case R.id.delete_pdf_import:
+                    CanvasFragment.sCanvasView.setPdfDocument(new CanvasPdfDocument());
+                    CanvasFragment.sCanvasView.invalidate();
+                    return false;
                 /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:
                     Log.d(TAG, "onNavigationItemSelected: New File");

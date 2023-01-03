@@ -13,6 +13,7 @@
     <string name="import_button_text">Import</string>
     <string name="drawer_menu_current_file_item_text">Current File</string>
     <string name="drawer_menu_new_item_text">New</string>
+    <string name="drawer_menu_new_server_item_text">Open Firebase Canvas</string>
     <string name="drawer_menu_open_item_text">Open</string>
     <string name="drawer_menu_export_item_text">Export as PDF</string>
     <string name="drawer_menu_auto_save_item_text">Auto Save (seconds)</string>
@@ -21,4 +22,5 @@
     <string name="drawer_menu_about_item_text">About</string>
     <string name="drawer_menu_save_as_item_text">Save</string>
     <string name="third_party_licenses">AAAAAAAAA\nBBBBBBBBB\nCCCCCCCCCC\n</string>
+    <string name="drawer_menu_delete_pdf_import_text">Delete Pdf Import</string>
 </resources>
