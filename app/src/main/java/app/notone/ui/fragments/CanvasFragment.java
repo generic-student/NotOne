@@ -82,7 +82,9 @@ public class CanvasFragment extends Fragment {
         }
 
         try {
-            FileManager.load(getContext(), sCanvasView, sSettings);
+            if(!sSettings.isOpenFile()) {
+                FileManager.load(getContext(), sCanvasView, sSettings);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Could not load previously opened canvas. Was it moved or deleted?", Toast.LENGTH_LONG).show();

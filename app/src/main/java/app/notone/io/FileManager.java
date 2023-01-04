@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
@@ -47,7 +46,6 @@ import app.notone.core.CanvasView;
 import app.notone.core.util.RecentCanvas;
 import app.notone.ui.CanvasFragmentSettings;
 import app.notone.ui.fragments.CanvasFragment;
-import kotlin.NotImplementedError;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -137,9 +135,9 @@ public class FileManager {
     //loading
 
     public static void load(@NonNull Context context, @NonNull CanvasView view, @NonNull CanvasFragmentSettings settings) throws IOException {
-        if(settings.isOpenFile()) {
-            return;
-        }
+//        if(settings.isOpenFile()) {
+//            return;
+//        }
 
         if(settings.isNewFile()) {
             initNewFile(context, settings);
@@ -324,24 +322,60 @@ public class FileManager {
     }
 
     public static void openCanvasFileFromUri(MainActivity mainActivity, Uri uri) {
+        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
         CanvasFragment.sCanvasView.setUri(uri);
-        //TODO: embed deprecated call to CanvasFileManager in this function
-        CanvasFileManager.safeOpenCanvasFile(mainActivity, uri);
-        //FileManager.openCanvasFile(mainActivity, uri);
-        if(!uri.toString().equals("firebase")) {
-            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
-        }
-    }
 
-    public static void saveCanvasFileToUri(MainActivity mainActivity, Uri uri) {
-        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        try {
+            load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(!uri.toString().equals("firebase")) {
+            persistUriPermission(mainActivity.getContentResolver(), uri);
+        }
+
+        MainActivity.sCanvasName = getFilenameFromUri(uri, mainActivity.getContentResolver());
         mainActivity.setToolbarTitle(MainActivity.sCanvasName);
         MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
         mainActivity.updateRecentCanvasesExpListView();
 
-        //TODO: embed deprecated call to CanvasFileManager in this function
-        CanvasFileManager.safeSave(mainActivity, mainActivity.getApplicationContext(), uri, CanvasFragment.sCanvasView);
+        Toast.makeText(mainActivity, "opened a saved file", Toast.LENGTH_SHORT).show();
+    }
+
+    public static void saveCanvasFileToUri(MainActivity mainActivity, Uri uri) {
+        Log.d(TAG, "mSaveAsCanvasFile to Json");
+
+        // check for file access permissions || grant them, persistUriPermission() doesn't seem to work
+        if (!FileManager.checkFileAccessPermission(mainActivity)) {
+            Toast.makeText(mainActivity, "Permissions not granted", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "saveCanvasFile: Permissions not granted");
+            return;
+        }
+
+        try {
+            mainActivity.grantUriPermission(mainActivity.getPackageName(), uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (SecurityException se) {
+            /* permission for file access did not persist; user has to chose which file to override */
+            Log.e(TAG, "saveCanvasFile: Failed to save file as it cant be accessed");
+            mainActivity.mSaveAsCanvasFile.launch("canvasFile.json"); // this is recursive
+            return;
+        }
+
         CanvasFragment.sCanvasView.setUri(uri);
+
+        try {
+            FileManager.save(mainActivity, CanvasFragment.sCanvasView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        MainActivity.sCanvasName = FileManager.getFilenameFromUri(uri, mainActivity.getContentResolver());
+        mainActivity.setToolbarTitle(MainActivity.sCanvasName);
+        MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
+        mainActivity.updateRecentCanvasesExpListView();
 
         FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
         Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();

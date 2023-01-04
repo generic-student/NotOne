@@ -3,7 +3,6 @@ package app.notone.io;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -60,37 +59,11 @@ public class CanvasFileManager {
     public static void safeOpenCanvasFile(MainActivity mainActivity, Uri uri) {
         Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
 
-//        CanvasFragment.sCanvasView.setUri(uri);
-//        try {
-//            FileManager.load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        CanvasFragment.sSettings.setUri(uri);
-        if(uri.toString().equals("firebase")) {
-            CanvasFragment.sCanvasView.setUri(uri);
-            FileManager.loadFromFirebase(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+        try {
+            FileManager.load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else {
-            String canvasData = CanvasFileManager.open(mainActivity, uri);
-            new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(canvasData, CanvasFragment.sCanvasView, true, null));
-        }
-        CanvasFragment.sSettings.setOpenFile(true);
-
-//        try {
-//            CanvasImporter.initCanvasViewFromJSON(canvasData, CanvasFragment.sCanvasView, true);
-//        } catch (JSONException e) {
-//            Log.e(TAG, "mOpenCanvasFile: failed to open ", e);
-//            Toast.makeText(mainActivity, "failed to parse file", Toast.LENGTH_SHORT).show();
-//            return;
-//        } catch (IllegalArgumentException i) {
-//            Log.e(TAG, "mOpenCanvasFile: canvasFile was empty");
-//            Toast.makeText(mainActivity, "file is empty", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        //reorder the recent canvases to have the active one as the first element
-
-        CanvasFragment.sCanvasView.invalidate();
 
         if(!uri.toString().equals("firebase")) {
             FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
@@ -127,6 +100,7 @@ public class CanvasFileManager {
             Log.e(TAG, "saveCanvasFile: Permissions not granted");
             return;
         }
+
         try {
             context.grantUriPermission(context.getPackageName(), uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } catch (SecurityException se) {
@@ -136,14 +110,6 @@ public class CanvasFileManager {
             return;
         }
 
-//        // save files
-//        String canvasData = "";
-//        try {
-//            canvasData = CanvasExporter.canvasViewToJSON(canvasView, true).toString();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        CanvasFileManager.save(mainActivity, uri, canvasData);
         try {
             FileManager.save(mainActivity, canvasView);
         } catch (IOException e) {
