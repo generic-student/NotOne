@@ -18,10 +18,17 @@ import app.notone.R;
 /**
  * Holds a list of RecentCanvas that were opened recently up to a max size.
  * The first index in the list is always the last element added.
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class RecentCanvases {
-    private static String TAG = "RecentCanvases";
+    /** Tag for logging */
+    private static final String TAG = RecentCanvas.class.getSimpleName();
+    /** List of {@link RecentCanvas} */
     private ArrayList<RecentCanvas> mRecentCanvases;
+    /** Max. amount of elements in the list*/
     private int mMaxSize;
 
     public RecentCanvases(int maxSize) {
@@ -30,8 +37,10 @@ public class RecentCanvases {
     }
 
     /**
-     * Adds a RecentCanvas to the front of to the list. When the list exceeds the maximum size after the insertion, the last element is dropped.
-     * @param rc instance of RecentCanvas
+     * Adds a RecentCanvas to the front of to the list.
+     * When the list exceeds the maximum size after the insertion,
+     * the last element is dropped.
+     * @param rc Instance of RecentCanvas
      */
     public void add(@NonNull RecentCanvas rc) {
         //check if an element with the same name already exists
@@ -60,8 +69,8 @@ public class RecentCanvases {
 
     /**
      * Returns the first RecentCanvas found given a filename
-     * @param filename
-     * @return instance of RecentCanvas when found else null
+     * @param filename String
+     * @return Instance of RecentCanvas when found else null
      */
     public RecentCanvas getByFilename(String filename) {
         return mRecentCanvases.stream().filter(r -> r.mName.equals(filename)).findFirst().orElse(null);
@@ -81,8 +90,8 @@ public class RecentCanvases {
 
     /**
      * Create an instance of RecentCanvases from a JSON object and a given max size
-     * @param json
-     * @param maxSize
+     * @param json JSONObject
+     * @param maxSize Maximum size of elements
      * @return instance of RecentCanvases
      */
     public static RecentCanvases fromJson(JSONObject json, int maxSize) {
@@ -107,7 +116,7 @@ public class RecentCanvases {
 
     /**
      * Create a JSON representation of the data in this class
-     * @return instance of JSONObject
+     * @return Instance of JSONObject
      */
     public JSONObject toJson() {
         JSONObject json = new JSONObject();

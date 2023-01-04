@@ -14,10 +14,14 @@ import app.notone.core.util.MathHelper;
 import app.notone.core.util.SAT;
 
 /**
- * Handles erasing strokes from the canvas
+ * Pen used for erasing strokes from the canvas
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class CanvasEraserPen extends CanvasPen{
-    //defines the collision bounds of the eraser
+    /** Defines the collision bounds of the eraser */
     public RectF mEraserBounds;
 
     public CanvasEraserPen(CanvasWriter writerReference) {
@@ -46,8 +50,8 @@ public class CanvasEraserPen extends CanvasPen{
 
     /**
      * Computes the new bounds with the current touch point in the center and a given side-length
-     * @param eraserPosition the current touch position
-     * @param eraserRadius the side-length of the bounds
+     * @param eraserPosition The current touch position
+     * @param eraserRadius The side-length of the bounds
      */
     private void computeEraserBounds(Vector2f eraserPosition, float eraserRadius) {
 
@@ -63,9 +67,9 @@ public class CanvasEraserPen extends CanvasPen{
 
     /**
      * Deletes all strokes that intersect with the eraserBounds
-     * @param eraserPosition the current touch position
-     * @param eraserRadius the side-length of the bounds
-     * @return the amount of strokes that have been deleted
+     * @param eraserPosition The current touch position
+     * @param eraserRadius The side-length of the bounds
+     * @return The amount of strokes that have been deleted
      */
     public int erase(Vector2f eraserPosition, float eraserRadius) {
         computeEraserBounds(eraserPosition, eraserRadius);

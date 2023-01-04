@@ -10,11 +10,20 @@ import java.util.ArrayList;
 
 /**
  * Paths drawn by user.
- * This includes its color, weight and points
+ * This includes its color, weight and points.
+ * This class extends the class {@link Path} which does not include a method
+ * for accessing the coordinates of the points without approximating them.
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class Stroke extends Path implements Serializable {
+    /** Color of the stroke */
     private int mColor;
+    /** Weight of the stroke */
     private float mWeight;
+    /** List of points that the stroke is made of (saved as [x,y,x,y,...])*/
     private ArrayList<Float> pathPoints;
 
     public Stroke(int mColor, float mWeight) {
@@ -55,7 +64,10 @@ public class Stroke extends Path implements Serializable {
     }
 
     /**
-     * Initializes the Path variable after a Stroke Instance has been restored through a byte stream
+     * Constructs the Path from the PathPoints.
+     * This is required if the Stroke has been constructed from
+     * a list of points since the internal data from the super class
+     * {@link Path} needs to be set separately.
      */
     public void initPathFromPathPoints() {
         super.reset();

@@ -3,10 +3,31 @@ package app.notone.core;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * This class handles undoing and redoing strokes that have been added to
+ * the CanvasView.
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
+ */
 public class UndoRedoManager implements Serializable {
+    /** Max amount of actions that can be undone and redone*/
     private transient final int MAX_ACTIONS = 20;
+    /**
+     * List of actions that have been undone.
+     * These are needed to be able to redo an action.
+     * */
     private ArrayList<CanvasWriterAction> mUndoneActions;
+    /**
+     * List of actions that have been done.
+     */
     private ArrayList<CanvasWriterAction> mActions;
+    /**
+     * Reference to a list of strokes.
+     * A reference is need because undoing an action can cause
+     * a stroke to be removed or added from/to the list of strokes.
+     */
     private transient ArrayList<Stroke> mStrokesReference;
 
     public UndoRedoManager(ArrayList<Stroke> strokesRef) {
@@ -15,11 +36,19 @@ public class UndoRedoManager implements Serializable {
         mStrokesReference = strokesRef;
     }
 
+    /**
+     * Reset all actions and undone actions
+     */
     public void reset() {
         mUndoneActions.clear();
         mActions.clear();
     }
 
+    /**
+     * Adds an action to the list of actions.
+     * If MAX_ACTIONS is exceeded removes the first element from the list.
+     * @param action CanvasWriterAction to add
+     */
     public void addAction(CanvasWriterAction action) {
         mActions.add(action);
         if(mActions.size() > MAX_ACTIONS) {
@@ -27,6 +56,11 @@ public class UndoRedoManager implements Serializable {
         }
     }
 
+    /**
+     * Adds an action to the list of undone actions.
+     * If MAX_ACTIONS is exceeded removes the first element from the list
+     * @param action CanvasWriterAction to add
+     */
     public void addUndoneAction(CanvasWriterAction action) {
         mUndoneActions.add(action);
         if(mUndoneActions.size() > MAX_ACTIONS) {
@@ -34,22 +68,43 @@ public class UndoRedoManager implements Serializable {
         }
     }
 
+    /**
+     * Returns the list of undone actions
+     * @return Actions
+     */
     public ArrayList<CanvasWriterAction> getUndoneActions() {
         return mUndoneActions;
     }
 
+    /**
+     * Set the list of undone actions
+     * @param mUndoneActions Actions
+     */
     public void setUndoneActions(ArrayList<CanvasWriterAction> mUndoneActions) {
         this.mUndoneActions = mUndoneActions;
     }
 
+    /**
+     * Returns the list of actions
+     * @return Actions
+     */
     public ArrayList<CanvasWriterAction> getActions() {
         return mActions;
     }
 
+    /**
+     * Set the list of actions
+     * @param mActions Actions
+     */
     public void setActions(ArrayList<CanvasWriterAction> mActions) {
         this.mActions = mActions;
     }
 
+    /**
+     * Undo the last action in the list of actions and add it to the list of
+     * undone actions.
+     * @return True if the action could be undone
+     */
     public boolean undo() {
         //undo the last action
         if (mActions.isEmpty()) {
@@ -73,6 +128,11 @@ public class UndoRedoManager implements Serializable {
         }
     }
 
+    /**
+     * Redo the last action in the list of undone actions and add it to the
+     * list of actions
+     * @return True if the action could be redone
+     */
     public boolean redo() {
         //undo the last action
         if (mUndoneActions.isEmpty()) {

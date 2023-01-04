@@ -15,10 +15,23 @@ import app.notone.core.util.PageSize;
 import app.notone.core.util.SettingsHolder;
 import app.notone.io.PdfExporter;
 
+/**
+ * Class for rendering a {@link CanvasPdfDocument}
+ * to the Canvas of a {@link CanvasView} and rendering a border around
+ * all elements that would be contained an exported pdf.
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
+ */
 public class PdfCanvasRenderer {
+    /** Describes how the pdf itself will be rendered */
     private Paint pdfPaint;
+    /** Describes how the border around each page will be rendered*/
     private Paint borderPaint;
+    /** Scaling factor of the pdf on the canvas*/
     private float scaling;
+    /** Padding between the pages of the pdf*/
     private int padding;
 
     public PdfCanvasRenderer() {
@@ -69,6 +82,15 @@ public class PdfCanvasRenderer {
         this.padding = padding;
     }
 
+    /**
+     * Renders the border around all pages that contain content on the canvas.
+     * This includes pdf pages and strokes that would be on a page when the
+     * canvas would be exported as a pdf.
+     * The border is computed using the {@link PdfExporter#computePdfPageBoundsFromCanvasViewStrict(CanvasView, float, PageSize)} method.
+     * @param canvasView CanvasView to compute the bounds for
+     * @param canvas Canvas to render the bounds on
+     * @param metrics DisplayMetrics for calculating the dpi of the screen
+     */
     public void renderBorder(CanvasView canvasView, Canvas canvas, DisplayMetrics metrics){
             List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(canvasView, (float) metrics.densityDpi / metrics.density, PageSize.A4);
             for (Rect b : bounds) {
@@ -77,6 +99,11 @@ public class PdfCanvasRenderer {
 
     }
 
+    /**
+     * Renders a {@link CanvasPdfDocument} to a Canvas
+     * @param doc CanvasPdfDocument to be rendered
+     * @param canvas Canvas to render to
+     */
     public void render(CanvasPdfDocument doc, Canvas canvas) {
         final Rect clipBounds = canvas.getClipBounds();
         final RectF viewSpace = new RectF(clipBounds.left, clipBounds.top, clipBounds.right, clipBounds.bottom);

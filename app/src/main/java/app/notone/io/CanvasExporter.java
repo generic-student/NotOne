@@ -37,6 +37,9 @@ import androidx.lifecycle.LifecycleObserver;
 
 import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
+/**
+ * Exports a Canvas
+ */
 public class CanvasExporter {
     private static final String LOG_TAG = CanvasExporter.class.getSimpleName();
 

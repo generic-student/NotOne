@@ -13,10 +13,27 @@ import app.notone.core.util.InkRecognizer;
 import app.notone.core.util.StrokeToShapeConverter;
 import app.notone.ui.fragments.CanvasFragment;
 
+/**
+ * Pen for writing strokes to the canvas and recognizing basic shapes.
+ * Will convert drawn shapes when recognized.
+ * Currently recognizable shapes include: Rectangle, Ellipse, Triangle
+ *
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
+ */
 public class CanvasShapePen extends CanvasWriterPen{
     private static final String TAG = CanvasShapePen.class.getSimpleName();
 
+    /**
+     * Constructs an Ink object from Strokes that can be used
+     * by the ML Toolkit for recognition.
+     */
     Ink.Builder inkBuilder;
+    /**
+     * Constructs a Stroke Object that defines a collection of points
+     */
     Ink.Stroke.Builder strokeBuilder;
 
     public CanvasShapePen(CanvasWriter writerReference) {
@@ -67,6 +84,11 @@ public class CanvasShapePen extends CanvasWriterPen{
         super.reset();
     }
 
+    /**
+     * Tries to recognize the shape that is in the Ink Object constructed from
+     * the InkBuilder. When it recognizes a shape it converts that Stroke into
+     * the recognized shape by altering the points defining the shape.
+     */
     private void recognizeShape() {
         Ink ink = inkBuilder.build();
         //get the last written stroke since this is the one being analyzed
@@ -88,6 +110,11 @@ public class CanvasShapePen extends CanvasWriterPen{
         inkBuilder = new Ink.Builder();
     }
 
+    /**
+     * Converts a Stroke to a given shape using the {@link StrokeToShapeConverter}
+     * @param shape Recognized shape e.g. "RECTANGLE"
+     * @param strokeReference Reference to the stroke containing the shape
+     */
     private void convertStrokeToShape(String shape, Stroke strokeReference) {
         //check if the referenced stroke still exists
         if(!mCanvasWriterRef.getStrokes().contains(strokeReference)) {

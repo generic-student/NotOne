@@ -11,9 +11,13 @@ import app.notone.core.Vector2f;
 
 /**
  * Handles adding strokes to the canvas (writing strokes)
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class CanvasWriterPen extends CanvasPen {
-    //the current stroke that is being written
+    /** The current stroke that is being written */
     private Stroke mCurrentStroke;
 
     public CanvasWriterPen(CanvasWriter writerReference) {
@@ -67,16 +71,24 @@ public class CanvasWriterPen extends CanvasPen {
     }
 
     /**
-     * clears the list of undone actions (the redo tree)
+     * Clears the list of undone actions (the redo tree)
      */
     private void clearUndoneStrokes() {
         mCanvasWriterRef.getUndoRedoManager().getUndoneActions().clear();
     }
 
+    /**
+     * Sets the color of the current stroke that is being drawn
+     * @param c color
+     */
     public void setStrokeColor(int c) {
         mCurrentStroke.setColor(c);
     }
 
+    /**
+     * Sets the strokeWeight of the current stroke being drawn
+     * @param weight
+     */
     public void setStrokeWeight(float weight) {
         mCurrentStroke.setWeight(weight);
     }

@@ -8,11 +8,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Describes a Canvas by name, save location and filesize
+ * Describes a Canvas by name, save location and file size
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class RecentCanvas {
+    /** Filename */
     public String mName;
+    /** Save location*/
     public Uri mUri;
+     /** Size of the file in bytes*/
+    @Deprecated
     public int mFileSize;
 
     public RecentCanvas(String mName, Uri mUri, int mFileSize) {
@@ -23,7 +31,7 @@ public class RecentCanvas {
 
     /**
      * Builds an Instance from JSON
-     * @param json
+     * @param json JSONObject
      * @return Instance of RecentCanvas
      */
     public static RecentCanvas fromJson(@NonNull JSONObject json) {

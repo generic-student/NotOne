@@ -14,16 +14,28 @@ import app.notone.core.Stroke;
 import app.notone.core.Vector2f;
 
 /**
- * Handles selecting strokes
+ * Pen for selecting strokes on the canvas.
+ * (Currently no in use)
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class CanvasSelectorPen extends CanvasPen {
+    /** True if the pen is touching the screen */
     private boolean mIsSelecting;
+    /**
+     * Bounds defining what will be selected.
+     * Everything intersecting with these bounds will be selected.
+     */
     private RectF mSelectionBounds;
-    //how the selectionBounds should be rendered
+
+    /** Describes how the selection bounds should be rendered */
     private final Paint mSelectionBorderPaint;
-    //how the selected strokes should be rendered
+    /** Describes how the selected strokes should be rendered */
     private final Paint mSelectedStrokesPaint;
 
+    /** A list of strokes that have been selected */
     private final ArrayList<Stroke> mSelectedStrokes;
 
     public CanvasSelectorPen(CanvasWriter writerReference) {
@@ -95,7 +107,8 @@ public class CanvasSelectorPen extends CanvasPen {
     }
 
     /**
-     * ensures that the bottom-right corner of the selectionBounds is actually on the bottom-right
+     * Ensures that the bottom-right corner of the
+     * selectionBounds is actually on the bottom-right
      */
     private void correctSelectionBounds() {
         if(mSelectionBounds.left > mSelectionBounds.right) {
@@ -112,7 +125,8 @@ public class CanvasSelectorPen extends CanvasPen {
     }
 
     /**
-     * Select all strokes whose bounding boxes intersect with the selectionBounds
+     * Select all strokes whose bounding boxes
+     * intersect with the selectionBounds
      */
     private void selectStrokes() {
         mSelectedStrokes.clear();
