@@ -169,6 +169,9 @@ the about fragment
                 android:paddingBottom="20dp"
                 android:text="@string/third_party_licenses"
                 android:textAppearance="@android:style/TextAppearance.Material.Small" />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="60dp"/>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
