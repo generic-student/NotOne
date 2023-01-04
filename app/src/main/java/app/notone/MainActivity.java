@@ -54,7 +54,7 @@ import app.notone.io.CanvasFileManager;
 import app.notone.io.FileManager;
 import app.notone.ui.ActivityResultLauncherProvider;
 import app.notone.ui.NavigationDrawer;
-import app.notone.ui.RecentCanvasExpandableListAdapter;
+import app.notone.ui.RecentCanvasSimpleExpandableListAdapterBuilder;
 
 import static androidx.navigation.Navigation.findNavController;
 
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "updateExpListRecentFiles: " + Arrays.deepToString(recentCanvasList));
         mSimExpListView.invalidate();
         mSimExpListView.setAdapter((ExpandableListAdapter) null);
-        mAdapter = RecentCanvasExpandableListAdapter.getRecentCanvasExpListAdapter(this, recentCanvasList);
+        mAdapter = RecentCanvasSimpleExpandableListAdapterBuilder.build(this, recentCanvasList);
         mSimExpListView.setAdapter(mAdapter);
         mSimExpListView.invalidateViews();
         ((BaseExpandableListAdapter) mAdapter).notifyDataSetInvalidated();
@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
         /* Setup recent Canvases list */
         mSimExpListView = mNavDrawerView.getMenu().findItem(R.id.recent_files).getActionView().findViewById(R.id.exp_list_view);
         String[][] initialRecentFileNames = new String[][]{{"Default Value"}}; // string arrays for child entries
-        mAdapter = RecentCanvasExpandableListAdapter.getRecentCanvasExpListAdapter(this, initialRecentFileNames);
+        mAdapter = RecentCanvasSimpleExpandableListAdapterBuilder.build(this, initialRecentFileNames);
         mSimExpListView.setAdapter(mAdapter);
 
         mSimExpListView.collapseGroup(0);

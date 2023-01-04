@@ -1,5 +1,6 @@
 <!--
 @author default-student
+the settings fragment layout definition
 -->
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -64,6 +65,7 @@
         <EditTextPreference
             android:dependency="autosave"
             android:defaultValue="60"
+            android:inputType="number"
             android:key="saveintervall"
             android:selectAllOnFocus="true"
             android:title="Autosave Intervall in seconds"
@@ -87,6 +89,7 @@
         <EditTextPreference
             android:dependency="sync"
             android:defaultValue="60"
+            android:inputType="number"
             android:key="syncintervall"
             android:selectAllOnFocus="true"
             android:title="Server Sync Intervall in seconds"

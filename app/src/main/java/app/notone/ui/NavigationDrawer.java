@@ -35,6 +35,10 @@ public class NavigationDrawer extends DrawerLayout {
         mSwipeOpenEnabled = SettingsHolder.isDrawerSwipeOpen();
     }
 
+    /**
+     * Intercept the Touch event and to disable drawer opening if its disabled
+     * @return open drawer
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (!mSwipeOpenEnabled && !isDrawerVisible(Gravity.LEFT)) {

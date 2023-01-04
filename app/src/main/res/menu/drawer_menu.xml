@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 @author default-student
+the navbar menu that contains the navigation, quick settings and file management
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -30,7 +31,8 @@
             android:title="@string/drawer_menu_export_item_text" />
         <item
             android:id="@+id/recent_files"
-            app:actionLayout="@layout/drawer_expandablelist"/>
+            app:actionLayout="@layout/drawer_expandablelist"
+            tools:ignore="MenuTitle" />
     </group>
 
     <group>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 @author default-student
+the border of the pen color and weight dropdown menus, which styles their bottom border
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:start="5dp" android:end="5dp">
