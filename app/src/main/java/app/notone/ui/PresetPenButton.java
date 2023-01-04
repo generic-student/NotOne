@@ -134,7 +134,6 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
         context.getTheme().resolveAttribute(
                 android.R.attr.selectableItemBackground, selectableItemBackgroundResourceHolder, true);
         Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
-//        icon.set
 
         setForeground(ContextCompat.getDrawable(context, selectableItemBackgroundResourceHolder.resourceId));
         setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));

@@ -64,6 +64,9 @@ public class CanvasFragment extends Fragment {
 
 // region Android Lifecycle
 
+    /**
+     * load Data for canvas and pens from uri and Shared Prefs to enable persistence
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -99,7 +102,7 @@ public class CanvasFragment extends Fragment {
     }
 
     /**
-     * Store Data if canvas and pens in Shared Prefs to enable persistence
+     * Store Data of canvas and pens in Shared Prefs to enable persistence
      */
     @Override
     public void onPause() {
@@ -139,6 +142,9 @@ public class CanvasFragment extends Fragment {
         super.onPause();
     }
 
+    /**
+     * update settings
+     */
     @Override
     public void onResume() {
         Log.d("PDF", "(Fragment) active: " + sCanvasView.getPdfDocument().toString());
@@ -155,6 +161,9 @@ public class CanvasFragment extends Fragment {
         super.onResume();
     }
 
+    /**
+     * inflate and store the view statically for other methods
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
@@ -499,6 +508,9 @@ public class CanvasFragment extends Fragment {
         ddMenu.setSelection(1, false);
     }
 
+    /**
+     * necessary to pass a onclick method to the DropDownMethod setOnItemSelectedListener
+     */
     @FunctionalInterface
     private interface onClickDDMenuFunction {
         void onClick(AdapterView<?> adapterView, View view, int i, long l);

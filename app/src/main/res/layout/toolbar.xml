@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 @author default-student
+the toolbar of the canvas and app
+tool items are toggled to invisible if a non canvas fragment is active
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -31,7 +33,7 @@
                 android:layout_height="match_parent"
                 android:paddingVertical="20dp"
                 android:text="@string/canvas_title_default"
-                android:maxLength="13"
+                android:maxLength="16"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="@color/white"

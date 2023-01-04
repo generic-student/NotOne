@@ -25,21 +25,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.fragment_root_preferences, rootKey);
-
-        EditTextPreference saveIntervalPreference = findPreference("saveintervall");
-        if (saveIntervalPreference != null) {
-            saveIntervalPreference.setOnBindEditTextListener(
-                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
-        }
-
-        EditTextPreference syncIntervalPreference = findPreference("syncintervall");
-        if (syncIntervalPreference != null) {
-            syncIntervalPreference.setOnBindEditTextListener(
-                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
-        }
-
     }
 
+    /**
+     * set theme on updated setting
+     * @param preference
+     * @return
+     */
     @Override
     public boolean onPreferenceTreeClick(@NonNull Preference preference) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -53,6 +45,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return super.onPreferenceTreeClick(preference);
     }
 
+    /**
+     * store settings in holder for easy access
+     */
     @Override
     public void onStop() {
         super.onStop();
