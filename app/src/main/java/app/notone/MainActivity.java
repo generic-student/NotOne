@@ -245,6 +245,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onPause: ");
         SettingsHolder.update(PreferenceManager.getDefaultSharedPreferences(this));
         saveRecentCanvases2SharedPreferences(getApplicationContext());
+
+        /* collapse explistview */
+        mSimExpListView.collapseGroup(0);
         super.onPause();
     }
 
@@ -259,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
         /* reload recent files */
         loadRecentCanvasesFromSharedPreferences(getApplicationContext());
         updateRecentCanvasesExpListView();
+
+        /* collapse explistview */
+        mSimExpListView.collapseGroup(0);
         super.onStart();
     }
 
@@ -422,10 +428,12 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = RecentCanvasExpandableListAdapter.getRecentCanvasExpListAdapter(this, initialRecentFileNames);
         mSimExpListView.setAdapter(mAdapter);
 
+        mSimExpListView.collapseGroup(0);
+
         mSimExpListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
             Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(initialRecentFileNames[0]));
             if (!parent.isGroupExpanded(groupPosition)) {
-                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+                findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 310));
                 Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
             } else {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
