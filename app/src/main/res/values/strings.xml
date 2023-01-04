@@ -27,4 +27,5 @@
         CCCCCCCCCC\n
     </string>
     <string name="canvas_title_default">Document Name</string>
+    <string name="drawer_menu_open_server_item_text">Open Firebase Canvas</string>
 </resources>

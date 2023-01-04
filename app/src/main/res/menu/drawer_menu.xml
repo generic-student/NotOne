@@ -19,7 +19,7 @@
         <item
             android:id="@+id/open_server_file"
             android:icon="@drawable/ic_folder_open_file"
-            android:title= "@string/drawer_menu_new_server_item_text" />
+            android:title= "@string/drawer_menu_open_server_item_text" />
         <item
             android:id="@+id/open_file"
             android:icon="@drawable/ic_folder_open_file"
