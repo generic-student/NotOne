@@ -1,26 +1,14 @@
 package app.notone.ui;
 
-import android.graphics.pdf.PdfDocument;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import org.json.JSONException;
-
-import java.io.File;
-import java.io.IOException;
-
 import app.notone.MainActivity;
-import app.notone.core.util.RecentCanvas;
-import app.notone.io.CanvasFileManager;
 import app.notone.io.FileManager;
-import app.notone.io.PdfExporter;
-import app.notone.io.PdfImporter;
 import app.notone.ui.fragments.CanvasFragment;
 
 /**

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,8 +30,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -50,13 +47,10 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import app.notone.core.CanvasPdfDocument;
-import app.notone.core.CanvasView;
 import app.notone.core.PeriodicSaveHandler;
-import app.notone.core.util.RecentCanvas;
 import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
 import app.notone.ui.fragments.CanvasFragment;
-import app.notone.io.CanvasFileManager;
 import app.notone.io.FileManager;
 import app.notone.ui.ActivityResultLauncherProvider;
 import app.notone.ui.NavigationDrawer;
