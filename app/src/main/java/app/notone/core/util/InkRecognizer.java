@@ -12,7 +12,8 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognizer;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
 
 /**
- * Singleton class that wraps the Shape-Detection from the ML Toolkit
+ * Singleton class that wraps the Shape-Detection from the ML Toolkit.
+ * https://developers.google.com/ml-kit/
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1

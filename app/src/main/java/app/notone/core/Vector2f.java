@@ -10,7 +10,9 @@ import android.graphics.Matrix;
  * @since 0.1
  */
 public class Vector2f {
+    /** X coordinate */
     public float x;
+    /** Y coordinate */
     public float y;
 
     public Vector2f(float x, float y) {

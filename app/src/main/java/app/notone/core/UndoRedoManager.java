@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 /**
  * This class handles undoing and redoing strokes that have been added to
- * the CanvasView.
+ * the {@link CanvasWriter}.
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
