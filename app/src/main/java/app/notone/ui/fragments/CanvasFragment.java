@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import app.notone.MainActivity;
+import app.notone.core.CanvasPdfDocument;
 import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.CanvasView;
 import app.notone.R;
@@ -245,7 +246,7 @@ public class CanvasFragment extends Fragment {
             PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
             sCanvasToolGroup.add((ImageButton) buttonPresetPen);
             llayoutPenContainer.addView(buttonPresetPen, 0);
-            Toast.makeText(fragmentActivity, "long press Pen to remove", Toast.LENGTH_SHORT).show();
+            Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
         });
 
 
@@ -255,6 +256,12 @@ public class CanvasFragment extends Fragment {
         buttonInsert.setOnClickListener(v -> {
             CanvasFragment.sSettings.setLoadPdf(true);
             mGetPdfDocument.launch("application/pdf");
+            Toast.makeText(fragmentActivity, "long press to remove pdf", Toast.LENGTH_SHORT).show();
+        });
+        buttonInsert.setOnLongClickListener(v -> {
+            CanvasFragment.sCanvasView.setPdfDocument(new CanvasPdfDocument());
+            CanvasFragment.sCanvasView.invalidate();
+            return false;
         });
 
 
