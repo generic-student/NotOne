@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@author default-student
+-->
+<resources>
+    <string-array
+        name="pen_colors">
+        <item>Colors</item>
+        <item>RED</item>
+        <item>GREEN</item>
+        <item>BLUE</item>
+        <item>YELLOW</item>
+        <item>CYAN</item>
+    </string-array>
+    <array name="pen_color_values">
+        <item>@color/black</item>
+        <item>@android:color/holo_red_light</item>
+        <item>@android:color/holo_green_light</item>
+        <item>@android:color/holo_blue_light</item>
+        <item>@android:color/holo_orange_light</item>
+        <item>@android:color/holo_blue_bright</item>
+    </array>
+    <string-array
+        name="pen_weights">
+        <item>Size</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>100</item>
+    </string-array>
+</resources>

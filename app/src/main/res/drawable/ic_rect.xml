@@ -1,0 +1,12 @@
+<!--
+@contributor default-student
+@source https://github.com/Templarian/MaterialDesign
+@license Apache 2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:fillColor="?attr/colorText" android:pathData="M4,6V19H20V6H4M18,17H6V8H18V17Z" />
+</vector>

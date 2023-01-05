@@ -1,0 +1,99 @@
+<!--
+@author default-student
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference app:title="ඞ sus\n" />
+
+    <PreferenceCategory app:title="Visuals">
+
+        <!-- set based on system settings, can be overwritten default unset -->
+        <SwitchPreferenceCompat
+            app:icon="@drawable/ic_theme"
+            app:key="darkmode"
+            app:summaryOff="Light Mode"
+            app:summaryOn="Dark Mode"
+            app:title="App Theme" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:icon="@drawable/ic_rect"
+            app:key="pdfbounds"
+            app:summaryOff=""
+            app:summaryOn="Showing bounds of exported area"
+            app:title="Pdf Export Bounds" />
+
+        <SwitchPreferenceCompat
+            app:enabled="false"
+            android:defaultValue="false"
+            app:icon="@drawable/ic_pen"
+            app:key="textmarker"
+            app:summaryOff="Constant Opacity"
+            app:summaryOn="Additive Opacity"
+            app:title="Text Marker Opacity Addition" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Function">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            app:icon="@drawable/ic_pan"
+            app:key="twofingerpanning"
+            app:summaryOff="Any Finger Pan"
+            app:summaryOn="Two Finger Pan only"
+            app:title="Restricted Panning" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            app:icon="@drawable/ic_right_arrow"
+            app:key="drawerswipe"
+            app:summaryOff="cant swipe to open Drawer"
+            app:summaryOn="swipe to open Drawer"
+            app:title="Drawer Swipe open (Restart Required)" />
+
+<!-- auto save to the location from which it was opened -->
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:icon="@drawable/ic_autosave"
+            app:key="autosave"
+            app:title="Autosave the Canvas" />
+
+        <EditTextPreference
+            android:dependency="autosave"
+            android:defaultValue="60"
+            android:key="saveintervall"
+            android:selectAllOnFocus="true"
+            android:title="Autosave Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
+
+        <SwitchPreferenceCompat
+            app:enabled="false"
+            android:defaultValue="false"
+            app:icon="@drawable/ic_sync"
+            app:key="sync"
+            app:title="Synchronize with Server" />
+
+        <ListPreference
+            app:enabled="false"
+            android:dependency="sync"
+            app:entries="@array/servers"
+            app:entryValues="@array/servers"
+            app:key="server"
+            app:title="Sync Server"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:enabled="false"
+            android:dependency="sync"
+            android:defaultValue="60"
+            android:key="syncintervall"
+            android:selectAllOnFocus="true"
+            android:title="Server Sync Intervall in seconds"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

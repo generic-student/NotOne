@@ -1,0 +1,15 @@
+<!--
+@author default-student
+-->
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    style="@style/spinnerDropDownItemStyle"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp"
+    android:checkMark="@android:drawable/btn_radio"
+    android:ellipsize="marquee"
+    android:textAlignment="center"
+    android:textColor="@color/white" />
+<!--customize https://stackoverflow.com/questions/12432553/how-to-use-apply-a-custom-drawable-to-radiobutton-->

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@author default-student
+-->
+<resources>
+    <declare-styleable name="Theme">
+    <!-- Other values-->
+        <attr name="colorText" format="color" />
+        <attr name="colorCanvas" format="color" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@author default-student
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_gravity="start"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ExpandableListView
+        android:id="@+id/exp_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"/>
+</LinearLayout>

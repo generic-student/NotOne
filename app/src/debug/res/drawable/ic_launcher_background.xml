@@ -1,0 +1,19 @@
+<!--
+@author default-student
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group android:scaleX="0.54"
+      android:scaleY="0.54">
+    <path
+        android:pathData="M99.42,98.97m-91.94,0a91.94,91.94 0,1 1,183.88 0a91.94,91.94 0,1 1,-183.88 0"
+        android:strokeAlpha="0.993"
+        android:strokeWidth="0.29062349"
+        android:fillColor="#000000"
+        android:fillAlpha="0.993"/>
+  </group>
+</vector>
