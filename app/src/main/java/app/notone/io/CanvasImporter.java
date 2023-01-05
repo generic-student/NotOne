@@ -39,6 +39,10 @@ public class CanvasImporter {
      * Dataclass that will be sent to the AsyncTask
      * {@link CanvasImporter#initCanvasViewFromJSON(String, CanvasView, boolean)}
      * so that it has all the required data
+     * @author Kai Titgens
+     * @author kai.titgens@stud.th-owl.de
+     * @version 0.1
+     * @since 0.1
      */
     public static class CanvasImportData {
         /** Reference to the canvasView being initialized */

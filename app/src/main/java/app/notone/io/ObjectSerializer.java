@@ -12,15 +12,21 @@ import java.io.ObjectOutputStream;
 
 /**
  * Converts Serializable Objects into bytes and vice versa
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
+@Deprecated
 public class ObjectSerializer {
+    /** Tag for logging */
     private static final String LOG_TAG = ObjectSerializer.class.getSimpleName();
 
     /**
      * Converts an Object implementing the Serializable interface to an array of bytes
      * @param object The object to be serialized
      * @param <T> The type of the object
-     * @return byte representation of the Object or null if it could not be serialized
+     * @return Byte representation of the Object or null if it could not be serialized
      */
     public static <T> byte[] serialize(@NonNull T object) {
         //check if the object is even serializable
