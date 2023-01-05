@@ -19,8 +19,6 @@ import app.notone.core.util.SettingsHolder;
  * 
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
- * @author L H
- * @author l.h@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
