@@ -12,9 +12,10 @@ All sensible strings that would need to be translated for other locales
     <string name="legal_section_title">Licenses and Legal</string>
     <string name="import_button_text">Import</string>
     <string name="canvas_title_default">Document Name</string>
-    <string name="drawer_menu_current_file_item_text">Current File</string>
+    <string name="drawer_menu_current_file_item_text">Current Canvas</string>
     <string name="drawer_menu_new_item_text">New</string>
     <string name="drawer_menu_open_item_text">Open</string>
+    <string name="drawer_menu_open_server_item_text">Open From Firebase</string>
     <string name="drawer_menu_export_item_text">Export as PDF</string>
     <string name="drawer_menu_auto_save_item_text">Auto Save (seconds)</string>
     <string name="drawer_menu_server_sync_item_text">Server Sync (seconds)</string>
@@ -30,5 +31,4 @@ Including but not limited to:\n
     Android Navigation : Apache License, Version 2.0\n
     </string>
     <string name="app_license">This App is distributed under the GNU General Public License v3.0</string>
-    <string name="drawer_menu_open_server_item_text">Open Firebase Canvas</string>
 </resources>
