@@ -15,25 +15,62 @@ import android.view.View;
 
 import app.notone.core.util.SettingsHolder;
 
+/**
+ * 
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @author L H
+ * @author l.h@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
+ */
 public class CanvasView extends View {
+    /** Tag for logging */
     private static final String LOG_TAG = CanvasView.class.getSimpleName();
+    /** Maximum value that the scaling can have (zoom level) */
     private final float MAX_SCALE = 5.f;
+    /** Minimum value that the scaling can have (zoom level) */
     private final float MIN_SCALE = 0.05f;
+    /** The location where the canvas is saved */
     private Uri mCurrentURI = null;
+    //* True if the canvas has been saved and not been changed since */
     private boolean mSaved = false;
+    //** True if the canvas is fully loaded */
     private boolean mLoaded = false;
 
+    /**
+     * Handles the interaction with the pen and the canvas.
+     * The CanvasWriter manages the different kinds of pens
+     * that exist e.g. writing and erasing.
+     * It also manages the Strokes that are being created and/or
+     * deleted by the pens.
+     */
     private CanvasWriter mCanvasWriter;
 
+    /** 
+     * Handles detecting scaling gestures 
+     * (pinch-zooming with two fingers) 
+     * */
     private ScaleGestureDetector mScaleDetector;
+    /**
+     * Handles detecting general gestures like
+     * pressing, dragging and long-press
+     */
     private GestureDetector mGestureDetector;
 
-    // Remember some things for zooming
+    /** Matrix describing the zoom and translation of the canvas */
     private Matrix mViewTransform;
+    /** Inverse Matrix of the mViewTransform */
     private Matrix mInverseViewTransform;
+    /** Current scaling factor */
     private float mScale    = 1.f;
 
+    /** Holds a printout of a pdf document as a collection of Bitmaps */
     private CanvasPdfDocument mPdfDocument;
+    /** 
+     * Renders the CanvasPdfDocument and the preview border of 
+     * the pdf export to the canvas
+     * */
     private PdfCanvasRenderer mPdfRenderer;
 
     /**
@@ -146,11 +183,18 @@ public class CanvasView extends View {
         mLoaded = loaded;
     }
 
+    /**
+     * Resets the view matrices to the unit-matrix
+     */
     public void resetViewMatrices() {
         mViewTransform = new Matrix();
         mViewTransform.invert(mInverseViewTransform);
     }
 
+    /**
+     * Resets alls values and removes all elements from the canvas.
+     * This includes all strokes and the pdf printout
+     */
     public void reset() {
         resetViewMatrices();
         setScale(1.f);
@@ -160,8 +204,8 @@ public class CanvasView extends View {
     }
 
     /**
-     * called when canvas is updated or invalidated
-     * @param canvas current Canvas
+     * Called when canvas is updated or invalidated
+     * @param canvas Current Canvas
      */
     @Override
     protected void onDraw(Canvas canvas) {
@@ -180,9 +224,9 @@ public class CanvasView extends View {
     }
 
     /**
-     * if user interacts via touch
-     * @param event
-     * @return
+     * Called when the user interacts with the canvas via touch
+     * @param event Contains information about the touch
+     * @return True if the canvas has to be invalidated
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -238,15 +282,28 @@ public class CanvasView extends View {
     }
 
     /**
-     * Scaling
+     * Handles all interactions with the canavs that were classified as 'scaling'
      */
     private class CanvasScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
+        /**
+         * Called when the scaling interaction starts
+         * @param detector The detector that recognized the event
+         * @return
+         */
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             return true;
         }
 
+        /**
+         * Called when the scaling interaction is in progress.
+         * The mScaleFactor and the translation will be adjusted
+         * according to how much is being zoomed in/out and if
+         * the fingers are moving while zooming.
+         * @param detector The detector that recognized the event
+         * @return
+         */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
 
@@ -274,7 +331,7 @@ public class CanvasView extends View {
     }
 
     /**
-     * android magic
+     * Function required by the View superclass
      * @param widthMeasureSpec
      * @param heightMeasureSpec
      */
@@ -284,35 +341,61 @@ public class CanvasView extends View {
     }
 
     /**
-     * all gestures except scaling cause android
+     * Handles all gestures except scaling
      */
     private class CanvasGestureListener extends GestureDetector.SimpleOnGestureListener {
+        /**
+         * Called when a gesture is classified as a single tap
+         * @param e Information about the touch event
+         * @return
+         */
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             return true;
         }
 
+        /**
+         * Called when a gesture is classified as a double tap
+         * @param e Information about the touch event
+         * @return
+         */
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
             return true;
         }
 
+        /**
+         * Called when the pen/finger is first touching the canvas
+         * @param e Information about the touch event
+         * @return
+         */
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
         }
 
+        /**
+         * Called when the a single tap is lifted
+         * @param e Information about the touch event
+         * @return
+         */
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             return true;
         }
 
         /**
-         *
-         * @param e1 start point of the translation
-         * @param e2 current point of translation
-         * @param distanceX
-         * @param distanceY
+         * Called when a gesture is classified as scrolling/panning.
+         * This function adjusts the translation of the view matrix
+         * depending on how far the user has scrolled.
+         * 
+         * If the panning has been set to restricted in the settings
+         * the user can only scroll with one finger.
+         * Scrolling with a stylus is disabled.
+         * @param e1 Information about the touch at the start
+         * @param e2 Information about the touch at the current point in time
+         * @param distanceX current distance scrolled in the x direction
+         * @param distanceY current distance scrolled in the y direction
          * @return
          */
         @Override
@@ -331,9 +414,22 @@ public class CanvasView extends View {
             return true;
         }
 
+        /**
+         * Called when a gesture is classified as a long press
+         * @param e Information about the touch event
+         */
         @Override
         public void onLongPress(MotionEvent e) { }
 
+
+        /**
+         * Called when a gesture is recognized as a fling
+         * @param e1 Information about the touch at the start
+         * @param e2 Information about the touch at the current point in time
+         * @param velocityX current x-velocity of the fling
+         * @param velocityY current y-velocity of the fling
+         * @return
+         */
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             return true;
