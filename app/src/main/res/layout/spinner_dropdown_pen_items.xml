@@ -1,5 +1,6 @@
 <!--
 @author default-student
+the menu thats visible if the pen dropdown menus are expanded
 -->
 <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
@@ -12,4 +13,3 @@
     android:ellipsize="marquee"
     android:textAlignment="center"
     android:textColor="@color/white" />
-<!--customize https://stackoverflow.com/questions/12432553/how-to-use-apply-a-custom-drawable-to-radiobutton-->

@@ -21,6 +21,12 @@ public class PenPorter {
 
     private final static String TAG = "NotOnePenPorter";
 
+    /**
+     * convert the presetPen data to a json object
+     * @param presetPenButtons
+     * @return
+     * @throws JSONException
+     */
     public static JSONObject presetPensToJSON(ArrayList<PresetPenButton> presetPenButtons) throws JSONException {
 //        Log.d(TAG, "converting " + presetPenButtons + " to Json");
 
@@ -42,6 +48,14 @@ public class PenPorter {
         return json;
     }
 
+    /**
+     * generate a arraylist of preset pens from a json object as string
+     * @param context
+     * @param fragmentActivity
+     * @param pendata
+     * @return
+     * @throws JSONException
+     */
     public static ArrayList<PresetPenButton> presetPensFromJSON(Context context, FragmentActivity fragmentActivity, String pendata) throws JSONException {
 //        Log.d(TAG, "converting json " + pendata + " to preset pens");
 

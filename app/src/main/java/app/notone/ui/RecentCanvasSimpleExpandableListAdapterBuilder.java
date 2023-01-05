@@ -16,10 +16,14 @@ import app.notone.R;
  */
 
 
-public class RecentCanvasExpandableListAdapter {
+public class RecentCanvasSimpleExpandableListAdapterBuilder {
     private final static String TAG = "BaseExpandableListAdapter";
 
-    public static SimpleExpandableListAdapter getRecentCanvasExpListAdapter(Context context, String[][] recentFileNames) { // TODO switch to constructor
+    /**
+     * build a configured ExpandableListAdapter for the Recent Canvases Expandable List View
+     * @param recentFileNames example {{"file1","file2"}} 2D as multiple groups could be created
+     */
+    public static SimpleExpandableListAdapter build(Context context, String[][] recentFileNames) {
         // create lists for group and child items
         String[] groupItems = {"Recent Files"};
         List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();

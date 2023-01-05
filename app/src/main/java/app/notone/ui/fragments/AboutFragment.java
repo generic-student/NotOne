@@ -18,6 +18,10 @@ import app.notone.R;
 
 public class AboutFragment extends Fragment {
 
+    /**
+     * inflate fragment
+     * handle the about button onclick programmatically
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_about, container, false);

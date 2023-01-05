@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 @author default-student
 -->
 <resources>
-    <string-array
-        name="pen_colors">
+    <string-array name="pen_colors">
+        <!-- the color names of the pens -->
+        <!-- the first item is a title -->
         <item>Colors</item>
         <item>RED</item>
         <item>GREEN</item>
@@ -13,6 +13,7 @@
         <item>CYAN</item>
     </string-array>
     <array name="pen_color_values">
+        <!-- the color values of the pens -->
         <item>@color/black</item>
         <item>@android:color/holo_red_light</item>
         <item>@android:color/holo_green_light</item>
@@ -20,8 +21,9 @@
         <item>@android:color/holo_orange_light</item>
         <item>@android:color/holo_blue_bright</item>
     </array>
-    <string-array
-        name="pen_weights">
+    <string-array name="pen_weights">
+        <!-- the weights of the pens (value and name) -->
+        <!-- the first item is a title -->
         <item>Size</item>
         <item>5</item>
         <item>10</item>

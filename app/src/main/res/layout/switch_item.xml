@@ -1,5 +1,6 @@
 <!--
 @author default-student
+a switch layout that can be used in the navdrawer
 -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
