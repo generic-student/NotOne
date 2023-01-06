@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-@author default-student
+@author Luca Hackel
 the toolbar of the canvas and app
 tool items are toggled to invisible if a non canvas fragment is active
 -->

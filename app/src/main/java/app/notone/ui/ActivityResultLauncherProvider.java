@@ -12,7 +12,9 @@ import app.notone.io.FileManager;
 import app.notone.ui.fragments.CanvasFragment;
 
 /**
- * @author default-student
+ * Provides the ActivityResultLaunchers for the MainActivity and Ui
+ * they enable the save and open functionality in the navDrawer
+ * @author Luca Hackel
  * @since 202212XX
  */
 

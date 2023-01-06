@@ -46,7 +46,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import app.notone.core.CanvasPdfDocument;
 import app.notone.core.PeriodicSaveHandler;
 import app.notone.core.util.RecentCanvases;
 import app.notone.core.util.SettingsHolder;
@@ -59,27 +58,35 @@ import app.notone.ui.RecentCanvasSimpleExpandableListAdapterBuilder;
 import static androidx.navigation.Navigation.findNavController;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "NotOneMainActivity";
 
-    /* Programmatic Layout Variables */
+/* Programmatic Layout Variables */
+    /* the view that contains the navdrawer menu */
     private NavigationView mNavDrawerView;
+    /* the main activity of the app that contains the drawer and fragments */
     private NavigationDrawer mMainDrawerActivity;
+    /* the expandable list view that contains the recent canvases */
     private ExpandableListView mSimExpListView;
+    /* the adapter that holds the data for the expandable listview */
     private SimpleExpandableListAdapter mAdapter;
 
+    /* contains the name of the current canvas used as title */
     public static String sCanvasName = "Unsaved Doc";
+    /* contains the recently opened canvases */
     public static RecentCanvases sRecentCanvases = new RecentCanvases(4);
+    /* if the toolbar is visible or hidden by the fab */
     boolean mToolbarVisibility = true;
 
 //region Persistence
 
-    /* Persistence */
-    private static final String RECENT_CANVAE_LIST_PREF_KEY = "recentfiles";
+/* Persistence */
+    /* holds the shared pref key for the recent canvases */
+    private static final String RECENT_CANVASES_LIST_PREF_KEY = "recentfiles";
 
     /**
      * Store the recent canvases in shared prefs as json
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             String recentCanvasesString = sRecentCanvases.toJson().toString();
 
             Log.d(TAG, "onPause: storing recent files: " + recentCanvasesString);
-            editor.putString(RECENT_CANVAE_LIST_PREF_KEY, recentCanvasesString);
+            editor.putString(RECENT_CANVASES_LIST_PREF_KEY, recentCanvasesString);
             editor.apply();
         }
     }
@@ -101,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static void loadRecentCanvasesFromSharedPreferences(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(CanvasFragment.SHARED_PREFS_TAG, MODE_PRIVATE);
-        String recentCanvasList = sharedPreferences.getString(RECENT_CANVAE_LIST_PREF_KEY, "");
+        String recentCanvasList = sharedPreferences.getString(RECENT_CANVASES_LIST_PREF_KEY, "");
         Log.d(TAG, "onResume: recentCanvasList: " + recentCanvasList + "replace old map: " + sRecentCanvases);
         try {
             sRecentCanvases = RecentCanvases.fromJson(new JSONObject(recentCanvasList), 4);

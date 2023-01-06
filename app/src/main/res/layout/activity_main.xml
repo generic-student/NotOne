@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-@author default-student
+@author Luca Hackel
 The Main Activity of the app which inits fragments in a container using the navigation ui
 -->
 <!-- Use DrawerLayout as root container for activity -->

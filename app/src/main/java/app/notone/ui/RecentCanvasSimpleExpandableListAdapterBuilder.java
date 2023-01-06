@@ -11,7 +11,7 @@ import java.util.Map;
 import app.notone.R;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 

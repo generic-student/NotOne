@@ -14,7 +14,9 @@ import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 
 /**
- * @author default-student
+ * works with the fragment_root_preferences PreferenceScreen to automatically set and update
+ * preferences in the shared prefs
+ * @author Luca Hackel
  * @since 202212XX
  */
 

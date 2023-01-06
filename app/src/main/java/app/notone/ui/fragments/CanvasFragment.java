@@ -45,13 +45,14 @@ import app.notone.ui.PresetPenButton;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * @author default-student
+ * The most important fragment of the app
+ * It adds the functionality to the toolbar of the canvas and enables data persistence
+ * @author Luca Hackel
  * @since 202212XX
  */
 public class CanvasFragment extends Fragment {
 
     public static final String TAG = "NotOneCanvasFragment";
-    private static final String LOG_TAG = CanvasFragment.class.getSimpleName();
     public static final String SHARED_PREFS_TAG = "NotOneSharedPrefs";
     private static final String PEN_PRESETS_PREF_KEY = "penpresets";
 

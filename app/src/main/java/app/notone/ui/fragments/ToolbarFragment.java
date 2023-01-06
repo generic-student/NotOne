@@ -10,7 +10,8 @@ import androidx.fragment.app.Fragment;
 import app.notone.R;
 
 /**
- * @author default-student
+ * nearly unmodified extension of the fragment that enables the use as a toolbar
+ * @author Luca Hackel
  * @since 202212XX
  */
 

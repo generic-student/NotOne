@@ -1,5 +1,5 @@
 <!--
-@author default-student
+@author Luca Hackel
 the menu thats visible if the pen dropdown menus are expanded
 -->
 <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"

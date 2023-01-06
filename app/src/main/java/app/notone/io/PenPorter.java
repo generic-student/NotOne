@@ -13,7 +13,7 @@ import app.notone.ui.PresetPenButton;
 
 /**
  * Export preset pen data to json
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 
@@ -24,7 +24,6 @@ public class PenPorter {
     /**
      * convert the presetPen data to a json object
      * @param presetPenButtons
-     * @return
      * @throws JSONException
      */
     public static JSONObject presetPensToJSON(ArrayList<PresetPenButton> presetPenButtons) throws JSONException {

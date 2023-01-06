@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment;
 import app.notone.R;
 
 /**
- * @author default-student
+ * A simple Fragment that displays info and has a button that links to a webpage
+ * @author Luca Hackel
  * @since 202212XX
  */
 
@@ -27,7 +28,9 @@ public class AboutFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
 
         Button buttonAbout = view.findViewById(R.id.button_about_pages);
-        buttonAbout.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://github.com/generic-student"))));
+        buttonAbout.setOnClickListener(v ->
+                startActivity(new Intent(Intent.ACTION_VIEW).
+                        setData(Uri.parse("https://github.com/generic-student"))));
 
         return view;
     }
