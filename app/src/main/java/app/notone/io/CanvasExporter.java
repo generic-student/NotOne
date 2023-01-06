@@ -38,11 +38,23 @@ import androidx.lifecycle.LifecycleObserver;
 import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
 /**
- * Exports a Canvas
+ * Converts a CanvasView Object and all its associated Members to a JSONObject for serialization
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
  */
 public class CanvasExporter {
+    /** Tag for logging */
     private static final String LOG_TAG = CanvasExporter.class.getSimpleName();
 
+    /**
+     * Converts a {@link CanvasView} to a JSONObject
+     * @param view CanvasView Object to be converted
+     * @param exportUndoTree True if the undo-redo tree should be included in the export
+     * @return JSONObject
+     * @throws JSONException When the CanvasView cannot be converted to a JSONObject
+     */
     public static JSONObject canvasViewToJSON(@NonNull CanvasView view, boolean exportUndoTree) throws JSONException{
         JSONObject json = new JSONObject();
 
@@ -68,6 +80,14 @@ public class CanvasExporter {
         return json;
     }
 
+    
+    /** 
+     * Converts a {@link CanvasWriter} to a JSONObject
+     * @param writer CanvasWriter Object to be converted
+     * @param exportUndoTree True if the undo-redo tree should be incuded in the export
+     * @return JSONObject
+     * @throws JSONException When the CanvasWriter cannot be converted to a JSONObject
+     */
     public static JSONObject canvasWriterToJSON(@NonNull CanvasWriter writer, boolean exportUndoTree) throws JSONException{
         //convert the strokes to json
         JSONObject json = new JSONObject();
@@ -106,6 +126,12 @@ public class CanvasExporter {
         return json;
     }
 
+    
+    /** 
+     * Converts a {@link Stroke} to a JSONObject
+     * @param stroke Stroke Object to be converted
+     * @return JSONObject
+     */
     public static JSONObject strokeToJSON(@NonNull Stroke stroke) {
         JSONObject json = new JSONObject();
 
@@ -122,6 +148,13 @@ public class CanvasExporter {
         return json;
     }
 
+    
+    /** 
+     * Converts a {@link CanvasWriterAction} to a JSONObject
+     * @param action CanvasWriterAction Object to be converted
+     * @param strokeId the index of the stroke that is associated with the action
+     * @return JSONObject
+     */
     public static JSONObject canvasWriterActionToJSON(CanvasWriterAction action, int strokeId) {
         JSONObject json = new JSONObject();
         try {
@@ -138,6 +171,12 @@ public class CanvasExporter {
         return json;
     }
 
+    
+    /** 
+     * Converts a {@link CanvasPdfDocument} to a JSONObject
+     * @param document CanvasPdfDocument Object to be converted
+     * @return JSONObject
+     */
     public static JSONObject canvasPdfDocumentToJson(CanvasPdfDocument document) {
         JSONObject json = new JSONObject();
         try {
@@ -158,6 +197,12 @@ public class CanvasExporter {
         return json;
     }
 
+    
+    /** 
+     * Converts a {@link Bitmap} to a JSONObject
+     * @param bitmap Bitmap Object to be converted
+     * @return JSONObject
+     */
     public static JSONObject bitmapToJson(Bitmap bitmap) {
         JSONObject json = new JSONObject();
 

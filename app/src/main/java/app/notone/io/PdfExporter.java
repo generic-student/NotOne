@@ -21,10 +21,31 @@ import java.util.stream.Collectors;
 import app.notone.core.CanvasView;
 import app.notone.core.util.PageSize;
 
+/**
+ * This class is used for generating a pdf doucment from a CanavsView
+ * and exporting/saving it to the filesystem.
+ * It can calculate the bounds around the content on the Canvas
+ * and render all elements of the canvas to a pdf document.
+ * @author Kai Titgens
+ * @author kai.titgens@stud.th-owl.de
+ * @version 0.1
+ * @since 0.1
+ */
 public class PdfExporter {
-
+    /** Tag for logging */
     private final static String TAG = "PdfExporter";
 
+    
+    /** 
+     * Returns a sorted list of Bounding for all strokes contained
+     * in the CanvasView.
+     * The list of strokes contained in the CanvasView is converted to
+     * a list of bounding boxes. The list bounding boxes is sorted 
+     * by their y-coordinate in ascending order. The y-coordinate used 
+     * in each bounding box is the one from the upper-left corner.
+     * @param view CanvasView
+     * @return List<RectF>
+     */
     private static List<RectF> getStrokeBoundsSortedY(CanvasView view) {
         //get a list of the bounding boxes for all strokes
         final List<RectF> bounds = view.getCanvasWriter().getStrokes().stream().map(stroke -> {
@@ -39,6 +60,19 @@ public class PdfExporter {
         return boundsSortedY;
     }
 
+    
+    /** 
+     * Computes a list of bounding boxes that contain as much content as
+     * as possible from the CanvasView. The amount of content included
+     * is restricted by the set pageSize e.g. A4.
+     * The bounds will always start from (0,0) and are rectangles of
+     * the defined pageSize.
+     * @param view CanvasView with the content
+     * @param dpi Dots per inch
+     * @param pageSize size of the pdf pages
+     * @return ArrayList<Rect> List of bounding boxes describing the pages
+     * of the pdf document
+     */
     @NonNull
     public static ArrayList<Rect> computePdfPageBoundsFromCanvasViewStrict(@NonNull CanvasView view, float dpi, @NonNull PageSize pageSize) {
         final int heightPixels = pageSize.getHeightPixels(dpi);
@@ -77,6 +111,19 @@ public class PdfExporter {
         return pages;
     }
 
+    
+    /** 
+     * Computes a list of bounding boxes with a maximum height
+     * that contain all elements in the CanvasView. the width of
+     * each individual page is determined by how far the elements are
+     * spread apart and is not the same for all pages.
+     * The pages do not have to start at the origin but start from the
+     * stroke with the smallest y-coordinate
+     * @param view CanvasView with the content
+     * @param dpi Dots per inch
+     * @return ArrayList<Rect> List of bounding boxes describing the pages
+     * of the pdf document
+     */
     @NonNull
     public static ArrayList<Rect> computePdfPageBoundsFromCanvasView(@NonNull CanvasView view, float dpi) {
         //compute the max height of the page (Din A4)
@@ -127,6 +174,15 @@ public class PdfExporter {
         return pages;
     }
 
+    
+    /** 
+     * Renders the Contens of the CanvasView to a PdfDocument.
+     * the pages of the PdfDocument are described by the list
+     * of pageBounds.
+     * @param view CanvasView with the content
+     * @param pageBounds Bounds describing the individual pages
+     * @param document Resulting PdfDocument
+     */
     public static void renderCanvasViewContentsToPdfDocument(@NonNull CanvasView view, @NonNull ArrayList<Rect> pageBounds, @NonNull PdfDocument document) {
         for (Rect pageRect : pageBounds) {
             PdfDocument.PageInfo info = new PdfDocument.PageInfo.Builder(pageRect.width(), pageRect.height(), 1).create();
@@ -146,6 +202,13 @@ public class PdfExporter {
         }
     }
 
+    
+    /** 
+     * Exports the PdfDocument to the filesystem.
+     * @param document PdfDocument to export
+     * @param folder Folder to export to
+     * @param filename Filename
+     */
     public static void exportPdfDocumentToFolder(@NonNull PdfDocument document, String folder, String filename) {
         File file = new File(folder, filename);
         try {
@@ -157,6 +220,14 @@ public class PdfExporter {
         }
     }
 
+    
+    /** 
+     * Exports the CanvasView to a PdfDocument that is saved on the filesystem
+     * @param canvasView CanvasView with the content
+     * @param dpi Dots per inch
+     * @param folder Folder to export to
+     * @param filename Filename
+     */
     public static void export(CanvasView canvasView, float dpi, String folder, String filename) {
         //compute the size for the pdf pages
         ArrayList<Rect> pages = computePdfPageBoundsFromCanvasView(canvasView, dpi);
@@ -172,6 +243,17 @@ public class PdfExporter {
         pdfDocument.close();
     }
 
+    
+    /** 
+     * Exports the CanvasView to a PdfDocument that is saved on the filesystem.
+     * It includes the option to enforce the A4 format for the export.
+     * @param canvasView CanvasView with the content
+     * @param dpi Dots per inch
+     * @param folder Folder to export to
+     * @param filename Filename
+     * @param enforceA4 True if the exported Pdf should be in A4 format
+     */
+    @Deprecated
     public static void export(CanvasView canvasView, float dpi, String folder, String filename, boolean enforceA4) {
         //compute the size for the pdf pages
         ArrayList<Rect> pages = enforceA4 ? computePdfPageBoundsFromCanvasViewStrict(canvasView, dpi, PageSize.A4) : computePdfPageBoundsFromCanvasView(canvasView, dpi);
@@ -187,6 +269,15 @@ public class PdfExporter {
         pdfDocument.close();
     }
 
+    
+    /** 
+     * Exports a PdfDocument from a CanavsView with the option
+     * to enforce the A4 format
+     * @param canvasView CanavsView with the content
+     * @param dpi Dots per inch
+     * @param enforceA4 True if the PdfDocument should be in A4 format
+     * @return PdfDocument Resulting PdfDocument
+     */
     public static PdfDocument exportPdfDocument(CanvasView canvasView, float dpi, boolean enforceA4) {
         //compute the size for the pdf pages
         ArrayList<Rect> pages = enforceA4 ? computePdfPageBoundsFromCanvasViewStrict(canvasView, dpi, PageSize.A4) : computePdfPageBoundsFromCanvasView(canvasView, dpi);

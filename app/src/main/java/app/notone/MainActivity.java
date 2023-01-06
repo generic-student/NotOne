@@ -349,11 +349,6 @@ public class MainActivity extends AppCompatActivity {
                     final Uri firebaseUri = Uri.parse("firebase");
                     CanvasFragment.sSettings.setOpenFile(true);
                     FileManager.openCanvasFileFromUri(this, firebaseUri);
-
-                    return false;
-                case R.id.delete_pdf_import:
-                    CanvasFragment.sCanvasView.setPdfDocument(new CanvasPdfDocument());
-                    CanvasFragment.sCanvasView.invalidate();
                     return false;
                 /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:

@@ -11,9 +11,11 @@ All sensible strings that would need to be translated for other locales
     <string name="about_section_title">About</string>
     <string name="legal_section_title">Licenses and Legal</string>
     <string name="import_button_text">Import</string>
-    <string name="drawer_menu_current_file_item_text">Current File</string>
+    <string name="canvas_title_default">Document Name</string>
+    <string name="drawer_menu_current_file_item_text">Current Canvas</string>
     <string name="drawer_menu_new_item_text">New</string>
     <string name="drawer_menu_open_item_text">Open</string>
+    <string name="drawer_menu_open_server_item_text">Open From Firebase</string>
     <string name="drawer_menu_export_item_text">Export as PDF</string>
     <string name="drawer_menu_auto_save_item_text">Auto Save (seconds)</string>
     <string name="drawer_menu_server_sync_item_text">Server Sync (seconds)</string>
@@ -24,11 +26,11 @@ All sensible strings that would need to be translated for other locales
     <string name="third_party_licenses">
 This product includes software developed by Google (http://www.google.com/).\n
 Including but not limited to:\n
-    Digital Ink Recognition in ML Kit : Apache License, Version 2.0\n
-    Firebase Android SDK : Apache License, Version 2.0\n
-    Android Navigation : Apache License, Version 2.0\n
+        Digital Ink Recognition in ML Kit : Apache License, Version 2.0\n
+        Firebase Android SDK : Apache License, Version 2.0\n
+        Android Navigation : Apache License, Version 2.0\n
+Others:\n
+        Templarian MaterialDesign Icons : Apache License, Version 2.0\n
     </string>
-    <string name="canvas_title_default">Document Name</string>
-    <string name="drawer_menu_open_server_item_text">Open Firebase Canvas</string>
     <string name="app_license">This App is distributed under the GNU General Public License v3.0</string>
 </resources>
