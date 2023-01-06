@@ -51,11 +51,12 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
- *
+ * Manages the file access of the app
+ * A edited canvas can be saved and opened afterwards with its methods
+ * save locations on the local device as well as firebase cloud are possible
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @author Luca Hackel
- * @author l.h@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
@@ -147,7 +148,6 @@ public class FileManager {
      * Saves a String to the filesystem given a uri
      * contained in the CanvasView
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param context Application Context
      * @param data Data to save
      * @param view CanvasView containing the uri
@@ -289,7 +289,6 @@ public class FileManager {
      * Loads a CanvasView from the filesystem given a uri
      * included in the CanvasView.
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param context Application Context
      * @param view CanvasView to load the data into
      * @param settings Flags set for the CanvasFragment
@@ -321,7 +320,6 @@ public class FileManager {
      * for a specific uri. This is required so that a uri can be
      * accessed after the app has been closed
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param contentResolver
      * @param uri
      */
@@ -334,7 +332,6 @@ public class FileManager {
     /**
      * Request access to the external storage
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param mainActivity
      */
     public static void requestFileAccessPermission(MainActivity mainActivity) {
@@ -345,7 +342,6 @@ public class FileManager {
     /**
      * Check if the app has access to the external storage
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param context
      * @return True if access was granted
      */
@@ -356,7 +352,6 @@ public class FileManager {
     /**
      * Get the filename from a Uri
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @return filename
      */
     public static String getFilenameFromUri(Uri uri, ContentResolver contentResolver) {
@@ -418,7 +413,6 @@ public class FileManager {
     /**
      * Creates a new Canvas File at the given uri
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
      */
@@ -452,7 +446,6 @@ public class FileManager {
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
      */
@@ -483,7 +476,6 @@ public class FileManager {
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
      */
@@ -528,7 +520,6 @@ public class FileManager {
     /**
      * Imports a pdf document from a given uri into the active CanvasView
      * @author Luca Hackel
-     * @author l.h@stud.th-owl.de
      * @param canvasFragment
      * @param uri
      */

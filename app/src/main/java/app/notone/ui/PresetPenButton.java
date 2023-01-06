@@ -25,6 +25,7 @@ import app.notone.R;
 public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageButton {
     private static final String TAG = "NotOnePresetPenButton";
 
+    /* assigned by the constructors */
     public Spinner mDDMenuColor;
     public Spinner mDDMenWeight;
     public int mDDMenuColorId;
@@ -57,10 +58,9 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
 
     /**
      * create presetpen from current spinner settings
-     * @param context
-     * @param fragmentActivity
-     * @param ddownmpencolorsid
-     * @param ddownmpenweightsid
+     * @param fragmentActivity     the activity that contains the ddmenus
+     * @param ddownmpencolorsid    the id of the color chooser dd
+     * @param ddownmpenweightsid   the id of the weight chooser dd
      * @param colorindexmapid      maps the index of the ddownmcolors (from R.array.pen_colors) to actual colors (from R.array.pen_color_values)
      */
     public PresetPenButton(Context context, FragmentActivity fragmentActivity,
@@ -84,18 +84,18 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
 
     /**
      * create presetpen from json data
-     * @param context
-     * @param fragmentActivity
-     * @param ddownmpencolorsid
-     * @param ddownmpenweightsid
-     * @param colorindexmapid
-     * @param mDDMenuColorIndex
-     * @param mmdownWeightindex
-     * @param ddMenuWeightValue
+     * @param fragmentActivity      the activity that contains the ddmenus
+     * @param ddownmpencolorsid     the id of the color chooser ddm
+     * @param ddownmpenweightsid    the id of the weight chooser ddm
+     * @param colorindexmapid       maps the index of the ddownmcolors (from R.array.pen_colors) to actual colors (from R.array.pen_color_values)
+     * @param ddmenucolorindex      index of the color in the ddm of the preset pen
+     * @param ddmenuweightindex     index of the weight in the ddm of the preset pen
+     * @param ddmenuweightvalue     value of the weight in the ddm of the preset pen
      */
     public PresetPenButton(Context context, FragmentActivity fragmentActivity,
                            int ddownmpencolorsid, int ddownmpenweightsid,
-                           int colorindexmapid, int mDDMenuColorIndex, int mmdownWeightindex, float ddMenuWeightValue){
+                           int colorindexmapid, int ddmenucolorindex,
+                           int ddmenuweightindex, float ddmenuweightvalue){
         super(context);
 
         this.mDDMenuColorId = ddownmpencolorsid;
@@ -105,9 +105,9 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
         this.mDDMenuColor = fragmentActivity.findViewById(mDDMenuColorId);
         this.mDDMenWeight = fragmentActivity.findViewById(mDDMenuWeightId);
 
-        this.mDDMenuColorIndex = mDDMenuColorIndex;
-        this.mDDMenuWeightIndex = mmdownWeightindex;
-        this.mDDMenuWeightValue = ddMenuWeightValue;
+        this.mDDMenuColorIndex = ddmenucolorindex;
+        this.mDDMenuWeightIndex = ddmenuweightindex;
+        this.mDDMenuWeightValue = ddmenuweightvalue;
 
         setLayout(context);
     }

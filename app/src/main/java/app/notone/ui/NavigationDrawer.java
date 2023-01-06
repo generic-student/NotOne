@@ -18,6 +18,7 @@ import app.notone.core.util.SettingsHolder;
 
 public class NavigationDrawer extends DrawerLayout {
 
+    /* flag if the drawer is allowed to be opened by swiping */
     boolean mSwipeOpenEnabled;
 
     public NavigationDrawer(@NonNull Context context) {
@@ -37,7 +38,7 @@ public class NavigationDrawer extends DrawerLayout {
 
     /**
      * Intercept the Touch event and to disable drawer opening if its disabled
-     * @return open drawer
+     * @return open drawer flag
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {

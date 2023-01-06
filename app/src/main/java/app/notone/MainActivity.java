@@ -66,13 +66,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "NotOneMainActivity";
 
 /* Programmatic Layout Variables */
-    /*  */
+    /* the view that contains the navdrawer menu */
     private NavigationView mNavDrawerView;
-    /*  */
+    /* the main activity of the app that contains the drawer and fragments */
     private NavigationDrawer mMainDrawerActivity;
-    /*  */
+    /* the expandable list view that contains the recent canvases */
     private ExpandableListView mSimExpListView;
-    /*  */
+    /* the adapter that holds the data for the expandable listview */
     private SimpleExpandableListAdapter mAdapter;
 
     /* contains the name of the current canvas used as title */
