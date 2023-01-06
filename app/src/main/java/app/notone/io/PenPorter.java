@@ -13,7 +13,7 @@ import app.notone.ui.PresetPenButton;
 
 /**
  * Export preset pen data to json
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 

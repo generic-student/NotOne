@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import app.notone.R;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 

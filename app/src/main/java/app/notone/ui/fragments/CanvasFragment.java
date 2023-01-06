@@ -45,7 +45,7 @@ import app.notone.ui.PresetPenButton;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 public class CanvasFragment extends Fragment {

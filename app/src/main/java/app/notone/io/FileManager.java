@@ -54,7 +54,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
- * @author L H
+ * @author Luca Hackel
  * @author l.h@stud.th-owl.de
  * @version 0.1
  * @since 0.1
@@ -146,7 +146,7 @@ public class FileManager {
     /**
      * Saves a String to the filesystem given a uri
      * contained in the CanvasView
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param context Application Context
      * @param data Data to save
@@ -288,7 +288,7 @@ public class FileManager {
     /**
      * Loads a CanvasView from the filesystem given a uri
      * included in the CanvasView.
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param context Application Context
      * @param view CanvasView to load the data into
@@ -320,7 +320,7 @@ public class FileManager {
      * Tell the application that it should persist the permission
      * for a specific uri. This is required so that a uri can be
      * accessed after the app has been closed
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param contentResolver
      * @param uri
@@ -333,7 +333,7 @@ public class FileManager {
 
     /**
      * Request access to the external storage
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param mainActivity
      */
@@ -344,7 +344,7 @@ public class FileManager {
 
     /**
      * Check if the app has access to the external storage
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param context
      * @return True if access was granted
@@ -355,7 +355,7 @@ public class FileManager {
 
     /**
      * Get the filename from a Uri
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @return filename
      */
@@ -417,7 +417,7 @@ public class FileManager {
 
     /**
      * Creates a new Canvas File at the given uri
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
@@ -451,7 +451,7 @@ public class FileManager {
      * Opens a Canvas file from a given uri
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
@@ -482,7 +482,7 @@ public class FileManager {
      * Exports a CanvasView as JSON to a given uri
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param mainActivity
      * @param uri
@@ -527,7 +527,7 @@ public class FileManager {
 
     /**
      * Imports a pdf document from a given uri into the active CanvasView
-     * @author L H
+     * @author Luca Hackel
      * @author l.h@stud.th-owl.de
      * @param canvasFragment
      * @param uri

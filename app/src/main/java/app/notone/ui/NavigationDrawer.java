@@ -12,7 +12,7 @@ import app.notone.core.util.SettingsHolder;
 
 /**
  * a custom drawer enable and disable swiping to open the drawer based on preferences
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 

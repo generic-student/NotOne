@@ -14,7 +14,7 @@ import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 

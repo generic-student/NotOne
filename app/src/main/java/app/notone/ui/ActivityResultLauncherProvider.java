@@ -12,7 +12,7 @@ import app.notone.io.FileManager;
 import app.notone.ui.fragments.CanvasFragment;
 
 /**
- * @author default-student
+ * @author Luca Hackel
  * @since 202212XX
  */
 
