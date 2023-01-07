@@ -89,7 +89,7 @@ public class CanvasFragment extends Fragment {
 
         //try to load the canvas from file
         try {
-            if(!sFlags.isOpenFile()) {
+            if(!sFlags.isOpenFile() && !sCanvasView.isLoaded()) {
                 FileManager.load(getContext(), sCanvasView, sFlags);
             }
         } catch (IOException e) {
@@ -256,7 +256,7 @@ public class CanvasFragment extends Fragment {
         /* Setup insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
-            CanvasFragment.sFlags.setLoadPdf(true);
+            //CanvasFragment.sFlags.setLoadPdf(true);
             mGetPdfDocument.launch("application/pdf");
             Toast.makeText(fragmentActivity, "long press to remove pdf", Toast.LENGTH_SHORT).show();
         });

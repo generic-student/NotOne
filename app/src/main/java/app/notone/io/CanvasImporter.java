@@ -54,13 +54,13 @@ public class CanvasImporter {
          * Settings that determine what the current state of the 
          * {@link CanvasFragment} is and what should be imported
          */
-        CanvasFragmentFlags canvasFragmentSettings;
+        CanvasFragmentFlags canvasFragmentFlags;
 
-        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree, CanvasFragmentFlags canvasFragmentSettings) {
+        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree, CanvasFragmentFlags canvasFragmentFlags) {
             this.canvasView = canvasView;
             this.jsonString = jsonString;
             this.loadUndoTree = loadUndoTree;
-            this.canvasFragmentSettings = canvasFragmentSettings;
+            this.canvasFragmentFlags = canvasFragmentFlags;
         }
     }
 
@@ -104,7 +104,7 @@ public class CanvasImporter {
 
                     //determine if the pdf import should be loaded from the save file or from a uri.
                     //it will be loaded from a uri if the importPdf action had been called earlier.
-                    if(canvasImportData.canvasFragmentSettings == null || !canvasImportData.canvasFragmentSettings.shouldLoadPdf()) {
+                    if(canvasImportData.canvasFragmentFlags == null || !canvasImportData.canvasFragmentFlags.isLoadingPdf()) {
                         CanvasPdfDocument document = canvasPdfDocumentFromJson(json.getJSONObject("pdf"));
                         canvasImportData.canvasView.setPdfDocument(document);
                         Log.d("PDF", "(CanvasImporter) loaded from file");

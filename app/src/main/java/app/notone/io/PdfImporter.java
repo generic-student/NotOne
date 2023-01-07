@@ -96,6 +96,8 @@ public class PdfImporter {
             }
 
             document.setPages(pages);
+            //ensure that the current CanvasView is holding this instance of the PdfDocument
+            CanvasFragment.sCanvasView.setPdfDocument(document);
 
             return null;
         }
@@ -120,6 +122,7 @@ public class PdfImporter {
         protected void onPostExecute(Void result) {
             CanvasFragment.sCanvasView.invalidate();
             CanvasFragment.sFlags.setLoadPdf(false);
+            CanvasFragment.sCanvasView.setLoaded(true);
         }
 
     }

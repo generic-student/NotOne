@@ -50,7 +50,7 @@ public class CanvasFragmentFlags {
         this.mUri = mUri;
     }
 
-    public boolean shouldLoadPdf() {
+    public boolean isLoadingPdf() {
         return mLoadPdf;
     }
 

@@ -188,10 +188,6 @@ public class FileManager {
      * @throws IOException
      */
     public static void load(@NonNull Context context, @NonNull CanvasView view, @NonNull CanvasFragmentFlags flags) throws IOException {
-//        if(flags.isOpenFile()) {
-//            return;
-//        }
-
         if(flags.isNewFile()) {
             initNewFile(context, flags);
             return;
@@ -417,7 +413,7 @@ public class FileManager {
      * @param uri
      */
     public static void createNewCanvasFileAtUri(MainActivity mainActivity, Uri uri) {
-        Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
+        CanvasFragment.sFlags.setNewFile(true);
         CanvasFragment.sCanvasView.setUri(uri);
 
         //save the canvas to add the basic json layout to the file (otherwise the created file is empty and cannot be reopened)
@@ -450,7 +446,7 @@ public class FileManager {
      * @param uri
      */
     public static void openCanvasFileFromUri(MainActivity mainActivity, Uri uri) {
-        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+        CanvasFragment.sFlags.setOpenFile(true);
         CanvasFragment.sCanvasView.setUri(uri);
 
         try {
@@ -480,8 +476,6 @@ public class FileManager {
      * @param uri
      */
     public static void saveCanvasFileToUri(MainActivity mainActivity, Uri uri) {
-        Log.d(TAG, "mSaveAsCanvasFile to Json");
-
         // check for file access permissions || grant them, persistUriPermission() doesn't seem to work
         if (!FileManager.checkFileAccessPermission(mainActivity)) {
             Toast.makeText(mainActivity, "Permissions not granted", Toast.LENGTH_SHORT).show();
@@ -513,7 +507,10 @@ public class FileManager {
         MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
         mainActivity.updateRecentCanvasesExpListView();
 
-        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        if(!uri.toString().equals("firebase")) {
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        }
+
         Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
     }
 
@@ -524,6 +521,7 @@ public class FileManager {
      * @param uri
      */
     public static void importPdfDocumentFromUri(Fragment canvasFragment, Uri uri) {
+        CanvasFragment.sFlags.setLoadPdf(true);
         CanvasFragment.sCanvasView.resetViewMatrices();
         CanvasFragment.sCanvasView.setScale(1f);
         PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());
