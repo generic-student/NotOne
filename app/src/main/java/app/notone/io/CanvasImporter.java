@@ -1,6 +1,5 @@
 package app.notone.io;
 
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.util.Log;
 
@@ -20,7 +19,7 @@ import app.notone.core.CanvasView;
 import app.notone.core.CanvasWriter;
 import app.notone.core.CanvasWriterAction;
 import app.notone.core.Stroke;
-import app.notone.ui.CanvasFragmentSettings;
+import app.notone.ui.CanvasFragmentFlags;
 import app.notone.ui.fragments.CanvasFragment;
 
 /**
@@ -37,7 +36,7 @@ public class CanvasImporter {
 
     /**
      * Dataclass that will be sent to the AsyncTask
-     * {@link CanvasImporter#initCanvasViewFromJSON(String, CanvasView, boolean)}
+     * {@link InitCanvasFromJsonTask}
      * so that it has all the required data
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
@@ -55,9 +54,9 @@ public class CanvasImporter {
          * Settings that determine what the current state of the 
          * {@link CanvasFragment} is and what should be imported
          */
-        CanvasFragmentSettings canvasFragmentSettings;
+        CanvasFragmentFlags canvasFragmentSettings;
 
-        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree, CanvasFragmentSettings canvasFragmentSettings) {
+        public CanvasImportData(String jsonString, CanvasView canvasView, boolean loadUndoTree, CanvasFragmentFlags canvasFragmentSettings) {
             this.canvasView = canvasView;
             this.jsonString = jsonString;
             this.loadUndoTree = loadUndoTree;
@@ -138,8 +137,8 @@ public class CanvasImporter {
          * @param result
          */
         protected void onPostExecute(Void result) {
-            CanvasFragment.sSettings.setOpenFile(false);
-            CanvasFragment.sSettings.setNewFile(false);
+            CanvasFragment.sFlags.setOpenFile(false);
+            CanvasFragment.sFlags.setNewFile(false);
             CanvasFragment.sCanvasView.invalidate();
         }
 

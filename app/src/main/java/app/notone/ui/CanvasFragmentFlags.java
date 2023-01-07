@@ -14,7 +14,7 @@ import android.net.Uri;
  * @version 0.1
  * @since 0.1
  */
-public class CanvasFragmentSettings {
+public class CanvasFragmentFlags {
     /** uri of the current canvas */
     private Uri mUri;
     /** True if a pdf import is currently running */
@@ -26,7 +26,7 @@ public class CanvasFragmentSettings {
     /** True if a file is currently being opened */
     private boolean mOpenFile;
 
-    public CanvasFragmentSettings() {
+    public CanvasFragmentFlags() {
         this.mUri = null;
         this.mLoadPdf = false;
         this.mMarkerEnabled = false;
@@ -34,7 +34,7 @@ public class CanvasFragmentSettings {
         this.mOpenFile = false;
     }
 
-    public CanvasFragmentSettings(Uri uri, boolean loadPdf, boolean markerEnabled, boolean newFile, boolean openFile) {
+    public CanvasFragmentFlags(Uri uri, boolean loadPdf, boolean markerEnabled, boolean newFile, boolean openFile) {
         this.mUri = uri;
         this.mLoadPdf = loadPdf;
         this.mMarkerEnabled = markerEnabled;

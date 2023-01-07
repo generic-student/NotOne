@@ -31,9 +31,9 @@ public class CanvasView extends View {
     private final float MIN_SCALE = 0.05f;
     /** The location where the canvas is saved */
     private Uri mCurrentURI = null;
-    //* True if the canvas has been saved and not been changed since */
+    /** True if the canvas has been saved and not been changed since */
     private boolean mSaved = false;
-    //** True if the canvas is fully loaded */
+    /** True if the canvas is fully loaded */
     private boolean mLoaded = false;
 
     /**

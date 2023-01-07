@@ -354,18 +354,18 @@ public class MainActivity extends AppCompatActivity {
             switch (menuItem.getItemId()) {
                 case R.id.open_server_file:
                     final Uri firebaseUri = Uri.parse("firebase");
-                    CanvasFragment.sSettings.setOpenFile(true);
+                    CanvasFragment.sFlags.setOpenFile(true);
                     FileManager.openCanvasFileFromUri(this, firebaseUri);
                     return false;
                 /* create a new file at a chosen uri and open it in the current canvas */
                 case R.id.new_file:
                     Log.d(TAG, "onNavigationItemSelected: New File");
-                    CanvasFragment.sSettings.setNewFile(true);
+                    CanvasFragment.sFlags.setNewFile(true);
                     mNewCanvasFile.launch("canvasFile.json");
                     return false;
                 /* chose a existing file with uri and open it in the current canvas */
                 case R.id.open_file:
-                    CanvasFragment.sSettings.setOpenFile(true);
+                    CanvasFragment.sFlags.setOpenFile(true);
                     mOpenCanvasFile.launch(new String[]{"application/json"});
                     return false;
                 /* save file to existing uri of current view */
@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
             String filename = mAdapter.getChild(groupPosition, childPosition).toString().replaceAll("\\{([A-Z])\\w+=", "").replaceAll("\\}", "");
             Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + sRecentCanvases.getByFilename(filename).mUri);
             //CanvasFileManager.safeOpenCanvasFile(this, sRecentCanvases.getByFilename(filename).mUri);
-            CanvasFragment.sSettings.setOpenFile(true);
+            CanvasFragment.sFlags.setOpenFile(true);
             FileManager.openCanvasFileFromUri(this, sRecentCanvases.getByFilename(filename).mUri);
 
 

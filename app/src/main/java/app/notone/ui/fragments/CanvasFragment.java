@@ -39,7 +39,7 @@ import app.notone.core.util.SettingsHolder;
 import app.notone.io.FileManager;
 import app.notone.io.PenPorter;
 import app.notone.ui.ActivityResultLauncherProvider;
-import app.notone.ui.CanvasFragmentSettings;
+import app.notone.ui.CanvasFragmentFlags;
 import app.notone.ui.PresetPenButton;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -60,7 +60,7 @@ public class CanvasFragment extends Fragment {
     public static CanvasView sCanvasView;
     private View mCanvasFragmentView;
 
-    public static CanvasFragmentSettings sSettings = new CanvasFragmentSettings();
+    public static CanvasFragmentFlags sFlags = new CanvasFragmentFlags();
     private static ArrayList<ImageButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
     ActivityResultLauncher<String> mGetPdfDocument = ActivityResultLauncherProvider.getImportPdfActivityResultLauncher(this);
@@ -89,8 +89,8 @@ public class CanvasFragment extends Fragment {
 
         //try to load the canvas from file
         try {
-            if(!sSettings.isOpenFile()) {
-                FileManager.load(getContext(), sCanvasView, sSettings);
+            if(!sFlags.isOpenFile()) {
+                FileManager.load(getContext(), sCanvasView, sFlags);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -213,13 +213,13 @@ public class CanvasFragment extends Fragment {
                 setToolSelection(sCanvasToolGroup, buttonEraser, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
-                sSettings.setMarkerEnabled(false);
+                sFlags.setMarkerEnabled(false);
                 setToolSelection(sCanvasToolGroup, buttonEraser, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonMarker.setOnClickListener(v -> {
-            if(!sSettings.isMarkerEnabled()) {
+            if(!sFlags.isMarkerEnabled()) {
                 setToolSelection(sCanvasToolGroup, buttonMarker, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
                 int color = sCanvasView.getStrokeColor();
@@ -232,7 +232,7 @@ public class CanvasFragment extends Fragment {
                 int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
                 sCanvasView.setStrokeColor(transparent);
             }
-            sSettings.setMarkerEnabled(!sSettings.isMarkerEnabled());
+            sFlags.setMarkerEnabled(!sFlags.isMarkerEnabled());
         });
         buttonUndo.setOnClickListener(v -> sCanvasView.undo());
         buttonRedo.setOnClickListener(v -> sCanvasView.redo());
@@ -256,7 +256,7 @@ public class CanvasFragment extends Fragment {
         /* Setup insert PDF button */
         ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
-            CanvasFragment.sSettings.setLoadPdf(true);
+            CanvasFragment.sFlags.setLoadPdf(true);
             mGetPdfDocument.launch("application/pdf");
             Toast.makeText(fragmentActivity, "long press to remove pdf", Toast.LENGTH_SHORT).show();
         });
@@ -285,7 +285,7 @@ public class CanvasFragment extends Fragment {
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
             sCanvasView.setStrokeColor(transparent);
-            sSettings.setMarkerEnabled(false);
+            sFlags.setMarkerEnabled(false);
 
             if(sCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
                 setToolSelection(sCanvasToolGroup, buttonDetectShapes, true);
@@ -391,7 +391,7 @@ public class CanvasFragment extends Fragment {
             buttonPresetPen.mDDMenuColor.setSelection(buttonPresetPen.mDDMenuColorIndex, true);
             buttonPresetPen.mDDMenWeight.setSelection(buttonPresetPen.mDDMenuWeightIndex, true);
             sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
-            sSettings.setMarkerEnabled(false);
+            sFlags.setMarkerEnabled(false);
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
             sCanvasView.setStrokeColor(transparent);
