@@ -50,6 +50,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @author Luca Hackel
  * @since 202212XX
  */
+
 public class CanvasFragment extends Fragment {
 
     public static final String TAG = "NotOneCanvasFragment";

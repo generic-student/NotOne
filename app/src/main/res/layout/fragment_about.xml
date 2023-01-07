@@ -82,7 +82,7 @@ the about fragment
                         android:layout_height="wrap_content"
                         android:paddingStart="80dp"
                         android:paddingBottom="20dp"
-                        android:text="Generic and \nDefault  Student"
+                        android:text="@string/dev_names"
                         android:textAppearance="@android:style/TextAppearance.Material.Small" />
                 </LinearLayout>
                 <Button

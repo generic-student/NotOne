@@ -23,6 +23,7 @@ All sensible strings that would need to be translated for other locales
     <string name="drawer_menu_about_item_text">About</string>
     <string name="drawer_menu_save_as_item_text">Save</string>
     <string name="drawer_menu_delete_pdf_import_text">Delete Pdf Import</string>
+    <string name="dev_names">Kai Titgens and \nLuca Hackel</string>
     <string name="third_party_licenses">
 This product includes software developed by Google (http://www.google.com/).\n
 Including but not limited to:\n
