@@ -78,10 +78,6 @@ public class PeriodicSaveHandler {
                 } else {
                     Log.d(TAG, "Canvas is not fully loaded yet.");
                 }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
             } finally {
                 if(SettingsHolder.shouldAutoSaveCanvas()) {
                     mHandler.postDelayed(mPeriodicSaveRunner, SettingsHolder.getAutoSaveCanvasIntervalSeconds() * 1000);

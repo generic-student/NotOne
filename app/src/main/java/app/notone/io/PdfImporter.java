@@ -73,10 +73,7 @@ public class PdfImporter {
 
             Log.d("PDF", "Loaded into: " + document.toString());
 
-            final float scaling = FACTOR_72PPI_TO_320PPI / 2f;
-
             Matrix transform = new Matrix();
-            transform.setScale(scaling, scaling);
 
             final int amtPages = renderer.getPageCount();
             Bitmap[] pages = new Bitmap[amtPages];
@@ -99,6 +96,8 @@ public class PdfImporter {
             }
 
             document.setPages(pages);
+            //ensure that the current CanvasView is holding this instance of the PdfDocument
+            CanvasFragment.sCanvasView.setPdfDocument(document);
 
             return null;
         }
@@ -122,7 +121,8 @@ public class PdfImporter {
          */
         protected void onPostExecute(Void result) {
             CanvasFragment.sCanvasView.invalidate();
-            CanvasFragment.sSettings.setLoadPdf(false);
+            CanvasFragment.sFlags.setLoadPdf(false);
+            CanvasFragment.sCanvasView.setLoaded(true);
         }
 
     }

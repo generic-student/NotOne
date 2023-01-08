@@ -44,7 +44,7 @@ import java.util.MissingResourceException;
 import app.notone.MainActivity;
 import app.notone.core.CanvasView;
 import app.notone.core.util.RecentCanvas;
-import app.notone.ui.CanvasFragmentSettings;
+import app.notone.ui.CanvasFragmentFlags;
 import app.notone.ui.fragments.CanvasFragment;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -127,10 +127,7 @@ public class FileManager {
     public static void saveToFirebase(Context context, String data) {
         Log.d(TAG, "Saving file to firebase");
 
-        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
-        if(userId.isEmpty()) {
-            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
-        }
+        String userId = getFirebaseUserId(context);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
@@ -176,7 +173,7 @@ public class FileManager {
     /**
      * General function for loading a CanvasView from the internal filesystem,
      * external fileystem, firebase or for creating a new canvas. <p>
-     * if the settings say its a new file => create a new file <p>
+     * if the flags say its a new file => create a new file <p>
      * uri == null || uri == '' => internal filesystem <p>
      * uri == 'firebase' => firebase <p>
      * else => external filesystem 
@@ -184,34 +181,30 @@ public class FileManager {
      * @author kai.titgens@stud.th-owl.de
      * @param context Application context
      * @param view CanvasView to load the data into
-     * @param settings Flags set for the CanvasFragment
+     * @param flags Flags set for the CanvasFragment
      * @throws IOException
      */
-    public static void load(@NonNull Context context, @NonNull CanvasView view, @NonNull CanvasFragmentSettings settings) throws IOException {
-//        if(settings.isOpenFile()) {
-//            return;
-//        }
-
-        if(settings.isNewFile()) {
-            initNewFile(context, settings);
+    public static void load(@NonNull Context context, @NonNull CanvasView view, @NonNull CanvasFragmentFlags flags) throws IOException {
+        if(flags.isNewFile()) {
+            initNewFile(context, flags);
             return;
         }
 
         //differentiate between (Filesystem, Firebase, Cache)
         if(view.getCurrentURI() == null || view.getCurrentURI().toString().isEmpty()) {
-            loadFromInternalDir(context, view, settings);
+            loadFromInternalDir(context, view, flags);
             //if the canvas got loaded from disk it means its saved on disk
             view.setSaved(true);
             return;
         }
 
         if(view.getCurrentURI().toString().equals("firebase")) {
-            loadFromFirebase(context, view, settings);
+            loadFromFirebase(context, view, flags);
             view.setSaved(true);
             return;
         }
 
-        loadFromFilesystem(context, view, settings);
+        loadFromFilesystem(context, view, flags);
         view.setSaved(true);
     }
 
@@ -223,10 +216,10 @@ public class FileManager {
      * @author kai.titgens@stud.th-owl.de
      * @param context Application context
      * @param view CanvasView to laod the data into
-     * @param settings Flags set for the CanvasFragment
+     * @param flags Flags set for the CanvasFragment
      * @throws IOException
      */
-    public static void loadFromInternalDir(Context context, CanvasView view, CanvasFragmentSettings settings) throws IOException {
+    public static void loadFromInternalDir(Context context, CanvasView view, CanvasFragmentFlags flags) throws IOException {
         Log.d(TAG, "Loading file from internal directory " + context.getFilesDir());
 
         File file = new File(context.getFilesDir(), "canvas.json");
@@ -242,7 +235,7 @@ public class FileManager {
             content.append(line);
         }
 
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content.toString(), view, true, settings));
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content.toString(), view, true, flags));
     }
 
     /**
@@ -252,15 +245,12 @@ public class FileManager {
      * @author kai.titgens@stud.th-owl.de
      * @param context Application Context
      * @param view CanvasView to load the data into
-     * @param settings Flags set for the CanvasFragment
+     * @param flags Flags set for the CanvasFragment
      */
-    public static void loadFromFirebase(Context context, CanvasView view, CanvasFragmentSettings settings) {
+    public static void loadFromFirebase(Context context, CanvasView view, CanvasFragmentFlags flags) {
         Log.d(TAG, "Loading file from firebase.");
 
-        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
-        if(userId.isEmpty()) {
-            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
-        }
+        String userId = getFirebaseUserId(context);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
@@ -270,6 +260,13 @@ public class FileManager {
         downloadTask.addOnFailureListener(exception -> {
             Log.d(TAG, "Failed to retrieve file.");
             int errorCode = ((StorageException) exception).getErrorCode();
+            //if the error is something else than 'file does not exist yet'
+            //show the stacktrace
+            if(errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) {
+                exception.printStackTrace();
+                return;
+            }
+            //create the file on firebase if the file does not exist yet
             try {
                 save(context, view);
             } catch (IOException e) {
@@ -279,9 +276,10 @@ public class FileManager {
             }
 
         });
+        //init the canvas when it is loaded
         downloadTask.addOnSuccessListener(result -> {
             String content = new String(result, StandardCharsets.UTF_8);
-            new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, settings));
+            new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, flags));
         });
     }
 
@@ -291,10 +289,10 @@ public class FileManager {
      * @author Luca Hackel
      * @param context Application Context
      * @param view CanvasView to load the data into
-     * @param settings Flags set for the CanvasFragment
+     * @param flags Flags set for the CanvasFragment
      * @throws IOException
      */
-    public static void loadFromFilesystem(Context context, CanvasView view, CanvasFragmentSettings settings) throws IOException {
+    public static void loadFromFilesystem(Context context, CanvasView view, CanvasFragmentFlags flags) throws IOException {
         Log.d(TAG, "Loading file from filesystem " + view.getCurrentURI());
 
         String content = "";
@@ -312,7 +310,7 @@ public class FileManager {
         in.close();
         r.close();
 
-        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, settings));
+        new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, flags));
     }
 
     /**
@@ -349,6 +347,14 @@ public class FileManager {
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     }
 
+    public static String getFirebaseUserId(Context context) {
+        String userId = context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
+        if(userId.isEmpty()) {
+            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
+        }
+        return userId;
+    }
+
     /**
      * Get the filename from a Uri
      * @author Luca Hackel
@@ -377,7 +383,7 @@ public class FileManager {
         return fileName; // fileName + " : " + fileSize; // to nerdy for production
     }
 
-    private static void initNewFile(Context context, CanvasFragmentSettings settings) {
+    private static void initNewFile(Context context, CanvasFragmentFlags flags) {
         CanvasFragment.sCanvasView.reset();
         CanvasFragment.sCanvasView.setLoaded(true);
     }
@@ -417,7 +423,7 @@ public class FileManager {
      * @param uri
      */
     public static void createNewCanvasFileAtUri(MainActivity mainActivity, Uri uri) {
-        Log.d(MainActivity.TAG, "mNewCanvasFile: Created a New File at: " + uri);
+        CanvasFragment.sFlags.setNewFile(true);
         CanvasFragment.sCanvasView.setUri(uri);
 
         //save the canvas to add the basic json layout to the file (otherwise the created file is empty and cannot be reopened)
@@ -438,7 +444,7 @@ public class FileManager {
         mainActivity.updateRecentCanvasesExpListView();
 
         Toast.makeText(mainActivity, "created a new file", Toast.LENGTH_SHORT).show();
-        CanvasFragment.sSettings.setNewFile(false);
+        CanvasFragment.sFlags.setNewFile(false);
     }
 
     /**
@@ -450,11 +456,11 @@ public class FileManager {
      * @param uri
      */
     public static void openCanvasFileFromUri(MainActivity mainActivity, Uri uri) {
-        Log.d(TAG, "mOpenCanvasFile: Open File at: " + uri);
+        CanvasFragment.sFlags.setOpenFile(true);
         CanvasFragment.sCanvasView.setUri(uri);
 
         try {
-            load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sSettings);
+            load(mainActivity, CanvasFragment.sCanvasView, CanvasFragment.sFlags);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -480,8 +486,6 @@ public class FileManager {
      * @param uri
      */
     public static void saveCanvasFileToUri(MainActivity mainActivity, Uri uri) {
-        Log.d(TAG, "mSaveAsCanvasFile to Json");
-
         // check for file access permissions || grant them, persistUriPermission() doesn't seem to work
         if (!FileManager.checkFileAccessPermission(mainActivity)) {
             Toast.makeText(mainActivity, "Permissions not granted", Toast.LENGTH_SHORT).show();
@@ -513,7 +517,10 @@ public class FileManager {
         MainActivity.sRecentCanvases.add(new RecentCanvas(MainActivity.sCanvasName, uri, 0));
         mainActivity.updateRecentCanvasesExpListView();
 
-        FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        if(!uri.toString().equals("firebase")) {
+            FileManager.persistUriPermission(mainActivity.getContentResolver(), uri);
+        }
+
         Toast.makeText(mainActivity, " saved file as: " + uri, Toast.LENGTH_SHORT).show();
     }
 
@@ -524,6 +531,7 @@ public class FileManager {
      * @param uri
      */
     public static void importPdfDocumentFromUri(Fragment canvasFragment, Uri uri) {
+        CanvasFragment.sFlags.setLoadPdf(true);
         CanvasFragment.sCanvasView.resetViewMatrices();
         CanvasFragment.sCanvasView.setScale(1f);
         PdfImporter.fromUri(canvasFragment.getContext(), uri, CanvasFragment.sCanvasView.getPdfDocument());

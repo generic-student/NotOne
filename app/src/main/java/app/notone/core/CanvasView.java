@@ -31,9 +31,9 @@ public class CanvasView extends View {
     private final float MIN_SCALE = 0.05f;
     /** The location where the canvas is saved */
     private Uri mCurrentURI = null;
-    //* True if the canvas has been saved and not been changed since */
+    /** True if the canvas has been saved and not been changed since */
     private boolean mSaved = false;
-    //** True if the canvas is fully loaded */
+    /** True if the canvas is fully loaded */
     private boolean mLoaded = false;
 
     /**
@@ -345,41 +345,41 @@ public class CanvasView extends View {
         /**
          * Called when a gesture is classified as a single tap
          * @param e Information about the touch event
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            return true;
+            return false;
         }
 
         /**
          * Called when a gesture is classified as a double tap
          * @param e Information about the touch event
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
-            return true;
+            return false;
         }
 
         /**
          * Called when the pen/finger is first touching the canvas
          * @param e Information about the touch event
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onDown(MotionEvent e) {
-            return true;
+            return false;
         }
 
         /**
          * Called when the a single tap is lifted
          * @param e Information about the touch event
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            return true;
+            return false;
         }
 
         /**
@@ -394,7 +394,7 @@ public class CanvasView extends View {
          * @param e2 Information about the touch at the current point in time
          * @param distanceX current distance scrolled in the x direction
          * @param distanceY current distance scrolled in the y direction
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
@@ -426,11 +426,11 @@ public class CanvasView extends View {
          * @param e2 Information about the touch at the current point in time
          * @param velocityX current x-velocity of the fling
          * @param velocityY current y-velocity of the fling
-         * @return
+         * @return true if the event is consumed, else false
          */
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            return true;
+            return false;
         }
     }
 }
