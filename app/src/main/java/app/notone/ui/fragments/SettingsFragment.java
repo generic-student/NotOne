@@ -1,8 +1,10 @@
 package app.notone.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -10,6 +12,9 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+
+import com.google.android.material.navigation.NavigationView;
+
 import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 
@@ -47,15 +52,22 @@ public class SettingsFragment extends PreferenceFragmentCompat {
      * @param preference
      * @return
      */
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @Override
     public boolean onPreferenceTreeClick(@NonNull Preference preference) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        // darkmode
+        /* set app theme based on */
         boolean darkMode = sharedPreferences.getBoolean("darkmode", false);
         AppCompatDelegate.setDefaultNightMode(darkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         SettingsHolder.update(sharedPreferences);
+
+        /* update quicksettings switch in drawer menu */
+        Switch swAutoSave = ((NavigationView)getActivity().findViewById(R.id.navdrawercontainer_view))
+               .getMenu().findItem(R.id.drawer_switch_autosave)
+               .getActionView().findViewById(R.id.menu_switch);
+        swAutoSave.setChecked(SettingsHolder.shouldAutoSaveCanvas());
 
         return super.onPreferenceTreeClick(preference);
     }
