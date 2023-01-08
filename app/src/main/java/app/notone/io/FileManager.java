@@ -127,10 +127,7 @@ public class FileManager {
     public static void saveToFirebase(Context context, String data) {
         Log.d(TAG, "Saving file to firebase");
 
-        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
-        if(userId.isEmpty()) {
-            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
-        }
+        String userId = getFirebaseUserId(context);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
@@ -253,10 +250,7 @@ public class FileManager {
     public static void loadFromFirebase(Context context, CanvasView view, CanvasFragmentFlags flags) {
         Log.d(TAG, "Loading file from firebase.");
 
-        String userId = "kai";//context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
-        if(userId.isEmpty()) {
-            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
-        }
+        String userId = getFirebaseUserId(context);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference();
@@ -266,6 +260,13 @@ public class FileManager {
         downloadTask.addOnFailureListener(exception -> {
             Log.d(TAG, "Failed to retrieve file.");
             int errorCode = ((StorageException) exception).getErrorCode();
+            //if the error is something else than 'file does not exist yet'
+            //show the stacktrace
+            if(errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) {
+                exception.printStackTrace();
+                return;
+            }
+            //create the file on firebase if the file does not exist yet
             try {
                 save(context, view);
             } catch (IOException e) {
@@ -275,6 +276,7 @@ public class FileManager {
             }
 
         });
+        //init the canvas when it is loaded
         downloadTask.addOnSuccessListener(result -> {
             String content = new String(result, StandardCharsets.UTF_8);
             new CanvasImporter.InitCanvasFromJsonTask().execute(new CanvasImporter.CanvasImportData(content, view, true, flags));
@@ -343,6 +345,14 @@ public class FileManager {
      */
     public static boolean checkFileAccessPermission(Context context) {
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public static String getFirebaseUserId(Context context) {
+        String userId = context.getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE).getString("firebase-userid", "");
+        if(userId.isEmpty()) {
+            throw new MissingResourceException("Firebase userId could not be found", FileManager.class.getSimpleName(), "userId");
+        }
+        return userId;
     }
 
     /**
