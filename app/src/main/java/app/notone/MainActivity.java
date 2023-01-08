@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Toggle the visbility of the toolbar
+     * Animate the transition and icon
+     * Adapt to multi-window mode
      * used by the FAB
      */
     private void toggleToolbarVisibilityResponsively(AppBarLayout appBar, FloatingActionButton fabToolbarVisibility) {
@@ -289,7 +291,14 @@ public class MainActivity extends AppCompatActivity {
      * fabbutton to hide toolbar
      * toolbar padding
      *
-     * @param savedInstanceState
+     * Main resource for implementation was:
+     * https://developer.android.com/guide/navigation/navigation-ui
+     * Additional information where found under:
+     * https://developer.android.com/develop/ui/views/components/appbar
+     * https://developer.android.com/reference/androidx/navigation/ui/NavigationUI
+     * https://developer.android.com/guide/navigation/navigation-getting-started
+     * Any missing info where covered with lots of invested time.
+     *
      */
     @SuppressLint({"NonConstantResourceId", "UseSwitchCompatOrMaterialCode"})
     @Override
@@ -331,11 +340,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        /* Configure AppBar with burger button and title */
+        /* Configure AppBar with burger button and title
+        * getGraph enables finding of the top level destinations,
+        * which have a burger button.
+        * the NavController DestinationChange Callback gets activated
+        * */
         setSupportActionBar(toolbar);
-        // getGraph => topLevelDestinations
-        // setDrawerLayout // define burger button for toplevel
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph()) // getGraph => topLevelDestinations
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph())
                 .setOpenableLayout(mMainDrawerActivity) // setDrawerLayout // define burger button for toplevel
                 .build();
         NavigationUI.setupActionBarWithNavController(this, navGraphController, appBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
@@ -343,7 +354,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        /* Handle menu clicks for setting actions, forward clicks to the navController for destination change */
+        /* Handle drawer menu clicks for file and quick settings actions,
+         forward clicks to the navController for destination change */
         mNavDrawerView.setNavigationItemSelectedListener(menuItem -> {
 
             /* handle action button clicks */
@@ -417,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
                 PeriodicSaveHandler.getInstance().stop();
             }
         });
-//        Not MVP
+//        Not a MVP Feature
 //        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
 //        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());
@@ -447,10 +459,7 @@ public class MainActivity extends AppCompatActivity {
         mSimExpListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             String filename = mAdapter.getChild(groupPosition, childPosition).toString().replaceAll("\\{([A-Z])\\w+=", "").replaceAll("\\}", "");
             Log.d(TAG, "mSimpleExpandableListView.setOnChildClickListener: " + filename + sRecentCanvases.getByFilename(filename).mUri);
-            //CanvasFileManager.safeOpenCanvasFile(this, sRecentCanvases.getByFilename(filename).mUri);
-            //CanvasFragment.sFlags.setOpenFile(true);
             FileManager.openCanvasFileFromUri(this, sRecentCanvases.getByFilename(filename).mUri);
-
 
             findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             return false;
@@ -458,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        /* FAButton to hide the toolbar */
+        /* Setup Action of FloatingActionButton to hide the toolbar */
         FloatingActionButton fabToolbarVisibility = findViewById(R.id.button_toggle_toolbar);
         fabToolbarVisibility.setOnClickListener(view -> {
             toggleToolbarVisibilityResponsively(toolbarContainer, fabToolbarVisibility);

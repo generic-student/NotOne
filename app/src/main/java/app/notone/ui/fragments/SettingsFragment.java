@@ -19,7 +19,7 @@ import app.notone.R;
 import app.notone.core.util.SettingsHolder;
 
 /**
- * works with the fragment_root_preferences PreferenceScreen to automatically set and update
+ * Works with the fragment_root_preferences PreferenceScreen to automatically set and update
  * preferences in the shared prefs
  * since it doesnt work in the xml the inputtype of the edittexts needs to be set here
  * @author Luca Hackel

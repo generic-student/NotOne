@@ -45,8 +45,9 @@ import app.notone.ui.PresetPenButton;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * The most important fragment of the app
- * It adds the functionality to the toolbar of the canvas and enables data persistence
+ * The most important fragment of the app.
+ * It adds the functionality to the toolbar of the canvas,
+ * holds the {@link CanvasView} and enables data persistence.
  * @author Luca Hackel
  * @since 202212XX
  */
@@ -119,12 +120,11 @@ public class CanvasFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        //TODO: add this to the FileManager.java
+        //TODO: add this to the FileManager.java @author Kai
         if(!sharedPreferences.contains("firebase-userid")) {
             Log.d(TAG, "Setting userid for the FirebaseStorage.");
             editor.putString("firebase-userid", UUID.randomUUID().toString()).apply();
         }
-
 
         //save the canvas if it is not already saved
         if(!sCanvasView.isSaved()) {
@@ -147,6 +147,7 @@ public class CanvasFragment extends Fragment {
     }
 
     /**
+     * init autosave functionality
      * update settings
      */
     @Override
@@ -176,7 +177,11 @@ public class CanvasFragment extends Fragment {
     }
 
     /**
-     * Determines what happens when the view is fully created
+     * Setup the autosave
+     * Config the DDMenus for the Pen Settings
+     * Setup Canvas Actions for undo, redo, pdf import and eraser
+     * Setup the button to add {@link PresetPenButton}s
+     *
      * @param view the view this fragment resides in
      * @param savedInstanceState data from when the instance was saved
      */
@@ -198,8 +203,11 @@ public class CanvasFragment extends Fragment {
 
         /* Config Dropdowns for Pen Settings */
         int[] penColorValues = getResources().getIntArray(R.array.pen_color_values);
-        setDDMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors, (adapterView, vw, i, l) -> sCanvasView.setStrokeColor(penColorValues[i]));
-        setDDMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights, (adapterView, vw, i, l) -> sCanvasView.setStrokeWeight(Float.parseFloat((String) adapterView.getItemAtPosition(i))));
+        setDDMenuContent(R.id.ddownm_pen_colors, R.array.pen_colors,
+                (adapterView, vw, i, l) -> sCanvasView.setStrokeColor(penColorValues[i]));
+        setDDMenuContent(R.id.ddownm_pen_weights, R.array.pen_weights,
+                (adapterView, vw, i, l) -> sCanvasView.setStrokeWeight(
+                        Float.parseFloat((String) adapterView.getItemAtPosition(i))));
 
 
 
@@ -238,18 +246,6 @@ public class CanvasFragment extends Fragment {
         buttonRedo.setOnClickListener(v -> sCanvasView.redo());
         sCanvasToolGroup.add(buttonEraser);
         sCanvasToolGroup.add(buttonMarker);
-
-
-
-        /* Setup Add Preset Pen Button */
-        ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
-        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
-        buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
-            sCanvasToolGroup.add((ImageButton) buttonPresetPen);
-            llayoutPenContainer.addView(buttonPresetPen, 0);
-            Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
-        });
 
 
 
@@ -296,6 +292,18 @@ public class CanvasFragment extends Fragment {
             }
         });
         sCanvasToolGroup.add(buttonDetectShapes);
+
+
+
+        /* Setup Add Preset Pen Button */
+        ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
+        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
+        buttonAddPresetPen.setOnClickListener(v -> {
+            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
+            sCanvasToolGroup.add((ImageButton) buttonPresetPen);
+            llayoutPenContainer.addView(buttonPresetPen, 0);
+            Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
+        });
     }
 
 // endregion
@@ -320,7 +328,6 @@ public class CanvasFragment extends Fragment {
             Log.e(TAG, "onStart: failed to extract Pens from json", e);
             e.printStackTrace();
         }
-
         return presetPenButtons;
     }
 
