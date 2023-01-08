@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         * */
         setSupportActionBar(toolbar);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navGraphController.getGraph())
-                .setOpenableLayout(mMainDrawerActivity) // setDrawerLayout // define burger button for toplevel
+                .setOpenableLayout(mMainDrawerActivity) // set burger button for topleveldestinations
                 .build();
         NavigationUI.setupActionBarWithNavController(this, navGraphController, appBarConfiguration); // add titles and burger from nav_graph to actionbar otherwise there will be the app title and no burger!
         NavigationUI.setupWithNavController(mNavDrawerView, navGraphController); // this will call onNavDestination(Selected||Changed) when a menu item is selected.
@@ -364,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
             switch (menuItem.getItemId()) {
+                /* open the server file */
                 case R.id.open_server_file:
                     final Uri firebaseUri = Uri.parse("firebase");
                     //CanvasFragment.sFlags.setOpenFile(true);
