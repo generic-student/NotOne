@@ -62,6 +62,7 @@ the settings fragment layout definition
             app:key="autosave"
             app:title="Autosave the Canvas" />
 
+        <!-- android:inputType="number" does not work and java is used instead -->
         <EditTextPreference
             android:dependency="autosave"
             android:defaultValue="60"

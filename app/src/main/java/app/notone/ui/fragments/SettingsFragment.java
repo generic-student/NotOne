@@ -16,6 +16,7 @@ import app.notone.core.util.SettingsHolder;
 /**
  * works with the fragment_root_preferences PreferenceScreen to automatically set and update
  * preferences in the shared prefs
+ * since it doesnt work in the xml the inputtype of the edittexts needs to be set here
  * @author Luca Hackel
  * @since 202212XX
  */
@@ -27,6 +28,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.fragment_root_preferences, rootKey);
+
+        EditTextPreference saveIntervalPreference = findPreference("saveintervall");
+        if (saveIntervalPreference != null) {
+            saveIntervalPreference.setOnBindEditTextListener(
+                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
+        }
+
+        EditTextPreference syncIntervalPreference = findPreference("syncintervall");
+            if (syncIntervalPreference != null) {
+            syncIntervalPreference.setOnBindEditTextListener(
+                    editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
+        }
     }
 
     /**

@@ -410,7 +410,7 @@ public class CanvasFragment extends Fragment {
 
     /**
      * selects a button and deselects all others
-     * if toggle is true it can be turned on and of by clicking again
+     * if toggle is true it can be turned on and off by clicking again
      *
      * @param activeButton
      * @param toggleable
