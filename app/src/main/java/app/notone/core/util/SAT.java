@@ -12,7 +12,10 @@ import app.notone.core.Vector2f;
  * Helper function for the Separating-Axis-Theorem.
  * This is a custom implementation of the SAT following the general explanation
  * of the algorithm on:
- * https://gamedevelopment.tutsplus.com/tutorials/collision-detection-using-the-separating-axis-theorem--gamedev-169
+ * https://gamedevelopment.tutsplus
+ * .com/tutorials/collision-detection-using-the-separating-axis-theorem
+ * --gamedev-169
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
@@ -21,13 +24,16 @@ import app.notone.core.Vector2f;
 public class SAT {
     /**
      * Checks if two non-axis-aligned rectangles are intersecting
+     *
      * @param r1 The points describing the first rectangle
      * @param r2 The points describing the second rectangle
      * @return True if they are intersecting
      */
-    public static boolean rectangleRectangleIntersection(@NonNull float[] r1, @NonNull float[] r2) {
+    public static boolean rectangleRectangleIntersection(@NonNull float[] r1,
+                                                         @NonNull float[] r2) {
         if (r1.length != 8 || r2.length != 8) {
-            throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements.");
+            throw new IllegalArgumentException("The arrays representing the " +
+                    "rectangles require 8 elements.");
         }
 
         Vector2f axes[] = {
@@ -56,7 +62,8 @@ public class SAT {
             };
             Arrays.sort(projectionsRect2);
 
-            if (projectionsRect1[3] < projectionsRect2[0] || projectionsRect2[3] < projectionsRect2[0]) {
+            if (projectionsRect1[3] < projectionsRect2[0] ||
+                    projectionsRect2[3] < projectionsRect2[0]) {
                 return false;
             }
         }
@@ -66,13 +73,17 @@ public class SAT {
 
     /**
      * Checks if a line intersects a rectangle
+     *
      * @param p The points describing the line
      * @param r The points describing the rectangle
      * @return True if they are intersecting
      */
-    public static boolean lineRectangleIntersection(@NonNull float[] p, @NonNull float[] r) {
+    public static boolean lineRectangleIntersection(@NonNull float[] p,
+                                                    @NonNull float[] r) {
         if (r.length != 8 || p.length != 4) {
-            throw new IllegalArgumentException("The arrays representing the rectangles require 8 elements and the path requires 4 elements.");
+            throw new IllegalArgumentException("The arrays representing the " +
+                    "rectangles require 8 elements and the path requires 4 " +
+                    "elements.");
         }
 
         Vector2f axes[] = {
@@ -98,7 +109,8 @@ public class SAT {
             };
             Arrays.sort(projectionsLine);
 
-            if (projectionsLine[1] < projectionsRect[0] || projectionsRect[3] < projectionsLine[0]) {
+            if (projectionsLine[1] < projectionsRect[0] ||
+                    projectionsRect[3] < projectionsLine[0]) {
                 return false;
             }
         }
@@ -107,15 +119,20 @@ public class SAT {
     }
 
     /**
-     * Checks if two non-axis-aligned rectangles intersect. One of the rectangles is constructed from a point and a given side-length.
-     * @param x x-Coordinate of the point
-     * @param y y-Coordinate of the point
+     * Checks if two non-axis-aligned rectangles intersect. One of the
+     * rectangles is constructed from a point and a given side-length.
+     *
+     * @param x          x-Coordinate of the point
+     * @param y          y-Coordinate of the point
      * @param sideLength Side-length of the constructed rectangle
-     * @param r The other rectangle
+     * @param r          The other rectangle
      * @return True if they are intersecting
      */
-    public static boolean rectangularPointRectangleIntersection(float x, float y, float sideLength, @NonNull float[] r) {
-        return rectangleRectangleIntersection(r, new float[] {
+    public static boolean rectangularPointRectangleIntersection(float x,
+                                                                float y,
+                                                                float sideLength,
+                                                                @NonNull float[] r) {
+        return rectangleRectangleIntersection(r, new float[]{
                 x - sideLength / 2, y - sideLength / 2,
                 x + sideLength / 2, y - sideLength / 2,
                 x + sideLength / 2, y + sideLength / 2,
@@ -124,15 +141,21 @@ public class SAT {
     }
 
     /**
-     * Checks if any line from a list of lines intersects a non-axis-aligned rectangle
+     * Checks if any line from a list of lines intersects a non-axis-aligned
+     * rectangle
+     *
      * @param p List of points describing multiple lines (or a path)
      * @param r List of points describing a rectangle
      * @return True if one of the line-segments intersects the rectangle
      */
-    public static boolean linesRectangleIntersection(@NonNull ArrayList<Float> p, @NonNull float[] r) {
+    public static boolean linesRectangleIntersection(@NonNull ArrayList<Float> p,
+                                                     @NonNull float[] r) {
         if (r.length != 8 || p.size() < 4) {
             throw new IllegalArgumentException(
-                    String.format("The list representing the rectangle require 8 and the path require at least 4 elements. But the rectangle contains %d and the path %d elements.", r.length, p.size())
+                    String.format("The list representing the rectangle " +
+                            "require 8 and the path require at least 4 " +
+                            "elements. But the rectangle contains %d and the " +
+                            "path %d elements.", r.length, p.size())
             );
         }
 
@@ -140,7 +163,8 @@ public class SAT {
         axes.add(new Vector2f(r[0], r[1]).subtract(new Vector2f(r[2], r[3])));
         axes.add(new Vector2f(r[2], r[3]).subtract(new Vector2f(r[4], r[5])));
         for (int i = 0; i < p.size() - 2; i += 2) {
-            axes.add(new Vector2f(p.get(i), p.get(i + 1)).subtract(new Vector2f(p.get(i + 2), p.get(i + 3))));
+            axes.add(new Vector2f(p.get(i), p.get(i + 1)).
+                    subtract(new Vector2f(p.get(i + 2), p.get(i + 3))));
         }
 
         for (Vector2f axis : axes) {
@@ -156,11 +180,13 @@ public class SAT {
             //find the min and max for rect2
             ArrayList<Float> projectionsLine = new ArrayList<>();
             for (int i = 0; i < p.size(); i += 2) {
-                projectionsLine.add(new Vector2f(p.get(i), p.get(i + 1)).dotProduct(axis));
+                projectionsLine.add(
+                        new Vector2f(p.get(i), p.get(i + 1)).dotProduct(axis));
             }
             Collections.sort(projectionsLine);
 
-            if (projectionsLine.get(projectionsLine.size() - 1) < projectionsRect[0] || projectionsRect[3] < projectionsLine.get(0)) {
+            if (projectionsLine.get(projectionsLine.size() - 1) < projectionsRect[0] ||
+                    projectionsRect[3] < projectionsLine.get(0)) {
                 return false;
             }
         }

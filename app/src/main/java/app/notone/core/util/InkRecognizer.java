@@ -14,24 +14,39 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
 /**
  * Singleton class that wraps the Shape-Detection from the ML Toolkit.
  * https://developers.google.com/ml-kit/
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class InkRecognizer {
-    /** Tag for logging */
+    /**
+     * Tag for logging
+     */
     private static final String TAG = InkRecognizer.class.getSimpleName();
-    /** Singleton instance */
+    /**
+     * Singleton instance
+     */
     private static InkRecognizer sInstance = new InkRecognizer();
 
-    /** Loads the correct model that is needed (either from disk or from the internet) */
+    /**
+     * Loads the correct model that is needed (either from disk or from the
+     * internet)
+     */
     private DigitalInkRecognitionModelIdentifier modelIdentifier;
-    /** Recognizes the shapes from a list of strokes */
+    /**
+     * Recognizes the shapes from a list of strokes
+     */
     private DigitalInkRecognizer recognizer;
-    /** The trained model */
+    /**
+     * The trained model
+     */
     DigitalInkRecognitionModel model;
-    /** Singleton flag (needs to be its own parameter because this class is loaded asynchronously) */
+    /**
+     * Singleton flag (needs to be its own parameter because this class is
+     * loaded asynchronously)
+     */
     private boolean initialized;
 
     private InkRecognizer() {
@@ -43,6 +58,7 @@ public class InkRecognizer {
 
     /**
      * Construct an InkRecognizer from with a model given its languageTag
+     *
      * @param languageTag Name of the model to load
      */
     private InkRecognizer(String languageTag) {
@@ -51,7 +67,7 @@ public class InkRecognizer {
         model = null;
         modelIdentifier = null;
 
-        if(!initModelIdentifier(languageTag)) {
+        if (!initModelIdentifier(languageTag)) {
             return;
         }
 
@@ -66,6 +82,7 @@ public class InkRecognizer {
 
     /**
      * Initializes the modelIdentifier given the name of the model
+     *
      * @param languageTag Name of the model to load
      * @return True if the modelIdentifier was initialized successfully
      */
@@ -74,7 +91,8 @@ public class InkRecognizer {
             modelIdentifier =
                     DigitalInkRecognitionModelIdentifier.fromLanguageTag(languageTag);
         } catch (MlKitException e) {
-            Log.d(TAG, "Failed to parse language tag " + languageTag + ": " + e.getMessage());
+            Log.d(TAG, "Failed to parse language tag " +
+                            languageTag + ": " + e.getMessage());
             return false;
         }
         if (modelIdentifier == null) {
@@ -92,7 +110,8 @@ public class InkRecognizer {
         model =
                 DigitalInkRecognitionModel.builder(modelIdentifier).build();
 
-        RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
+        RemoteModelManager remoteModelManager =
+                RemoteModelManager.getInstance();
 
         remoteModelManager
                 .download(model, new DownloadConditions.Builder().build())
@@ -103,13 +122,15 @@ public class InkRecognizer {
                         })
                 .addOnFailureListener(
                         e -> {
-                            Log.e(TAG, "Error while downloading a model: " + e);
+                            Log.e(TAG,
+                                    "Error while downloading a model: " + e);
                         }
                 );
     }
 
     /**
      * Returns the singleton instance
+     *
      * @return InkRecognizer
      */
     public static InkRecognizer getInstance() {
@@ -120,6 +141,7 @@ public class InkRecognizer {
      * Checks if the singleton was initialized.
      * This singleton counts as initialized an instance has been created and
      * the model has been fully loaded.
+     *
      * @return True if the singleton is fully initialized
      */
     public boolean isInitialized() {
@@ -128,6 +150,7 @@ public class InkRecognizer {
 
     /**
      * Returns the associated DigitalInkRecognizer
+     *
      * @return DigitalInkRecognizer
      */
     public DigitalInkRecognizer getRecognizer() {
@@ -136,6 +159,7 @@ public class InkRecognizer {
 
     /**
      * Initialize the singleton instance
+     *
      * @param languageTag The name of the model to load
      */
     public static void init(String languageTag) {

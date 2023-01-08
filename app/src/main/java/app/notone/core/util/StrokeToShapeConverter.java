@@ -5,24 +5,28 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import app.notone.core.Stroke;
-import app.notone.core.Vector2f;
 
 /**
  * Helper class to convert strokes,
  * that have been classified by the InkRecognizer as certain shapes,
  * to their shape.
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class StrokeToShapeConverter {
-    /** Tag for logging*/
-    private static final String TAG = StrokeToShapeConverter.class.getSimpleName();
+    /**
+     * Tag for logging
+     */
+    private static final String TAG =
+            StrokeToShapeConverter.class.getSimpleName();
 
     /**
      * Converts a stroke to a rectangle.
      * This method changes the points that are stored in the Stroke Object.
+     *
      * @param stroke Stroke to be converted
      */
     public static void convertStrokeToRectangle(Stroke stroke) {
@@ -41,6 +45,7 @@ public class StrokeToShapeConverter {
     /**
      * Converts a stroke to a triangle.
      * This method changes the points that are stored in the Stroke Object.
+     *
      * @param stroke Stroke to be converted
      */
     public static void convertStrokeToTriangle(Stroke stroke) {
@@ -57,6 +62,7 @@ public class StrokeToShapeConverter {
     /**
      * Converts a stroke to an ellipse.
      * This method changes the points that are stored in the Stroke Object.
+     *
      * @param stroke Stroke to be converted
      */
     public static void convertStrokeToEllipse(Stroke stroke) {
@@ -68,8 +74,8 @@ public class StrokeToShapeConverter {
         oval.addOval(bounds, Path.Direction.CW);
         float[] points = oval.approximate(0.1f);
         stroke.moveTo(points[1], points[2]);
-        for(int i = 3; i < points.length; i+=3) {
-            stroke.lineTo(points[i+1], points[i+2]);
+        for (int i = 3; i < points.length; i += 3) {
+            stroke.lineTo(points[i + 1], points[i + 2]);
         }
         stroke.lineTo(points[1], points[2]);
 
@@ -78,6 +84,7 @@ public class StrokeToShapeConverter {
     /**
      * Converts a Stroke to a line.
      * This method changes the points that are stored in the Stroke Object.
+     *
      * @param stroke Stroke to be converted
      */
     public static void convertStrokeToArrow(Stroke stroke) {

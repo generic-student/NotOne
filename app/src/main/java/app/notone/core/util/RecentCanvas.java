@@ -9,18 +9,25 @@ import org.json.JSONObject;
 
 /**
  * Describes a Canvas by name, save location and file size
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class RecentCanvas {
-    /** Filename */
+    /**
+     * Filename
+     */
     public String mName;
-    /** Save location*/
+    /**
+     * Save location
+     */
     public Uri mUri;
     //TODO: Remove deprecated field
-     /** Size of the file in bytes*/
+    /**
+     * Size of the file in bytes
+     */
     @Deprecated
     public int mFileSize;
 
@@ -32,6 +39,7 @@ public class RecentCanvas {
 
     /**
      * Builds an Instance from JSON
+     *
      * @param json JSONObject
      * @return Instance of RecentCanvas
      */
@@ -50,6 +58,7 @@ public class RecentCanvas {
 
     /**
      * Create a JSON representation of the data in this class
+     *
      * @return instance of JSONObject
      */
     public JSONObject toJson() {

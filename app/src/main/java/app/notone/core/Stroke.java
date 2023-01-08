@@ -2,9 +2,6 @@ package app.notone.core;
 
 import android.graphics.Path;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,17 +10,24 @@ import java.util.ArrayList;
  * This includes its color, weight and points.
  * This class extends the class {@link Path} which does not include a method
  * for accessing the coordinates of the points without approximating them.
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class Stroke extends Path implements Serializable {
-    /** Color of the stroke */
+    /**
+     * Color of the stroke
+     */
     private int mColor;
-    /** Weight of the stroke */
+    /**
+     * Weight of the stroke
+     */
     private float mWeight;
-    /** List of points that the stroke is made of (saved as [x,y,x,y,...])*/
+    /**
+     * List of points that the stroke is made of (saved as [x,y,x,y,...])
+     */
     private ArrayList<Float> pathPoints;
 
     public Stroke(int mColor, float mWeight) {
@@ -72,8 +76,8 @@ public class Stroke extends Path implements Serializable {
     public void initPathFromPathPoints() {
         super.reset();
         super.moveTo(pathPoints.get(0), pathPoints.get(1));
-        for(int i = 2; i < pathPoints.size(); i+=2) {
-            super.lineTo(pathPoints.get(i), pathPoints.get(i+1));
+        for (int i = 2; i < pathPoints.size(); i += 2) {
+            super.lineTo(pathPoints.get(i), pathPoints.get(i + 1));
         }
     }
 

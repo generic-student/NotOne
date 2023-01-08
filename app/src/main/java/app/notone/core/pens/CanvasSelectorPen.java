@@ -16,13 +16,16 @@ import app.notone.core.Vector2f;
 /**
  * Pen for selecting strokes on the canvas.
  * (Currently no in use)
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class CanvasSelectorPen extends CanvasPen {
-    /** True if the pen is touching the screen */
+    /**
+     * True if the pen is touching the screen
+     */
     private boolean mIsSelecting;
     /**
      * Bounds defining what will be selected.
@@ -30,12 +33,18 @@ public class CanvasSelectorPen extends CanvasPen {
      */
     private RectF mSelectionBounds;
 
-    /** Describes how the selection bounds should be rendered */
+    /**
+     * Describes how the selection bounds should be rendered
+     */
     private final Paint mSelectionBorderPaint;
-    /** Describes how the selected strokes should be rendered */
+    /**
+     * Describes how the selected strokes should be rendered
+     */
     private final Paint mSelectedStrokesPaint;
 
-    /** A list of strokes that have been selected */
+    /**
+     * A list of strokes that have been selected
+     */
     private final ArrayList<Stroke> mSelectedStrokes;
 
     public CanvasSelectorPen(CanvasWriter writerReference) {
@@ -46,7 +55,8 @@ public class CanvasSelectorPen extends CanvasPen {
 
         mSelectionBorderPaint = new Paint();
         mSelectionBorderPaint.setStyle(Paint.Style.STROKE);
-        mSelectionBorderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0));
+        mSelectionBorderPaint.setPathEffect(
+                new DashPathEffect(new float[]{10f, 20f}, 0));
         mSelectionBorderPaint.setColor(Color.BLACK);
         mSelectionBorderPaint.setStrokeWidth(5);
 
@@ -59,8 +69,9 @@ public class CanvasSelectorPen extends CanvasPen {
     }
 
     @Override
-    public boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint) {
-        switch(event.getAction()) {
+    public boolean handleOnTouchEvent(MotionEvent event,
+                                      Vector2f currentTouchPoint) {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mIsSelecting = true;
                 mSelectionBounds.left = currentTouchPoint.x;
@@ -77,7 +88,8 @@ public class CanvasSelectorPen extends CanvasPen {
             case MotionEvent.ACTION_UP:
                 mIsSelecting = false;
 
-                //correct the bounds if the user has been selecting e.g. from bottom-right to top-left
+                //correct the bounds if the user has been selecting e.g. from
+                // bottom-right to top-left
                 correctSelectionBounds();
                 //select the strokes in the selectionRect
                 selectStrokes();
@@ -90,11 +102,11 @@ public class CanvasSelectorPen extends CanvasPen {
 
     @Override
     public void render(Canvas canvas) {
-        for(Stroke stroke : mSelectedStrokes) {
+        for (Stroke stroke : mSelectedStrokes) {
             canvas.drawPath(stroke, mSelectedStrokesPaint);
         }
 
-        if(mIsSelecting)
+        if (mIsSelecting)
             canvas.drawRect(mSelectionBounds, mSelectionBorderPaint);
 
     }
@@ -111,13 +123,13 @@ public class CanvasSelectorPen extends CanvasPen {
      * selectionBounds is actually on the bottom-right
      */
     private void correctSelectionBounds() {
-        if(mSelectionBounds.left > mSelectionBounds.right) {
+        if (mSelectionBounds.left > mSelectionBounds.right) {
             final float left = mSelectionBounds.left;
             mSelectionBounds.left = mSelectionBounds.right;
             mSelectionBounds.right = left;
         }
 
-        if(mSelectionBounds.top > mSelectionBounds.bottom) {
+        if (mSelectionBounds.top > mSelectionBounds.bottom) {
             final float top = mSelectionBounds.top;
             mSelectionBounds.top = mSelectionBounds.bottom;
             mSelectionBounds.bottom = top;
@@ -132,10 +144,10 @@ public class CanvasSelectorPen extends CanvasPen {
         mSelectedStrokes.clear();
 
         RectF bounds = new RectF();
-        for(Stroke stroke : mCanvasWriterRef.getStrokes()) {
+        for (Stroke stroke : mCanvasWriterRef.getStrokes()) {
             stroke.computeBounds(bounds, false);
 
-            if(mSelectionBounds.contains(bounds)) {
+            if (mSelectionBounds.contains(bounds)) {
                 mSelectedStrokes.add(stroke);
             }
         }

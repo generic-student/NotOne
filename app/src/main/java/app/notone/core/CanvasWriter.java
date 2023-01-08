@@ -18,6 +18,7 @@ import app.notone.core.pens.PenType;
  * Handles the interaction with the stylus and the canvas.
  * Manages adding and removing strokes and undoing and redoing
  * these actions using the {@link UndoRedoManager}
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
@@ -26,7 +27,7 @@ import app.notone.core.pens.PenType;
 public class CanvasWriter implements Serializable {
     /**
      * Describes the state that the writer is in.
-     * If the writer is in WRITE state, that means that 
+     * If the writer is in WRITE state, that means that
      * a stroke is currently being written.
      * If it is in ERASE state, that means the eraser is
      * active and strokes are being deleted etc.
@@ -36,39 +37,54 @@ public class CanvasWriter implements Serializable {
     }
 
     //constants
-    /** The event code when the primary button on a stylus is being pressed */
+    /**
+     * The event code when the primary button on a stylus is being pressed
+     */
     private static final transient int ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON = 213;
 
     //current settings
-    /** The paint with wich the strokes are rendered */
+    /**
+     * The paint with wich the strokes are rendered
+     */
     private final transient Paint mPaint;
-    /** 
-     * The currently set stroke weight. 
+    /**
+     * The currently set stroke weight.
      * it will be used for all strokes following the current
-     * unless changed. 
-     * */
+     * unless changed.
+     */
     private float mStrokeWeight;
-    /** 
-     * The currently set stroke color. 
+    /**
+     * The currently set stroke color.
      * it will be used for all strokes following the current
-     * unless changed. 
-     * */
+     * unless changed.
+     */
     private int mStrokeColor;
 
-    /** Handles undoing and redoing actions like erasing a stroke */
+    /**
+     * Handles undoing and redoing actions like erasing a stroke
+     */
     private final UndoRedoManager undoRedoManager;
 
-    /** A list of all strokes that have been drawn */
-    private ArrayList<Stroke> mStrokes; // contains all Paths already drawn by user Path, Color, Weight
+    /**
+     * A list of all strokes that have been drawn
+     */
+    private ArrayList<Stroke> mStrokes; // contains all Paths already drawn
+    // by user Path, Color, Weight
 
-    /** A map of all pens associated with the corresponding DrawState */
+    /**
+     * A map of all pens associated with the corresponding DrawState
+     */
     private final transient HashMap<DrawState, CanvasPen> pens;
 
-    /** The current DrawState */
+    /**
+     * The current DrawState
+     */
     private CanvasWriter.DrawState mDrawState = CanvasWriter.DrawState.WRITE;
 
     //TODO: add the penType to the Pen
-    /** The type of pen currently being used */
+    /**
+     * The type of pen currently being used
+     */
     private PenType mCurrentPenType = PenType.WRITER;
 
     public CanvasWriter(float mStrokeWeight, int mStrokeColor) {
@@ -85,10 +101,14 @@ public class CanvasWriter implements Serializable {
 
         pens = new HashMap<>();
         CanvasPenFactory penFactory = new CanvasPenFactory();
-        pens.put(DrawState.WRITE, penFactory.createCanvasPen(PenType.WRITER, this));
-        pens.put(DrawState.ERASE, penFactory.createCanvasPen(PenType.ERASER, this));
-        pens.put(DrawState.SELECT, penFactory.createCanvasPen(PenType.SELECTOR, this));
-        pens.put(DrawState.SHAPE, penFactory.createCanvasPen(PenType.SHAPE_DETECTOR, this));
+        pens.put(DrawState.WRITE, penFactory.createCanvasPen(PenType.WRITER,
+                this));
+        pens.put(DrawState.ERASE, penFactory.createCanvasPen(PenType.ERASER,
+                this));
+        pens.put(DrawState.SELECT,
+                penFactory.createCanvasPen(PenType.SELECTOR, this));
+        pens.put(DrawState.SHAPE,
+                penFactory.createCanvasPen(PenType.SHAPE_DETECTOR, this));
     }
 
     public Paint getPaint() {
@@ -102,12 +122,13 @@ public class CanvasWriter implements Serializable {
     /**
      * Sets the stroke weight and updates the stroke weight of the
      * currently being drawn stroke
+     *
      * @param mStrokeWeight
      */
     public void setStrokeWeight(float mStrokeWeight) {
         this.mStrokeWeight = mStrokeWeight;
 
-        ((CanvasWriterPen)pens.get(DrawState.WRITE)).setStrokeWeight(mStrokeWeight);
+        ((CanvasWriterPen) pens.get(DrawState.WRITE)).setStrokeWeight(mStrokeWeight);
     }
 
     public int getStrokeColor() {
@@ -117,13 +138,14 @@ public class CanvasWriter implements Serializable {
     /**
      * Sets the stroke weight and updates the stroke color of the
      * currently being drawn stroke
+     *
      * @param mStrokeColor
      */
     public void setStrokeColor(int mStrokeColor) {
         this.mStrokeColor = mStrokeColor;
 
-        ((CanvasWriterPen)pens.get(DrawState.WRITE)).setStrokeColor(mStrokeColor);
-        ((CanvasWriterPen)pens.get(DrawState.SHAPE)).setStrokeColor(mStrokeColor);
+        ((CanvasWriterPen) pens.get(DrawState.WRITE)).setStrokeColor(mStrokeColor);
+        ((CanvasWriterPen) pens.get(DrawState.SHAPE)).setStrokeColor(mStrokeColor);
     }
 
     public DrawState getDrawState() {
@@ -162,7 +184,7 @@ public class CanvasWriter implements Serializable {
         undoRedoManager.reset();
         mStrokes.clear();
 
-        for(CanvasPen pen : pens.values()) {
+        for (CanvasPen pen : pens.values()) {
             pen.reset();
         }
     }
@@ -172,40 +194,41 @@ public class CanvasWriter implements Serializable {
      * Determines the correct pen by the penType and if the stylus button
      * is being pressed.
      * When the button is being pressed it is always in 'erase' mode.
-     * @param event Information about the touch event
-     * @param viewMatrix Matrix describing the scaling and translation of the canvas
+     *
+     * @param event             Information about the touch event
+     * @param viewMatrix        Matrix describing the scaling and translation
+     *                         of the canvas
      * @param inverseViewMatrix Inverse of the view matrix
      * @return True if the canvas has to be invalidated
      */
-    public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix, Matrix inverseViewMatrix) {
+    public boolean handleOnTouchEvent(MotionEvent event, Matrix viewMatrix,
+                                      Matrix inverseViewMatrix) {
         //compute the draw state
-        if(getCurrentPenType() == PenType.WRITER) {
-            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+        if (getCurrentPenType() == PenType.WRITER) {
+            if (event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.WRITE);
             }
-        }
-        else if(getCurrentPenType() == PenType.SELECTOR) {
-            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+        } else if (getCurrentPenType() == PenType.SELECTOR) {
+            if (event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.SELECT);
             }
-        }
-        else if(getCurrentPenType() == PenType.SHAPE_DETECTOR) {
-            if(event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
+        } else if (getCurrentPenType() == PenType.SHAPE_DETECTOR) {
+            if (event.getButtonState() == MotionEvent.BUTTON_STYLUS_PRIMARY) {
                 setDrawState(DrawState.ERASE);
             } else {
                 setDrawState(DrawState.SHAPE);
             }
-        }
-        else if(getCurrentPenType() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
+        } else if (getCurrentPenType() == PenType.ERASER || event.getAction() != ACTION_DOWN_WITH_PRIMARY_STYLUS_BUTTON) {
             setDrawState(DrawState.ERASE);
         }
 
         //transform the cursor position using the inverse of the view matrix
-        Vector2f currentTouchPoint = new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);
+        Vector2f currentTouchPoint =
+                new Vector2f(event.getX(), event.getY()).transform(inverseViewMatrix);
 
         final CanvasPen pen = pens.get(getDrawState());
         return pen != null && pen.handleOnTouchEvent(event, currentTouchPoint);
@@ -213,10 +236,11 @@ public class CanvasWriter implements Serializable {
 
     /**
      * Renders the strokes to the Canavs
+     *
      * @param canvas Canvas to renderto
      */
     public void renderStrokes(Canvas canvas) {
-        for(Stroke stroke : mStrokes) {
+        for (Stroke stroke : mStrokes) {
             mPaint.setColor(stroke.getColor());
             mPaint.setStrokeWidth(stroke.getWeight());
             canvas.drawPath(stroke, mPaint); // draw all paths on canvas

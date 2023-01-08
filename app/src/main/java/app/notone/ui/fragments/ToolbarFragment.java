@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+
 import app.notone.R;
 
 /**
  * nearly unmodified extension of the fragment that enables the use as a toolbar
+ *
  * @author Luca Hackel
  * @since 202212XX
  */
@@ -20,7 +22,8 @@ class ToolbarFragment extends Fragment {
     String TAG = "NotOneCanvasFragment";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent,
+                             Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.toolbar, parent, false);
     }

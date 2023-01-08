@@ -12,29 +12,43 @@ import app.notone.ui.fragments.CanvasFragment;
  * Canvas in the background.
  * This was inspired by the Stackoverflow answer from Rajesh. K
  * https://stackoverflow.com/questions/6425611/android-run-a-task-periodically
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class PeriodicSaveHandler {
-    /** Tag for logging */
+    /**
+     * Tag for logging
+     */
     private static final String TAG = PeriodicSaveHandler.class.getSimpleName();
-    /** Singleton instance */
+    /**
+     * Singleton instance
+     */
     private static PeriodicSaveHandler sInstance = null;
 
-    /** Periodically starts the Runnable for saving the canvas */
+    /**
+     * Periodically starts the Runnable for saving the canvas
+     */
     private Handler mHandler;
-    /** Runnable for saving the canvas */
+    /**
+     * Runnable for saving the canvas
+     */
     private Runnable mPeriodicSaveRunner;
-    /** True if the PeriodicSaveHandler is running */
+    /**
+     * True if the PeriodicSaveHandler is running
+     */
     boolean mIsRunning = false;
 
-    /** Application context */
+    /**
+     * Application context
+     */
     private Context mContext;
 
     /**
      * Initializes the singleton instance
+     *
      * @param context Application context
      */
     public static void init(Context context) {
@@ -44,6 +58,7 @@ public class PeriodicSaveHandler {
     /**
      * Determines if the singleton instance is fully initialized.
      * It is fully initialized if the instance is not null.
+     *
      * @return True if it is initialized
      */
     public static boolean isInitialized() {
@@ -52,6 +67,7 @@ public class PeriodicSaveHandler {
 
     /**
      * Returns the singleton instance
+     *
      * @return PeriodicSaveHandler
      */
     public static PeriodicSaveHandler getInstance() {
@@ -69,20 +85,23 @@ public class PeriodicSaveHandler {
      * Initializes the Runnable and assigns the function that will
      * be periodically called.
      * The interval in which it will be called is stored in the
-     * {@link SettingsHolder} and is determined in the settings page by the user.
+     * {@link SettingsHolder} and is determined in the settings page by the
+     * user.
      */
     private void initRunnable() {
         mPeriodicSaveRunner = () -> {
             try {
-                if(CanvasFragment.sCanvasView.isLoaded()) {
+                if (CanvasFragment.sCanvasView.isLoaded()) {
                     //FileManager.save(mContext, CanvasFragment.mCanvasView);
-                    Log.d(TAG, "Saved canvas to " + CanvasFragment.sCanvasView.getCurrentURI() + ".");
+                    Log.d(TAG, "Saved canvas to " +
+                                    CanvasFragment.sCanvasView.getCurrentURI() + ".");
                 } else {
                     Log.d(TAG, "Canvas is not fully loaded yet.");
                 }
             } finally {
-                if(SettingsHolder.shouldAutoSaveCanvas()) {
-                    mHandler.postDelayed(mPeriodicSaveRunner, SettingsHolder.getAutoSaveCanvasIntervalSeconds() * 1000);
+                if (SettingsHolder.shouldAutoSaveCanvas()) {
+                    mHandler.postDelayed(mPeriodicSaveRunner,
+                            SettingsHolder.getAutoSaveCanvasIntervalSeconds() * 1000);
                 } else {
                     Log.d(TAG, "Stopped PeriodicSaveHandler.");
                 }
@@ -94,7 +113,7 @@ public class PeriodicSaveHandler {
      * Starts the PeriodicSaveHandler in the background
      */
     public void start() {
-        if(isRunning()) {
+        if (isRunning()) {
             Log.d(TAG, "PeriodicSaveHandler is already running.");
             return;
         }
@@ -108,7 +127,7 @@ public class PeriodicSaveHandler {
      * Stops the PeriodicSaveHandler
      */
     public void stop() {
-        if(!isRunning()) {
+        if (!isRunning()) {
             Log.d(TAG, "PeriodicSaveHandler is not running.");
             return;
         }
@@ -120,6 +139,7 @@ public class PeriodicSaveHandler {
 
     /**
      * Checks if the PeriodicSaveHandler is currently running
+     *
      * @return True if it is running
      */
     public boolean isRunning() {

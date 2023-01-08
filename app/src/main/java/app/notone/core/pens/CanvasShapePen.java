@@ -23,7 +23,7 @@ import app.notone.ui.fragments.CanvasFragment;
  * @version 0.1
  * @since 0.1
  */
-public class CanvasShapePen extends CanvasWriterPen{
+public class CanvasShapePen extends CanvasWriterPen {
     private static final String TAG = CanvasShapePen.class.getSimpleName();
 
     /**
@@ -41,28 +41,32 @@ public class CanvasShapePen extends CanvasWriterPen{
 
         inkBuilder = new Ink.Builder();
 
-        if(!InkRecognizer.getInstance().isInitialized()) {
+        if (!InkRecognizer.getInstance().isInitialized()) {
             InkRecognizer.init("zxx-Zsym-x-shapes");
         }
     }
 
     @Override
-    public boolean handleOnTouchEvent(MotionEvent event, Vector2f currentTouchPoint) {
+    public boolean handleOnTouchEvent(MotionEvent event,
+                                      Vector2f currentTouchPoint) {
         boolean invalidate = super.handleOnTouchEvent(event, currentTouchPoint);
         long t = System.currentTimeMillis();
 
-        switch (event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 strokeBuilder = Ink.Stroke.builder();
-                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x, currentTouchPoint.y, t));
+                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x,
+                        currentTouchPoint.y, t));
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x, currentTouchPoint.y, t));
+                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x,
+                        currentTouchPoint.y, t));
                 return invalidate;
 
             case MotionEvent.ACTION_UP:
-                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x, currentTouchPoint.y, t));
+                strokeBuilder.addPoint(Ink.Point.create(currentTouchPoint.x,
+                        currentTouchPoint.y, t));
                 inkBuilder.addStroke(strokeBuilder.build());
                 strokeBuilder = null;
 
@@ -92,13 +96,16 @@ public class CanvasShapePen extends CanvasWriterPen{
     private void recognizeShape() {
         Ink ink = inkBuilder.build();
         //get the last written stroke since this is the one being analyzed
-        Stroke strokeReference = mCanvasWriterRef.getStrokes().get(mCanvasWriterRef.getStrokes().size() - 1);
+        Stroke strokeReference =
+                mCanvasWriterRef.getStrokes().get(
+                        mCanvasWriterRef.getStrokes().size() - 1);
 
-        if(InkRecognizer.getInstance().isInitialized()) {
+        if (InkRecognizer.getInstance().isInitialized()) {
             InkRecognizer.getInstance().getRecognizer().recognize(ink)
                     .addOnSuccessListener(
                             result -> {
-                                final String shape = result.getCandidates().get(0).getText();
+                                final String shape =
+                                        result.getCandidates().get(0).getText();
                                 convertStrokeToShape(shape, strokeReference);
                             }
                     )
@@ -111,17 +118,19 @@ public class CanvasShapePen extends CanvasWriterPen{
     }
 
     /**
-     * Converts a Stroke to a given shape using the {@link StrokeToShapeConverter}
-     * @param shape Recognized shape e.g. "RECTANGLE"
+     * Converts a Stroke to a given shape using the
+     * {@link StrokeToShapeConverter}
+     *
+     * @param shape           Recognized shape e.g. "RECTANGLE"
      * @param strokeReference Reference to the stroke containing the shape
      */
     private void convertStrokeToShape(String shape, Stroke strokeReference) {
         //check if the referenced stroke still exists
-        if(!mCanvasWriterRef.getStrokes().contains(strokeReference)) {
+        if (!mCanvasWriterRef.getStrokes().contains(strokeReference)) {
             return;
         }
 
-        switch(shape) {
+        switch (shape) {
             case "RECTANGLE":
                 StrokeToShapeConverter.convertStrokeToRectangle(strokeReference);
                 break;

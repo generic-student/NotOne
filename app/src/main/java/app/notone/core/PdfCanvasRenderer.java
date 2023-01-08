@@ -19,19 +19,28 @@ import app.notone.io.PdfExporter;
  * Class for rendering a {@link CanvasPdfDocument}
  * to the Canvas of a {@link CanvasView} and rendering a border around
  * all elements that would be contained an exported pdf.
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class PdfCanvasRenderer {
-    /** Describes how the pdf itself will be rendered */
+    /**
+     * Describes how the pdf itself will be rendered
+     */
     private Paint pdfPaint;
-    /** Describes how the border around each page will be rendered*/
+    /**
+     * Describes how the border around each page will be rendered
+     */
     private Paint borderPaint;
-    /** Scaling factor of the pdf on the canvas*/
+    /**
+     * Scaling factor of the pdf on the canvas
+     */
     private float scaling;
-    /** Padding between the pages of the pdf*/
+    /**
+     * Padding between the pages of the pdf
+     */
     private int padding;
 
     public PdfCanvasRenderer() {
@@ -42,8 +51,10 @@ public class PdfCanvasRenderer {
 
         borderPaint = new Paint();
         borderPaint.setStrokeWidth(3);
-        borderPaint.setColor(SettingsHolder.isDarkMode() ? Color.WHITE : Color.BLACK);
-        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f}, 0f));
+        borderPaint.setColor(SettingsHolder.isDarkMode() ? Color.WHITE :
+                Color.BLACK);
+        borderPaint.setPathEffect(new DashPathEffect(new float[]{10f, 20f},
+                0f));
         borderPaint.setStyle(Paint.Style.STROKE);
 
         scaling = 1f;
@@ -86,39 +97,51 @@ public class PdfCanvasRenderer {
      * Renders the border around all pages that contain content on the canvas.
      * This includes pdf pages and strokes that would be on a page when the
      * canvas would be exported as a pdf.
-     * The border is computed using the {@link PdfExporter#computePdfPageBoundsFromCanvasViewStrict(CanvasView, float, PageSize)} method.
+     * The border is computed using the
+     * {@link PdfExporter#computePdfPageBoundsFromCanvasViewStrict(CanvasView, float, PageSize)} method.
+     *
      * @param canvasView CanvasView to compute the bounds for
-     * @param canvas Canvas to render the bounds on
-     * @param metrics DisplayMetrics for calculating the dpi of the screen
+     * @param canvas     Canvas to render the bounds on
+     * @param metrics    DisplayMetrics for calculating the dpi of the screen
      */
-    public void renderBorder(CanvasView canvasView, Canvas canvas, DisplayMetrics metrics){
-            List<Rect> bounds = PdfExporter.computePdfPageBoundsFromCanvasViewStrict(canvasView, (float) metrics.densityDpi / metrics.density, PageSize.A4);
-            for (Rect b : bounds) {
-                canvas.drawRect(b, borderPaint);
-            }
+    public void renderBorder(CanvasView canvasView, Canvas canvas,
+                             DisplayMetrics metrics) {
+        List<Rect> bounds =
+                PdfExporter.computePdfPageBoundsFromCanvasViewStrict(
+                        canvasView,
+                        (float) metrics.densityDpi / metrics.density,
+                        PageSize.A4);
+        for (Rect b : bounds) {
+            canvas.drawRect(b, borderPaint);
+        }
 
     }
 
     /**
      * Renders a {@link CanvasPdfDocument} to a Canvas
-     * @param doc CanvasPdfDocument to be rendered
+     *
+     * @param doc    CanvasPdfDocument to be rendered
      * @param canvas Canvas to render to
      */
     public void render(CanvasPdfDocument doc, Canvas canvas) {
         final Rect clipBounds = canvas.getClipBounds();
-        final RectF viewSpace = new RectF(clipBounds.left, clipBounds.top, clipBounds.right, clipBounds.bottom);
+        final RectF viewSpace = new RectF(clipBounds.left, clipBounds.top,
+                clipBounds.right, clipBounds.bottom);
 
         final float scaling = getScaling();
         final int padding = getPadding();
 
         Matrix pdfMat = new Matrix();
-        for(int i = 0; i < doc.getPages().length; i++) {
-            RectF dest = new RectF(0, 0, doc.getPage(i).getWidth() * scaling, doc.getPage(i).getHeight() * scaling);
+        for (int i = 0; i < doc.getPages().length; i++) {
+            RectF dest = new RectF(0, 0,
+                    doc.getPage(i).getWidth() * scaling,
+                    doc.getPage(i).getHeight() * scaling);
 
             pdfMat.mapRect(dest);
-            pdfMat.postTranslate(0, doc.getPage(i).getHeight() * scaling + padding);
+            pdfMat.postTranslate(0,
+                    doc.getPage(i).getHeight() * scaling + padding);
 
-            if(!RectF.intersects(dest, viewSpace)) {
+            if (!RectF.intersects(dest, viewSpace)) {
                 continue;
             }
 

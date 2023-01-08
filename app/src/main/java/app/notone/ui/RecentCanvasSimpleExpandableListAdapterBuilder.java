@@ -11,7 +11,9 @@ import java.util.Map;
 import app.notone.R;
 
 /**
- * Contains a single method to build a configured ExpandableListAdapter for the Recent Canvases Expandable List View
+ * Contains a single method to build a configured ExpandableListAdapter for
+ * the Recent Canvases Expandable List View
+ *
  * @author Luca Hackel
  * @since 202212XX
  */
@@ -20,14 +22,20 @@ public class RecentCanvasSimpleExpandableListAdapterBuilder {
     private final static String TAG = "BaseExpandableListAdapter";
 
     /**
-     * build a configured ExpandableListAdapter for the Recent Canvases Expandable List View
-     * @param recentFileNames example {{"file1","file2"}} 2D as multiple groups could be created
+     * build a configured ExpandableListAdapter for the Recent Canvases
+     * Expandable List View
+     *
+     * @param recentFileNames example {{"file1","file2"}} 2D as multiple
+     *                        groups could be created
      */
-    public static SimpleExpandableListAdapter build(Context context, String[][] recentFileNames) {
+    public static SimpleExpandableListAdapter build(Context context,
+                                                    String[][] recentFileNames) {
         // create lists for group and child items
         String[] groupItems = {"Recent Files"};
-        List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-        List<List<Map<String, String>>> listItemData = new ArrayList<List<Map<String, String>>>();
+        List<Map<String, String>> groupData = new ArrayList<Map<String,
+                String>>();
+        List<List<Map<String, String>>> listItemData =
+                new ArrayList<List<Map<String, String>>>();
 
         // add data in group and child list
         for (int i = 0; i < groupItems.length; i++) {
@@ -35,7 +43,8 @@ public class RecentCanvasSimpleExpandableListAdapterBuilder {
             groupData.add(curGroupMap);
             curGroupMap.put(TAG, groupItems[i]);
 
-            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+            List<Map<String, String>> children = new ArrayList<Map<String,
+                    String>>();
             for (int j = 0; j < recentFileNames[i].length; j++) {
                 Map<String, String> curChildMap = new HashMap<String, String>();
                 children.add(curChildMap);

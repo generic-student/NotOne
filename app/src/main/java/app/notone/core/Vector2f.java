@@ -4,15 +4,20 @@ import android.graphics.Matrix;
 
 /**
  * Simple class to store a 2-dimensional vector as floating point values
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
  * @since 0.1
  */
 public class Vector2f {
-    /** X coordinate */
+    /**
+     * X coordinate
+     */
     public float x;
-    /** Y coordinate */
+    /**
+     * Y coordinate
+     */
     public float y;
 
     public Vector2f(float x, float y) {
@@ -22,6 +27,7 @@ public class Vector2f {
 
     /**
      * Computes the euclidean distance between two vectors
+     *
      * @param other Vector2f
      * @return Euclidean distance between the vectors
      */
@@ -31,6 +37,7 @@ public class Vector2f {
 
     /**
      * Computes the dot product of 2 vectors
+     *
      * @param other Vector2f
      * @return 2d dot product
      */
@@ -40,6 +47,7 @@ public class Vector2f {
 
     /**
      * Computes the cross product of 2 points
+     *
      * @param other Vector2f
      * @return 2d cross product
      */
@@ -50,6 +58,7 @@ public class Vector2f {
 
     /**
      * Element-wise subtraction of vectors
+     *
      * @param other Vector2f
      * @return Resulting Vector2f
      */
@@ -59,6 +68,7 @@ public class Vector2f {
 
     /**
      * Element wise addition of vectors
+     *
      * @param other Vector2f
      * @return Resulting Vector2f
      */
@@ -68,15 +78,17 @@ public class Vector2f {
 
     /**
      * Divides the vector by a number
+     *
      * @param value Number
      * @return Resulting Vector2f
      */
     public Vector2f divide(float value) {
-        return new Vector2f(x/value, y/value);
+        return new Vector2f(x / value, y / value);
     }
 
     /**
      * Multiplies the vector by a number
+     *
      * @param value Number
      * @return Resulting Vector2f
      */
@@ -87,14 +99,16 @@ public class Vector2f {
     /**
      * Returns the length of the vector (which can be described by the
      * euclidean distance between the vector and the origin.
+     *
      * @return Length of the vector
      */
     public float length() {
-        return (float)Math.hypot(x, y);
+        return (float) Math.hypot(x, y);
     }
 
     /**
      * Returns Returns a vector with the same direction but a length of 1
+     *
      * @return Resulting Vector2f
      */
     public Vector2f unitVector() {
@@ -103,6 +117,7 @@ public class Vector2f {
 
     /**
      * Calculates the angle between two vectors in radians
+     *
      * @param other Vector2f
      * @return angle
      */
@@ -114,6 +129,7 @@ public class Vector2f {
 
     /**
      * Multiplies the vector by a given 2x2 matrix
+     *
      * @param mat Vector2f
      * @return Resulting Vector2f
      */

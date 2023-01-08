@@ -4,6 +4,7 @@ import app.notone.core.CanvasWriter;
 
 /**
  * Constructs different CanvasPens from a PenType and a CanvasWriter
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
@@ -12,15 +13,17 @@ import app.notone.core.CanvasWriter;
 public class CanvasPenFactory {
     /**
      * Returns the CanvasPen that corresponds to the given PenType
-     * @param type The type of the pen
+     *
+     * @param type            The type of the pen
      * @param writerReference Reference to a CanvasWriter
      * @return Instance of a CanvasPen
      */
-    public CanvasPen createCanvasPen(PenType type, CanvasWriter writerReference) {
-        if(type == null) {
+    public CanvasPen createCanvasPen(PenType type,
+                                     CanvasWriter writerReference) {
+        if (type == null) {
             throw new IllegalArgumentException("Pen type cannot be null");
         }
-        switch(type) {
+        switch (type) {
             case WRITER:
                 return new CanvasWriterPen(writerReference);
             case ERASER:

@@ -20,9 +20,10 @@ import app.notone.core.util.PageSize;
 import app.notone.ui.fragments.CanvasFragment;
 
 /**
- * This class is used for loading PdfDocuments from the 
+ * This class is used for loading PdfDocuments from the
  * filesystem and importing them as a printout into the
  * Canvas using the intermediate {@link CanvasPdfDocument}
+ *
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
@@ -35,20 +36,28 @@ public class PdfImporter {
      * Data class for the {@link ImportPdfTask} that is running in
      * the background. It contains all required data for the task
      * to complete.
+     *
      * @author Kai Titgens
      * @author kai.titgens@stud.th-owl.de
      * @version 0.1
      * @since 0.1
      */
     public static class PdfImporterTaskData {
-        /** PdfRenderer for creating a printout of the pdf document*/
+        /**
+         * PdfRenderer for creating a printout of the pdf document
+         */
         PdfRenderer renderer;
-        /** Object where the printout is being stored as a list of bitmaps */
+        /**
+         * Object where the printout is being stored as a list of bitmaps
+         */
         CanvasPdfDocument document;
-        /** Screen resolution */
+        /**
+         * Screen resolution
+         */
         float dpi;
 
-        public PdfImporterTaskData(PdfRenderer renderer, CanvasPdfDocument document, float dpi) {
+        public PdfImporterTaskData(PdfRenderer renderer,
+                                   CanvasPdfDocument document, float dpi) {
             this.renderer = renderer;
             this.document = document;
             this.dpi = dpi;
@@ -60,9 +69,11 @@ public class PdfImporter {
      * it into a CanvasPdfDocument for displaying it in the CanvasView as a
      * printout.
      */
-    public static class ImportPdfTask extends AsyncTask<PdfImporterTaskData, Integer, Void> {
+    public static class ImportPdfTask extends AsyncTask<PdfImporterTaskData,
+            Integer, Void> {
         /**
          * The function that runs in the background
+         *
          * @param args List of PdfImporterTaskData for handling multiple imports
          * @return
          */
@@ -80,22 +91,29 @@ public class PdfImporter {
             Bitmap[] pages = new Bitmap[amtPages];
 
             //load each page individually
-            for(int i = 0; i < amtPages; i++) {
+            for (int i = 0; i < amtPages; i++) {
                 PdfRenderer.Page page = renderer.openPage(i);
                 //scale the page so that it conforms to the A4 format
-                final float widthScaling = PageSize.A4.getWidthPixels(data.dpi) / (float)page.getWidth();
-                final float heightScaling = PageSize.A4.getHeightPixels(data.dpi) / (float)page.getHeight();
+                final float widthScaling =
+                        PageSize.A4.getWidthPixels(data.dpi) / (float) page.getWidth();
+                final float heightScaling =
+                        PageSize.A4.getHeightPixels(data.dpi) / (float) page.getHeight();
                 transform.setScale(widthScaling, heightScaling);
 
                 //load the pages as bitmaps (printout)
-                pages[i] = Bitmap.createBitmap((int) (page.getWidth() * widthScaling), (int) (page.getHeight() * heightScaling), Bitmap.Config.ARGB_4444);
-                page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                pages[i] = Bitmap.createBitmap(
+                                (int) (page.getWidth() * widthScaling),
+                                (int) (page.getHeight() * heightScaling),
+                                Bitmap.Config.ARGB_4444);
+                page.render(pages[i], null, transform,
+                        PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 page.close();
 
-                System.out.println(String.format("Loaded Page with size %dx%d", page.getWidth(), page.getHeight()));
+                System.out.println(String.format("Loaded Page with size " +
+                        "%dx%d", page.getWidth(), page.getHeight()));
 
                 //invokes the onProgressUpdate method
-                publishProgress((int) (((i+1) / (float) amtPages) * 100));
+                publishProgress((int) (((i + 1) / (float) amtPages) * 100));
 
                 //add the loaded subrange of pages to the document
                 //so that the already loaded pages can be displayed already
@@ -103,7 +121,8 @@ public class PdfImporter {
             }
 
             document.setPages(pages);
-            //ensure that the current CanvasView is holding this instance of the PdfDocument
+            //ensure that the current CanvasView is holding this instance of
+            // the PdfDocument
             CanvasFragment.sCanvasView.setPdfDocument(document);
 
             return null;
@@ -115,6 +134,7 @@ public class PdfImporter {
          * It will display the percentage of pages that are done loading
          * and invalidate the canvas respectively, so that the pages
          * appear one after another.
+         *
          * @param progress
          */
         protected void onProgressUpdate(Integer... progress) {
@@ -124,6 +144,7 @@ public class PdfImporter {
 
         /**
          * Function that will be called after the task is completed
+         *
          * @param result
          */
         protected void onPostExecute(Void result) {
@@ -137,19 +158,24 @@ public class PdfImporter {
     /**
      * Imports a pdf document from a uri into a CanvasPdfDocument.
      * this function calls the ImportPdfTask which will run in the background.
-     * @param context Application context
-     * @param uri Uri
+     *
+     * @param context  Application context
+     * @param uri      Uri
      * @param document CanvasPdfDocument to load the printout into
      */
-    public static void fromUri(Context context, Uri uri, CanvasPdfDocument document) {
+    public static void fromUri(Context context, Uri uri,
+                               CanvasPdfDocument document) {
         try {
-            ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+            ParcelFileDescriptor fileDescriptor =
+                    context.getContentResolver().openFileDescriptor(uri, "r");
             PdfRenderer renderer = new PdfRenderer(fileDescriptor);
 
-            final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            final DisplayMetrics metrics =
+                    context.getResources().getDisplayMetrics();
             final float dpi = (float) metrics.densityDpi / metrics.density;
 
-            new PdfImporter.ImportPdfTask().execute(new PdfImporterTaskData(renderer, document, dpi));
+            new PdfImporter.ImportPdfTask().execute(
+                    new PdfImporterTaskData(renderer, document, dpi));
 
         } catch (IOException e) {
             e.printStackTrace();
