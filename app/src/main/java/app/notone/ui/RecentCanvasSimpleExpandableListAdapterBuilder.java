@@ -11,10 +11,10 @@ import java.util.Map;
 import app.notone.R;
 
 /**
+ * Contains a single method to build a configured ExpandableListAdapter for the Recent Canvases Expandable List View
  * @author Luca Hackel
  * @since 202212XX
  */
-
 
 public class RecentCanvasSimpleExpandableListAdapterBuilder {
     private final static String TAG = "BaseExpandableListAdapter";

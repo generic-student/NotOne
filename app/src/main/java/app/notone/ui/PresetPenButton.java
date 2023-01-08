@@ -17,10 +17,10 @@ import androidx.fragment.app.FragmentActivity;
 import app.notone.R;
 
 /**
+ * XML inflatable class that contains the data and layout of a presetpen for the canvastoolbar
  * @author Luca Hackel
  * @since 202212XX
  */
-
 
 public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageButton {
     private static final String TAG = "NotOnePresetPenButton";
@@ -36,21 +36,21 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
     public float mDDMenuWeightValue;
 
     /**
-     * xml inflation constructors
+     * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context) {
         super(context);
     }
 
     /**
-     * xml inflation constructors
+     * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
     /**
-     * xml inflation constructors
+     * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);

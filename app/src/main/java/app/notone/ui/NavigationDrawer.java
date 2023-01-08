@@ -11,7 +11,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import app.notone.core.util.SettingsHolder;
 
 /**
- * a custom drawer enable and disable swiping to open the drawer based on preferences
+ * A custom drawer enable and disable swiping to open the drawer based on preferences
  * @author Luca Hackel
  * @since 202212XX
  */

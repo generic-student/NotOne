@@ -2,7 +2,9 @@ package app.notone.ui;
 
 import android.net.Uri;
 
-//TODO: rename to CanvasFragmentFlags
+import app.notone.ui.fragments.CanvasFragment;
+
+
 /**
  * All the flags that are currently set in the {@link CanvasFragment}.
  * Some of the flags are used to determine if the CanvasFragment should 
