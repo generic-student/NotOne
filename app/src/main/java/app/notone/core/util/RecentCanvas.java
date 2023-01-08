@@ -19,6 +19,7 @@ public class RecentCanvas {
     public String mName;
     /** Save location*/
     public Uri mUri;
+    //TODO: Remove deprecated field
      /** Size of the file in bytes*/
     @Deprecated
     public int mFileSize;

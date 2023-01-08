@@ -85,6 +85,8 @@ public class CanvasEraserPen extends CanvasPen{
             strokes.get(i).computeBounds(bounds, true);
             float[] boundsPts = MathHelper.rectToFloatArray(bounds);
 
+            //TODO: Make the detection work for concave shapes
+            //SAT is limited to convex shapes
             //check if the bounding box intersects the bounds, if not then the stroke itself will not either
             if(SAT.rectangleRectangleIntersection(rectPts, boundsPts)) {
 
