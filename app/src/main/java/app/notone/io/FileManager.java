@@ -481,6 +481,7 @@ public class FileManager {
     public static void createNewCanvasFileAtUri(MainActivity mainActivity,
                                                 Uri uri) {
         CanvasFragment.sFlags.setNewFile(true);
+        CanvasFragment.sCanvasView.reset();
         CanvasFragment.sCanvasView.setUri(uri);
 
         //save the canvas to add the basic json layout to the file (otherwise
