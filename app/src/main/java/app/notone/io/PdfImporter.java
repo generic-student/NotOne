@@ -75,23 +75,30 @@ public class PdfImporter {
 
             Matrix transform = new Matrix();
 
+            //allocate space for the pages
             final int amtPages = renderer.getPageCount();
             Bitmap[] pages = new Bitmap[amtPages];
 
+            //load each page individually
             for(int i = 0; i < amtPages; i++) {
                 PdfRenderer.Page page = renderer.openPage(i);
+                //scale the page so that it conforms to the A4 format
                 final float widthScaling = PageSize.A4.getWidthPixels(data.dpi) / (float)page.getWidth();
                 final float heightScaling = PageSize.A4.getHeightPixels(data.dpi) / (float)page.getHeight();
                 transform.setScale(widthScaling, heightScaling);
 
+                //load the pages as bitmaps (printout)
                 pages[i] = Bitmap.createBitmap((int) (page.getWidth() * widthScaling), (int) (page.getHeight() * heightScaling), Bitmap.Config.ARGB_4444);
                 page.render(pages[i], null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 page.close();
 
                 System.out.println(String.format("Loaded Page with size %dx%d", page.getWidth(), page.getHeight()));
 
+                //invokes the onProgressUpdate method
                 publishProgress((int) (((i+1) / (float) amtPages) * 100));
 
+                //add the loaded subrange of pages to the document
+                //so that the already loaded pages can be displayed already
                 document.setPages(Arrays.copyOfRange(pages, 0, i));
             }
 

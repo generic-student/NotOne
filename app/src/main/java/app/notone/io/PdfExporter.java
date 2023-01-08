@@ -87,11 +87,13 @@ public class PdfExporter {
                 collect(Collectors.toList());
         int maxBottom = (int) boundsSortedY.stream().max((b1, b2) -> Float.compare(b1.bottom, b2.bottom)).orElse(new RectF(0,0,0,0)).bottom;
 
+        //create a list for the bounding boxes
         ArrayList<Rect> pages = new ArrayList<>();
         for(int i = 0; i < pdfPages; i++) {
             pages.add(new Rect(0, i * heightPixels, widthPixels, (i + 1) * heightPixels));
         }
 
+        //compute the bounding boxes
         int pageIndex = pdfPages;
         Rect page = new Rect(0, pageIndex * heightPixels, widthPixels, (pageIndex + 1) * heightPixels);
         while(page.top < maxBottom) {
