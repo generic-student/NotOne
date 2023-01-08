@@ -16,7 +16,13 @@ import android.view.View;
 import app.notone.core.util.SettingsHolder;
 
 /**
- * 
+ * This class handles everything about the canvas.
+ * It holds the information about the canvas and manages the rendering to the
+ * screen. It also delegates the scaling and panning to the respective
+ * GestureDetectors.
+ * The use of the GestureDetector and ScaleGestureDetector were inspired by
+ * the android developer documentation about 'Scale and Drag Gestures':
+ * https://developer.android.com/develop/ui/views/touch-and-input/gestures/scale
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1

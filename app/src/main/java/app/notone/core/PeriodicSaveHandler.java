@@ -10,6 +10,8 @@ import app.notone.ui.fragments.CanvasFragment;
 /**
  * Singleton class for handling the periodic saving of the currently active
  * Canvas in the background.
+ * This was inspired by the Stackoverflow answer from Rajesh. K
+ * https://stackoverflow.com/questions/6425611/android-run-a-task-periodically
  * @author Kai Titgens
  * @author kai.titgens@stud.th-owl.de
  * @version 0.1
