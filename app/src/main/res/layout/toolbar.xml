@@ -90,31 +90,12 @@ tool items are toggled to invisible if a non canvas fragment is active
                         android:orientation="horizontal"
                         android:layout_gravity="end">
 
-<!--                        <Button-->
-<!--                            android:id="@+id/button_test"-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="match_parent"-->
-<!--                            android:maxLines="1"-->
-<!--                            android:layout_marginHorizontal="150dp"-->
-<!--                            android:text="TEST" />-->
-
                     <LinearLayout
                         android:id="@+id/canvas_pens_preset_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
                         android:layout_gravity="end"/>
-<!--                        <app.notone.views.PresetPenButton-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="match_parent"-->
-<!--                            android:layout_gravity="center"-->
-<!--                            android:background="@android:color/transparent"-->
-<!--                            android:foreground="?android:attr/selectableItemBackground"-->
-<!--                            android:padding="10dp"-->
-<!--                            android:scaleX="1.2"-->
-<!--                            android:scaleY="1.2"-->
-<!--                            android:src="@drawable/ic_pen"-->
-<!--                            app:tint="@color/white" />-->
 
                         <ImageButton
                             android:id="@+id/button_eraser"
@@ -196,12 +177,6 @@ tool items are toggled to invisible if a non canvas fragment is active
                     android:layout_weight="0"
                     android:layout_gravity="end"
                     android:orientation="horizontal">
-
-<!--                    <View-->
-<!--                        android:layout_width="2dp"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:layout_marginVertical="10dp"-->
-<!--                        android:background="?colorPrimary" />-->
 
                     <ImageButton
                         android:id="@+id/button_undo"
