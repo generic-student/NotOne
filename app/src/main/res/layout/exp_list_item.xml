@@ -17,6 +17,6 @@ the explist items of a group in the navdrawer
         android:paddingVertical="10dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="?attr/colorText"/>
+        android:textColor="?attr/colorIcons"/>
 
 </LinearLayout>

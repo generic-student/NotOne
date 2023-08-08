@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import com.google.android.material.button.MaterialButton;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -22,7 +24,7 @@ import app.notone.R;
  * @since 202212XX
  */
 
-public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageButton {
+public class PresetPenButton extends MaterialButton {
     private static final String TAG = "NotOnePresetPenButton";
 
     /* assigned by the constructors */
@@ -124,7 +126,7 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeXY, sizeXY);
         params.gravity = Gravity.CENTER;
 
-        setScaleType(ScaleType.FIT_CENTER);
+//        setScaleType(ScaleType.FIT_CENTER);
         setLayoutParams(params);
 
         /* color and res */
@@ -137,7 +139,9 @@ public class PresetPenButton extends androidx.appcompat.widget.AppCompatImageBut
 
         setForeground(ContextCompat.getDrawable(context, selectableItemBackgroundResourceHolder.resourceId));
         setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));
-        setImageDrawable(icon);
-        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
+        setIcon(icon);
+        setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
+//        setImageDrawable(icon);
+//        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
     }
 }

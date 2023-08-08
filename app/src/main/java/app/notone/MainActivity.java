@@ -450,7 +450,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "setOnGroupClickListener: " + Arrays.toString(initialRecentFileNames[0]));
             if (!parent.isGroupExpanded(groupPosition)) {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 310));
-                Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
+                Log.d(TAG, "setNavigationItemSelectedListener: changed list height"); //TODO dont change if there are none or show that there are none
+
             } else {
                 findViewById(R.id.exp_list_view).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 Log.d(TAG, "setNavigationItemSelectedListener: changed list height");
@@ -502,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                     viewCanvasToolsContainer.setVisibility(View.VISIBLE);
                     viewUnRedo.setVisibility(View.VISIBLE);
                     tvTitle.setVisibility(View.VISIBLE);
-                    tvTitle.setText(sCanvasName); // TODO replace with open document name
+                    tvTitle.setText(sCanvasName);
                     return; // dont reset toolbar
 
                 case R.id.settings_fragment:

@@ -17,6 +17,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -62,7 +64,7 @@ public class CanvasFragment extends Fragment {
     private View mCanvasFragmentView;
 
     public static CanvasFragmentFlags sFlags = new CanvasFragmentFlags();
-    private static ArrayList<ImageButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
+    private static ArrayList<MaterialButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
     ActivityResultLauncher<String> mGetPdfDocument = ActivityResultLauncherProvider.getImportPdfActivityResultLauncher(this);
 
@@ -212,10 +214,10 @@ public class CanvasFragment extends Fragment {
 
 
         /* Setup Undo, Redo, activate Eraser Action Buttons */
-        ImageButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
-        ImageButton buttonMarker = fragmentActivity.findViewById(R.id.button_marker);
-        ImageButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
-        ImageButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
+        MaterialButton buttonEraser = fragmentActivity.findViewById(R.id.button_eraser);
+        MaterialButton buttonMarker = fragmentActivity.findViewById(R.id.button_marker);
+        MaterialButton buttonUndo = fragmentActivity.findViewById(R.id.button_undo);
+        MaterialButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
             if (sCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
                 setToolSelection(sCanvasToolGroup, buttonEraser, false);
@@ -250,7 +252,7 @@ public class CanvasFragment extends Fragment {
 
 
         /* Setup insert PDF button */
-        ImageButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
+        MaterialButton buttonInsert = fragmentActivity.findViewById(R.id.button_insert);
         buttonInsert.setOnClickListener(v -> {
             //CanvasFragment.sFlags.setLoadPdf(true);
             mGetPdfDocument.launch("application/pdf");
@@ -276,7 +278,7 @@ public class CanvasFragment extends Fragment {
 
 
         /* Setup Shape Detection Button */
-        ImageButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
+        MaterialButton buttonDetectShapes = fragmentActivity.findViewById(R.id.button_shape);
         buttonDetectShapes.setOnClickListener(v -> {
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
@@ -296,11 +298,11 @@ public class CanvasFragment extends Fragment {
 
 
         /* Setup Add Preset Pen Button */
-        ImageButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
+        MaterialButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
         buttonAddPresetPen.setOnClickListener(v -> {
             PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
-            sCanvasToolGroup.add((ImageButton) buttonPresetPen);
+            sCanvasToolGroup.add((MaterialButton) buttonPresetPen);
             llayoutPenContainer.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
         });
@@ -364,7 +366,7 @@ public class CanvasFragment extends Fragment {
             pens.forEach(presetPenButton -> {
                 setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
                 llayoutPenContainer.addView(presetPenButton, 0);
-                sCanvasToolGroup.add((ImageButton) presetPenButton);
+                sCanvasToolGroup.add((MaterialButton) presetPenButton);
             });
         } else {
             Log.d(TAG, "onStart: could not restore all pens. Pens available: " + llayoutPenContainer.getChildCount());
@@ -422,9 +424,9 @@ public class CanvasFragment extends Fragment {
      * @param activeButton
      * @param toggleable
      */
-    private static void setOrToggleToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean toggleable) {
+    private static void setOrToggleToolSelection(ArrayList<MaterialButton> imageButtonGroup, MaterialButton activeButton, boolean toggleable) {
         boolean result = true;
-        for (ImageButton imageButton : imageButtonGroup) {
+        for (MaterialButton imageButton : imageButtonGroup) {
             if (imageButton != activeButton) { // if non active button
                 // deselect all else
                 imageButton.setSelected(false);
@@ -457,9 +459,9 @@ public class CanvasFragment extends Fragment {
      * @param activeButton
      * @param enabled
      */
-    private void setToolSelection(ArrayList<ImageButton> imageButtonGroup, ImageButton activeButton, boolean enabled) {
+    private void setToolSelection(ArrayList<MaterialButton> imageButtonGroup, MaterialButton activeButton, boolean enabled) {
         if (enabled) { // if selected
-            for (ImageButton imageButton : imageButtonGroup) {
+            for (MaterialButton imageButton : imageButtonGroup) {
                 if (imageButton != activeButton) { // if non active button
                     // deselect all else
                     imageButton.setSelected(false);
