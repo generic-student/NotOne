@@ -10,7 +10,7 @@ the night theme of the app
         <item name="colorSecondary">@color/teal_2</item>
         <item name="colorPrimaryVariant">@color/lila_1</item>
         <item name="colorCanvas">@color/black</item>
-        <item name="colorText">@color/white</item>
+        <item name="colorIcons">@color/white</item>
 
         <!-- Referenced -->
         <item name="colorAccent">?attr/colorSecondary</item>

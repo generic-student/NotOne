@@ -13,7 +13,7 @@
         android:pathData="M99.42,98.97m-91.94,0a91.94,91.94 0,1 1,183.88 0a91.94,91.94 0,1 1,-183.88 0"
         android:strokeAlpha="0.993"
         android:strokeWidth="0.29062349"
-        android:fillColor="#000000"
+        android:fillColor="@color/md_theme_light_primary"
         android:fillAlpha="0.993"/>
   </group>
 </vector>
