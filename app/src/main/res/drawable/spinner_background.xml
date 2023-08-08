@@ -15,7 +15,7 @@ the border of the pen color and weight dropdown menus, which styles their bottom
     <item android:top="0dp" android:bottom="3dp">
         <shape
             android:shape="rectangle">
-            <stroke android:width="10dp" android:color="?colorPrimaryVariant" />
+            <stroke android:width="10dp" android:color="?colorPrimary" />
         </shape>
     </item>
 

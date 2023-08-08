@@ -20,6 +20,10 @@ the night theme of the app
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 <!--        <item name="android:navigationBarColor">@color/black</item>-->
 
+
+
+
+
         <!-- translucent bottom hotbar -->
 <!--        <item name="android:windowTranslucentStatus">true</item>-->
         <item name="android:windowTranslucentNavigation">true</item>

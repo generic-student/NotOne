@@ -16,13 +16,13 @@ tool items are toggled to invisible if a non canvas fragment is active
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:paddingTop="25dp"
-        android:background="?colorPrimaryVariant">
+        android:background="?colorPrimary">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?colorPrimaryVariant"
+            android:background="?colorPrimary"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme">
 
@@ -76,7 +76,7 @@ tool items are toggled to invisible if a non canvas fragment is active
                     android:overScrollMode="never"
                     android:requiresFadingEdge="horizontal"
                     android:fadingEdgeLength="20dp"
-                    android:background="?colorPrimaryVariant"
+                    android:background="?colorPrimary"
                     android:padding="0dp"
                     android:layout_width="match_parent"
                     android:layout_weight="1"
@@ -225,6 +225,6 @@ tool items are toggled to invisible if a non canvas fragment is active
         android:foregroundTint="@color/white"
         android:tint="@android:color/white"
         android:src="@drawable/ic_arrow_head"
-        android:backgroundTint="?attr/colorSecondary"/>
+        android:backgroundTint="?attr/colorPrimary"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
