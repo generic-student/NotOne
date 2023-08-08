@@ -3,12 +3,23 @@
 @author Luca Hackel
 style definitions mainly for the pen dropdownmenus
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="GreenText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">#00FF00</item>
     </style>
     <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
     </style>
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+    </style>
+<!--    <style name="Preference.SwitchPreferenceCompat" parent="@style/Preference.SwitchPreferenceCompat.Material"-->
+<!--        tools:ignore="ResourceCycle">-->
+<!--        <item name="widgetLayout">@layout/switch_item</item>-->
+<!--    </style>-->
+    <style name="AppPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/AppSwitchPreference</item>
+    </style>
+
+    <style name="AppSwitchPreference" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_material_switch</item>
     </style>
 </resources>

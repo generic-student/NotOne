@@ -29,6 +29,7 @@ the about fragment
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="50dp"
+
                 android:src="@mipmap/ic_launcher_round" />
 
             <TextView
@@ -85,17 +86,15 @@ the about fragment
                         android:text="@string/dev_names"
                         android:textAppearance="@android:style/TextAppearance.Material.Small" />
                 </LinearLayout>
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_about_pages"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:backgroundTint="?colorCanvas"
-                    android:textAlignment="viewStart"
+                    android:layout_gravity="center"
                     android:text="VISIT THEIR PAGES"
                     android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorText" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
@@ -114,7 +113,7 @@ the about fragment
                 android:layout_height="wrap_content"
                 android:paddingStart="80dp"
                 android:paddingBottom="20dp"
-                android:text="University"
+                android:text="Material Gain"
                 android:textAppearance="@android:style/TextAppearance.Material.Small" />
 
             <!---->

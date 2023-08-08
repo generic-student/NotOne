@@ -13,6 +13,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.navigation.NavigationView;
 
 import app.notone.R;
@@ -52,7 +53,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
      * @param preference
      * @return
      */
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @Override
     public boolean onPreferenceTreeClick(@NonNull Preference preference) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -64,7 +64,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         SettingsHolder.update(sharedPreferences);
 
         /* update quicksettings switch in drawer menu */
-        Switch swAutoSave = ((NavigationView)getActivity().findViewById(R.id.navdrawercontainer_view))
+        MaterialSwitch swAutoSave = ((NavigationView)getActivity().findViewById(R.id.navdrawercontainer_view))
                .getMenu().findItem(R.id.drawer_switch_autosave)
                .getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(SettingsHolder.shouldAutoSaveCanvas());

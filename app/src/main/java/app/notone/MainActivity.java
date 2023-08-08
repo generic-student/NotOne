@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -414,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         /* Set state of the drawer quick settings */
-        Switch swAutoSave = mNavDrawerView.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
+        MaterialSwitch swAutoSave = mNavDrawerView.getMenu().findItem(R.id.drawer_switch_autosave).getActionView().findViewById(R.id.menu_switch);
         swAutoSave.setChecked(SettingsHolder.shouldAutoSaveCanvas());
         swAutoSave.setOnCheckedChangeListener((compoundButton, autoSave) -> {
             spEditor.putBoolean("autosave", autoSave).apply();

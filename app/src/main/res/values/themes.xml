@@ -30,5 +30,8 @@ the light theme of the app
         <!-- toolbar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
+
     </style>
 </resources>
