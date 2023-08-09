@@ -3,7 +3,7 @@
 @author Luca Hackel
 style definitions mainly for the pen dropdownmenus
 -->
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="GreenText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">#00FF00</item>
     </style>
@@ -11,15 +11,13 @@ style definitions mainly for the pen dropdownmenus
     </style>
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
     </style>
-<!--    <style name="Preference.SwitchPreferenceCompat" parent="@style/Preference.SwitchPreferenceCompat.Material"-->
-<!--        tools:ignore="ResourceCycle">-->
-<!--        <item name="widgetLayout">@layout/switch_item</item>-->
-<!--    </style>-->
     <style name="AppPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="colorIcons">@color/md_theme_light_inverseSurface</item>
         <item name="switchPreferenceCompatStyle">@style/AppSwitchPreference</item>
     </style>
 
     <style name="AppSwitchPreference" parent="@style/Preference.SwitchPreferenceCompat.Material">
         <item name="widgetLayout">@layout/preference_material_switch</item>
+        <item name="colorIcons">@color/md_theme_light_inverseSurface</item>
     </style>
 </resources>

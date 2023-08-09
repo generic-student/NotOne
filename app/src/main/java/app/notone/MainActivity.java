@@ -431,7 +431,9 @@ public class MainActivity extends AppCompatActivity {
                 PeriodicSaveHandler.getInstance().stop();
             }
         });
-//        Not a MVP Feature
+
+
+        /*Not a MVP Feature*/
 //        Switch swSync = mNavDrawerContainerNV.getMenu().findItem(R.id.drawer_switch_sync).getActionView().findViewById(R.id.menu_switch);
 //        swSync.setChecked(sharedPreferences.getBoolean("sync", false));
 //        swSync.setOnCheckedChangeListener((compoundButton, b) -> spEditor.putBoolean("sync", b).apply());

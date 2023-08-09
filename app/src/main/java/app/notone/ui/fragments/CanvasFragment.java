@@ -220,23 +220,19 @@ public class CanvasFragment extends Fragment {
         MaterialButton buttonRedo = fragmentActivity.findViewById(R.id.button_redo);
         buttonEraser.setOnClickListener(v -> {
             if (sCanvasView.getCanvasWriter().getCurrentPenType() == PenType.ERASER) {
-                setToolSelection(sCanvasToolGroup, buttonEraser, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             } else {
                 sFlags.setMarkerEnabled(false);
-                setToolSelection(sCanvasToolGroup, buttonEraser, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.ERASER);
             }
         });
         buttonMarker.setOnClickListener(v -> {
             if(!sFlags.isMarkerEnabled()) {
-                setToolSelection(sCanvasToolGroup, buttonMarker, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
                 int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(90, Color.red(color), Color.green(color), Color.blue(color));
                 sCanvasView.setStrokeColor(transparent);
             } else {
-                setToolSelection(sCanvasToolGroup, buttonMarker, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
                 int color = sCanvasView.getStrokeColor();
                 int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
@@ -286,10 +282,8 @@ public class CanvasFragment extends Fragment {
             sFlags.setMarkerEnabled(false);
 
             if(sCanvasView.getCanvasWriter().getCurrentPenType() != PenType.SHAPE_DETECTOR) {
-                setToolSelection(sCanvasToolGroup, buttonDetectShapes, true);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.SHAPE_DETECTOR);
             } else {
-                setToolSelection(sCanvasToolGroup, buttonDetectShapes, false);
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             }
         });
@@ -404,7 +398,6 @@ public class CanvasFragment extends Fragment {
             int color = sCanvasView.getStrokeColor();
             int transparent = Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
             sCanvasView.setStrokeColor(transparent);
-            setOrToggleToolSelection(sCanvasToolGroup, buttonPresetPen, false);
         });
         buttonPresetPen.setOnLongClickListener(view1 -> {
             llayoutPenContainer.removeView(buttonPresetPen);
@@ -417,69 +410,7 @@ public class CanvasFragment extends Fragment {
 
 // region Tool Selection
 
-    /**
-     * selects a button and deselects all others
-     * if toggle is true it can be turned on and off by clicking again
-     *
-     * @param activeButton
-     * @param toggleable
-     */
-    private static void setOrToggleToolSelection(ArrayList<MaterialButton> imageButtonGroup, MaterialButton activeButton, boolean toggleable) {
-        boolean result = true;
-        for (MaterialButton imageButton : imageButtonGroup) {
-            if (imageButton != activeButton) { // if non active button
-                // deselect all else
-                imageButton.setSelected(false);
-                imageButton.setBackgroundColor(Color.TRANSPARENT);
-                continue;
-            }
-            if (!toggleable) { // if not toggleable
-                // select
-                imageButton.setSelected(true);
-                imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-                continue;
-            }
-            if (imageButton.isSelected()) { // if toggleable and selected
-                // deselect
-                result = false;
-                imageButton.setSelected(false);
-                imageButton.setBackgroundColor(Color.TRANSPARENT);
-                continue;
-            }
-            // if toggleable and not selected
-            // select
-            imageButton.setSelected(true);
-            imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-        }
-    }
 
-    /**
-     * Lorem Ipsum
-     * @param imageButtonGroup
-     * @param activeButton
-     * @param enabled
-     */
-    private void setToolSelection(ArrayList<MaterialButton> imageButtonGroup, MaterialButton activeButton, boolean enabled) {
-        if (enabled) { // if selected
-            for (MaterialButton imageButton : imageButtonGroup) {
-                if (imageButton != activeButton) { // if non active button
-                    // deselect all else
-                    imageButton.setSelected(false);
-                    imageButton.setBackgroundColor(Color.TRANSPARENT);
-                } else {
-                    // select
-                    Log.d(TAG, "setActiveState: select Button");
-                    imageButton.setSelected(true);
-                    imageButton.setBackgroundColor(Color.argb(60, 255, 255, 255));
-                }
-            }
-        } else {
-            activeButton.setSelected(false);
-            activeButton.setBackgroundColor(Color.TRANSPARENT);
-        }
-    }
-
-//endregion
 
     /**
      * set up the drop down menu with the data
@@ -535,3 +466,5 @@ public class CanvasFragment extends Fragment {
         void onClick(AdapterView<?> adapterView, View view, int i, long l);
     }
 }
+
+//endregion

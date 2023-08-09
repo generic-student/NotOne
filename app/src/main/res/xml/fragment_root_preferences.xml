@@ -16,7 +16,7 @@ the settings fragment layout definition
             app:key="darkmode"
             app:summaryOff="Light Mode"
             app:summaryOn="Dark Mode"
-            app:title="App Theme" />
+            app:title="App Theme"/>
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -99,5 +99,7 @@ the settings fragment layout definition
             app:useSimpleSummaryProvider="true"/>
 
     </PreferenceCategory>
+
+    <EditTextPreference app:title="" />
 
 </PreferenceScreen>

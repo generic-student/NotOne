@@ -28,24 +28,16 @@ tool items are toggled to invisible if a non canvas fragment is active
             android:theme="?attr/actionBarTheme">
 
             <!--            only needed when the bar is to full -->
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_fragment_title"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingVertical="20dp"
+                android:contentDescription="Return to origin"
                 android:text="@string/canvas_title_default"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="20dp"
                 android:maxLength="16"
                 android:maxLines="1"
-                android:ellipsize="end"
-                android:textColor="@color/white"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:textStyle=""
-                android:textSize="20sp"
-                app:drawableEndCompat="@drawable/ic_cross"
-                android:contentDescription="Return to origin"
-                android:drawablePadding="5dp"
-                app:drawableTint="@color/white" />
+                android:ellipsize="end"/>
 
             <LinearLayout
                 android:id="@+id/canvas_tools_container"
@@ -90,56 +82,52 @@ tool items are toggled to invisible if a non canvas fragment is active
                         android:orientation="horizontal"
                         android:layout_gravity="end">
 
-                    <LinearLayout
-                        android:id="@+id/canvas_pens_preset_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_gravity="end"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:id="@+id/button_eraser"
-                            app:icon="@drawable/ic_eraser"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:id="@+id/canvas_pens_preset_container"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:contentDescription="ERASER"
-                            app:tint="@color/white"/>
+                            android:orientation="horizontal"
+                            android:layout_gravity="end"/>
 
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:id="@+id/button_marker"
-                            app:icon="@drawable/ic_marker"
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:layout_gravity="center"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:contentDescription="MARKER"
-                            app:tint="@color/white"/>
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                                android:contentDescription="ERASER"
+                                android:id="@+id/button_eraser"
+                                app:icon="@drawable/ic_eraser"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                                android:contentDescription="MARKER"
+                                android:id="@+id/button_marker"
+                                app:icon="@drawable/ic_marker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                                android:contentDescription="SHAPE DETECTION"
+                                android:id="@+id/button_shape"
+                                app:icon="@drawable/ic_shape"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"/>
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
 
                         <com.google.android.material.button.MaterialButton
                             style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:id="@+id/button_shape"
-                            app:icon="@drawable/ic_shape"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:contentDescription="SHAPE DETECTION"
-                            app:tint="@color/white"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
+                            android:contentDescription="Add a Pen Config"
                             android:id="@+id/button_add_pen"
                             app:icon="@drawable/ic_add_pen"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:contentDescription="Add a Pen Config"
-                            app:tint="@color/white"/>
+                            android:layout_height="match_parent"/>
 
                         <Spinner
                             android:id="@+id/ddownm_pen_colors"
@@ -151,12 +139,12 @@ tool items are toggled to invisible if a non canvas fragment is active
 
                         <Spinner
                             android:id="@+id/ddownm_pen_weights"
+                            android:contentDescription="chose pen thickness"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:background="@drawable/spinner_background"
                             android:layout_width="60dp"
                             android:layout_marginEnd="10dp"
-                            android:layout_height="match_parent"
-                            android:contentDescription="chose pen thickness"/>
+                            android:layout_height="match_parent"/>
                     </LinearLayout>
                 </HorizontalScrollView>
 
@@ -169,23 +157,24 @@ tool items are toggled to invisible if a non canvas fragment is active
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        app:backgroundTint="@color/md_theme_light_inverseOnSurface"
                         android:id="@+id/button_undo"
                         android:contentDescription="UNDO"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         app:icon="@drawable/ic_undo"
-                        android:background="@android:color/transparent"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        tools:ignore="RtlSymmetry" />
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
                     <com.google.android.material.button.MaterialButton
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        app:backgroundTint="@color/md_theme_light_inverseOnSurface"
                         android:id="@+id/button_redo"
                         android:contentDescription="REDO"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         app:icon="@drawable/ic_redo"
-                        android:background="@android:color/transparent"
-                        android:foreground="?android:attr/selectableItemBackground"/>
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
             </LinearLayout>

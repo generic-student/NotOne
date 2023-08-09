@@ -46,6 +46,8 @@ the navbar menu that contains the navigation, quick settings and file management
             android:title="@string/drawer_menu_auto_save_item_text"
             android:icon="@drawable/ic_autosave"
             app:actionLayout="@layout/switch_item" />
+
+        <!--NOT MVP-->
 <!--        <item-->
 <!--            app:enabled="false"-->
 <!--            android:id="@+id/drawer_switch_sync"-->

@@ -55,6 +55,7 @@ the light theme of the app
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
+        <!--Theme the Preference Screen-->
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
     </style>
