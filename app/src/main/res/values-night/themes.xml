@@ -33,6 +33,7 @@ the night theme of the app
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
 
+        <item name="colorIconsInverse">@color/white</item>
         <item name="colorIcons">@color/black</item>
 
         <!-- Referenced -->

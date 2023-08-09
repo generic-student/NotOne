@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -64,7 +63,6 @@ public class CanvasFragment extends Fragment {
     private View mCanvasFragmentView;
 
     public static CanvasFragmentFlags sFlags = new CanvasFragmentFlags();
-    private static ArrayList<MaterialButton> sCanvasToolGroup = new ArrayList<>(); // For showing/ toggling selected buttons
 
     ActivityResultLauncher<String> mGetPdfDocument = ActivityResultLauncherProvider.getImportPdfActivityResultLauncher(this);
 
@@ -242,8 +240,6 @@ public class CanvasFragment extends Fragment {
         });
         buttonUndo.setOnClickListener(v -> sCanvasView.undo());
         buttonRedo.setOnClickListener(v -> sCanvasView.redo());
-        sCanvasToolGroup.add(buttonEraser);
-        sCanvasToolGroup.add(buttonMarker);
 
 
 
@@ -287,16 +283,14 @@ public class CanvasFragment extends Fragment {
                 sCanvasView.getCanvasWriter().setCurrentPenType(PenType.WRITER);
             }
         });
-        sCanvasToolGroup.add(buttonDetectShapes);
 
 
 
         /* Setup Add Preset Pen Button */
         MaterialButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
-        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.canvas_pens_preset_container);
+        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.preset_pen_state_toogle_group);
         buttonAddPresetPen.setOnClickListener(v -> {
             PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
-            sCanvasToolGroup.add((MaterialButton) buttonPresetPen);
             llayoutPenContainer.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
         });
@@ -335,7 +329,7 @@ public class CanvasFragment extends Fragment {
      */
     private static void putPresetPensIntoSharedPreferences(Activity activity, SharedPreferences.Editor editor) {
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
-        LinearLayout llayoutPenContainer = activity.findViewById(R.id.canvas_pens_preset_container);
+        LinearLayout llayoutPenContainer = activity.findViewById(R.id.preset_pen_state_toogle_group);
         for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
             mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
         }
@@ -354,13 +348,12 @@ public class CanvasFragment extends Fragment {
      */
     private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
         // add pen to container
-        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.canvas_pens_preset_container);
+        LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.preset_pen_state_toogle_group);
         if(llayoutPenContainer.getChildCount() == 0) {
             Log.d(TAG, "onStart: restoring old pens " + pens);
             pens.forEach(presetPenButton -> {
                 setPresetPenButtonListeners(presetPenButton, llayoutPenContainer);
                 llayoutPenContainer.addView(presetPenButton, 0);
-                sCanvasToolGroup.add((MaterialButton) presetPenButton);
             });
         } else {
             Log.d(TAG, "onStart: could not restore all pens. Pens available: " + llayoutPenContainer.getChildCount());

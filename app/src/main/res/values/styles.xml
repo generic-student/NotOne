@@ -11,11 +11,14 @@ style definitions mainly for the pen dropdownmenus
     </style>
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
     </style>
+<!--    Theme switches in preference screen -->
     <style name="AppPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/AppSwitchPreference</item>
     </style>
-
     <style name="AppSwitchPreference" parent="@style/Preference.SwitchPreferenceCompat.Material">
         <item name="widgetLayout">@layout/preference_material_switch</item>
     </style>
+
+<!--    Theme icons properly in preference screen-->
+
 </resources>

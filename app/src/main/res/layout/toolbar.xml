@@ -82,19 +82,21 @@ tool items are toggled to invisible if a non canvas fragment is active
                         android:orientation="horizontal"
                         android:layout_gravity="end">
 
-                        <LinearLayout
-                            android:id="@+id/canvas_pens_preset_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:layout_gravity="end"/>
 
                         <com.google.android.material.button.MaterialButtonToggleGroup
+
                             android:layout_gravity="center"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:singleSelection="true"
                             app:selectionRequired="true">
+
+                            <LinearLayout
+                                android:id="@+id/preset_pen_state_toogle_group"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal"
+                                android:layout_gravity="end"/>
 
                             <com.google.android.material.button.MaterialButton
                                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"

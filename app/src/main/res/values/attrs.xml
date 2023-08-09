@@ -7,6 +7,6 @@ attr holders for custom values in the themes
     <declare-styleable name="Theme">
     <!-- Other values-->
         <attr name="colorIcons" format="color" />
-        <attr name="colorCanvas" format="color" />
+        <attr name="colorIconsInverse" format="color" />
     </declare-styleable>
 </resources>
