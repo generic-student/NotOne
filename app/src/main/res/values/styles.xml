@@ -12,12 +12,10 @@ style definitions mainly for the pen dropdownmenus
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
     </style>
     <style name="AppPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
-        <item name="colorIcons">@color/md_theme_light_inverseSurface</item>
         <item name="switchPreferenceCompatStyle">@style/AppSwitchPreference</item>
     </style>
 
     <style name="AppSwitchPreference" parent="@style/Preference.SwitchPreferenceCompat.Material">
         <item name="widgetLayout">@layout/preference_material_switch</item>
-        <item name="colorIcons">@color/md_theme_light_inverseSurface</item>
     </style>
 </resources>

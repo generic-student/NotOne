@@ -37,7 +37,7 @@ the about fragment
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
                 android:text="@string/app_name"
-                android:textColor="?attr/colorIcons"
+                android:textColor="@android:color/white"
                 android:textAlignment="center"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -74,7 +74,7 @@ the about fragment
                         android:paddingTop="10dp"
                         android:paddingBottom="5dp"
                         android:text="A Project by"
-                        android:textColor="?attr/colorIcons"
+                        android:textColor="@android:color/white"
                         android:textAppearance="@android:style/TextAppearance.Material.Small"
                         android:textStyle="bold" />
 
@@ -103,7 +103,7 @@ the about fragment
                 android:paddingStart="80dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="?attr/colorIcons"
+                android:textColor="@android:color/white"
                 android:text="For"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"
                 android:textStyle="bold" />
@@ -137,7 +137,7 @@ the about fragment
                 android:paddingStart="80dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="?attr/colorIcons"
+                android:textColor="@android:color/white"
                 android:text="App License"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"
                 android:textStyle="bold" />
@@ -157,7 +157,7 @@ the about fragment
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
                 android:text="Third-Party Licenses"
-                android:textColor="?attr/colorIcons"
+                android:textColor="@android:color/white"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"
                 android:textStyle="bold" />
 

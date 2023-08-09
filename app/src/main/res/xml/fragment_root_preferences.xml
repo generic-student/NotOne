@@ -12,7 +12,7 @@ the settings fragment layout definition
 
         <!-- set based on system settings, can be overwritten default unset -->
         <SwitchPreferenceCompat
-            app:icon="@drawable/ic_theme"
+            app:icon="@drawable/ic_brightness"
             app:key="darkmode"
             app:summaryOff="Light Mode"
             app:summaryOn="Dark Mode"

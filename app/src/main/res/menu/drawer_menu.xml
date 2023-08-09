@@ -61,11 +61,11 @@ the navbar menu that contains the navigation, quick settings and file management
         android:id="@+id/group2">
         <item
             android:id="@+id/settings_fragment"
-            android:icon="@android:drawable/ic_menu_preferences"
+            android:icon="@drawable/ic_settings"
             android:title="@string/drawer_menu_settings_item_text" />
         <item
             android:id="@+id/about_fragment"
-            android:icon="@android:drawable/ic_menu_info_details"
+            android:icon="@drawable/ic_info"
             android:title="@string/drawer_menu_about_item_text" />
 </group>
 </menu>
