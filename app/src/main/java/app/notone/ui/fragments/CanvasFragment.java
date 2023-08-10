@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import org.json.JSONException;
 
@@ -288,10 +289,10 @@ public class CanvasFragment extends Fragment {
 
         /* Setup Add Preset Pen Button */
         MaterialButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
-        LinearLayout llayoutPenContainer = fragmentActivity.findViewById(R.id.preset_pen_state_toogle_group);
+        MaterialButtonToggleGroup mbPresetPenStateToggleGroup = fragmentActivity.findViewById(R.id.preset_pen_state_toogle_group);
         buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, llayoutPenContainer);
-            llayoutPenContainer.addView(buttonPresetPen, 0);
+            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, mbPresetPenStateToggleGroup);
+            mbPresetPenStateToggleGroup.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
         });
     }
@@ -330,8 +331,15 @@ public class CanvasFragment extends Fragment {
     private static void putPresetPensIntoSharedPreferences(Activity activity, SharedPreferences.Editor editor) {
         ArrayList<PresetPenButton> mPresetPenButtons = new ArrayList<PresetPenButton>();
         LinearLayout llayoutPenContainer = activity.findViewById(R.id.preset_pen_state_toogle_group);
+        if(llayoutPenContainer == null)
+            return;
         for(int i = llayoutPenContainer.getChildCount()-1; i >= 0; i--) {
-            mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
+            try {
+                mPresetPenButtons.add((PresetPenButton) llayoutPenContainer.getChildAt(i));
+            }
+            catch(ClassCastException e){
+                Log.e(TAG, "putPresetPensIntoSharedPreferences: cant be cast");
+            }
         }
         String presetPenJson = "";
         try {
@@ -349,6 +357,8 @@ public class CanvasFragment extends Fragment {
     private void addPresetPensToLayout(@NonNull ArrayList<PresetPenButton> pens) {
         // add pen to container
         LinearLayout llayoutPenContainer = getActivity().findViewById(R.id.preset_pen_state_toogle_group);
+        if(llayoutPenContainer == null)
+            return;
         if(llayoutPenContainer.getChildCount() == 0) {
             Log.d(TAG, "onStart: restoring old pens " + pens);
             pens.forEach(presetPenButton -> {

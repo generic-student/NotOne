@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -120,28 +122,26 @@ public class PresetPenButton extends MaterialButton {
      */
     public void setLayout(Context context) {
         /* positioning */
+
         float scale = (float) ((2 - 2 * Math.exp(-mDDMenuWeightValue / 8))); // 0 to 2
         scale = scale < 0.5 ? 1 : scale;
         int sizeXY = (int) (70 * scale);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeXY, sizeXY);
-        params.gravity = Gravity.CENTER;
+        setLayoutParams(params);
 
 //        setScaleType(ScaleType.FIT_CENTER);
-        setLayoutParams(params);
 
         /* color and res */
         int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
 
-        TypedValue selectableItemBackgroundResourceHolder = new TypedValue();
-        context.getTheme().resolveAttribute(
-                android.R.attr.selectableItemBackground, selectableItemBackgroundResourceHolder, true);
-        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
-
-        setForeground(ContextCompat.getDrawable(context, selectableItemBackgroundResourceHolder.resourceId));
-        setBackground(ContextCompat.getDrawable(context, android.R.color.transparent));
-        setIcon(icon);
+//        TypedValue selectableItemBackgroundResourceHolder = new TypedValue();
+//        context.getTheme().resolveAttribute(
+//                android.R.attr.selectableItemBackground, selectableItemBackgroundResourceHolder, true);
+//        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
+//
+//        setIcon(icon);
         setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
-//        setImageDrawable(icon);
-//        setColorFilter(colorIndexMap[mDDMenuColorIndex]);
+
+        inflate(context, R.layout.button_preset_pen, (ViewGroup) this.getParent());
     }
 }
