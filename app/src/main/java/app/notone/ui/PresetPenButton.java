@@ -1,14 +1,9 @@
 package app.notone.ui;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -16,7 +11,6 @@ import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import app.notone.R;
 
@@ -39,11 +33,14 @@ public class PresetPenButton extends MaterialButton {
     public int mDDMenuWeightIndex;
     public float mDDMenuWeightValue;
 
+
+
     /**
      * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context) {
         super(context);
+        inflateLayout(context);
     }
 
     /**
@@ -51,6 +48,7 @@ public class PresetPenButton extends MaterialButton {
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        inflateLayout(context);
     }
 
     /**
@@ -58,6 +56,7 @@ public class PresetPenButton extends MaterialButton {
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        inflateLayout(context);
     }
 
     /**
@@ -84,6 +83,7 @@ public class PresetPenButton extends MaterialButton {
         this.mDDMenuWeightValue = Float.parseFloat(mDDMenWeight.getSelectedItem().toString());
 
         setLayout(context);
+        inflateLayout(context);
     }
 
     /**
@@ -114,10 +114,11 @@ public class PresetPenButton extends MaterialButton {
         this.mDDMenuWeightValue = ddmenuweightvalue;
 
         setLayout(context);
+        inflateLayout(context);
     }
 
     /**
-     * inialize the layout of the button
+     * initialize the layout of the button
      * @param context
      */
     public void setLayout(Context context) {
@@ -141,7 +142,10 @@ public class PresetPenButton extends MaterialButton {
 //
 //        setIcon(icon);
         setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
-
-        inflate(context, R.layout.button_preset_pen, (ViewGroup) this.getParent());
+    }
+    private void inflateLayout(Context context){
+        View.inflate(getContext(), R.layout.button_preset_pen, null);
+        invalidate();
+        requestLayout();
     }
 }
