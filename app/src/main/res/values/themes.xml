@@ -38,6 +38,8 @@ the light theme of the app
         <item name="colorIconsInverse">@color/black</item>
         <item name="colorIcons">@color/white</item>
 
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="toolbarStyle">@style/CustomToolBarStyle</item>
         <!-- Referenced -->
 <!--        <item name="colorAccent">?attr/colorSecondary</item>-->
 <!--        <item name="colorOnPrimary">?attr/colorCanvas</item>-->

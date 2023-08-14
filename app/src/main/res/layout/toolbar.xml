@@ -25,7 +25,6 @@ tool items are toggled to invisible if a non canvas fragment is active
             android:layout_height="match_parent"
             android:minHeight="?attr/actionBarSize">
 
-            <!--            only needed when the bar is to full -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_fragment_title"
                 android:contentDescription="Return to origin"
