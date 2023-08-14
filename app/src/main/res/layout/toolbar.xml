@@ -77,7 +77,7 @@ tool items are toggled to invisible if a non canvas fragment is active
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
-                        android:layout_gravity="end">
+                        android:layout_gravity="center">
 
 
                         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -114,33 +114,32 @@ tool items are toggled to invisible if a non canvas fragment is active
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"/>
                         </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:contentDescription="Add a Pen Config"
-                            android:id="@+id/button_add_pen"
-                            app:icon="@drawable/ic_add_pen"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"/>
-
-                        <Spinner
-                            android:id="@+id/ddownm_pen_colors"
-                            android:layout_width="80dp"
-                            android:layout_height="match_parent"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:background="@drawable/spinner_background"
-                            android:contentDescription="chose pen color"/>
-
-                        <Spinner
-                            android:id="@+id/ddownm_pen_weights"
-                            android:contentDescription="chose pen thickness"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:background="@drawable/spinner_background"
-                            android:layout_width="60dp"
-                            android:layout_marginEnd="10dp"
-                            android:layout_height="match_parent"/>
                     </LinearLayout>
                 </HorizontalScrollView>
+                <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.Material3.Button.IconButton.Filled"
+                    android:contentDescription="Add a Pen Config"
+                    android:id="@+id/button_add_pen"
+                    app:icon="@drawable/ic_add_pen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+
+                <Spinner
+                    android:id="@+id/ddownm_pen_colors"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:background="@drawable/spinner_background"
+                    android:contentDescription="chose pen color"/>
+
+                <Spinner
+                    android:id="@+id/ddownm_pen_weights"
+                    android:contentDescription="chose pen thickness"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:background="@drawable/spinner_background"
+                    android:layout_width="60dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_height="match_parent"/>
 
                 <LinearLayout
                     android:id="@+id/canvas_tools_unredo"
@@ -149,7 +148,7 @@ tool items are toggled to invisible if a non canvas fragment is active
                     android:layout_weight="0"
                     android:layout_gravity="end"
                     android:orientation="horizontal">
-
+<!--the container is unnecessary besides for hiding it in other fragments-->
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                         app:backgroundTint="@color/md_theme_light_inverseOnSurface"
