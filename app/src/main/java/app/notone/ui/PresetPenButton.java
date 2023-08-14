@@ -1,12 +1,17 @@
 package app.notone.ui;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Interpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -15,6 +20,8 @@ import com.google.android.material.button.MaterialButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.view.animation.PathInterpolatorCompat;
 import androidx.fragment.app.FragmentActivity;
 import app.notone.R;
 
@@ -125,6 +132,11 @@ public class PresetPenButton extends MaterialButton {
         setLayout(context);
     }
 
+    @Override
+    public void addOnCheckedChangeListener(@NonNull OnCheckedChangeListener listener) {
+        super.addOnCheckedChangeListener(listener);
+
+    }
 
     /**
      * initialize the layout of the button
@@ -141,11 +153,37 @@ public class PresetPenButton extends MaterialButton {
 //        setScaleType(ScaleType.FIT_CENTER);
 
         /* color and res */
-//        int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
+        int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
 //        setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
 
-
+        setBackgroundColor(colorIndexMap[mDDMenuColorIndex]);
         Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
         setIcon(icon);
+
+        addOnCheckedChangeListener((button, isChecked) -> {
+            if(isChecked){
+                setBackgroundColor(colorIndexMap[mDDMenuColorIndex]);
+                setIconSize(80);
+                setIconPadding(0); // dont increase button size
+                ScaleAnimation scaleAnimation = new ScaleAnimation(
+                        1f, 1.03f, // From 1x to 1.5x scale
+                        1f, 1.03f,
+                        Animation.RELATIVE_TO_SELF, 0.5f, // Pivot point X (center)
+                        Animation.RELATIVE_TO_SELF, 0.5f  // Pivot point Y (center)
+                );
+                scaleAnimation.setDuration(200); // Animation duration in milliseconds
+
+                Interpolator customInterpolator = PathInterpolatorCompat.create(0.000f, 0.000f, 0.0f, 1);
+                scaleAnimation.setInterpolator(customInterpolator);
+                button.setAnimation(scaleAnimation); // Apply the animation
+
+            } else {
+                int desaturatedColor =
+                        ColorUtils.blendARGB(colorIndexMap[mDDMenuColorIndex], android.graphics.Color.WHITE, 0.5f);
+                setBackgroundColor(desaturatedColor);
+                setIconSize(0);
+            }
+        });
     }
+
 }
