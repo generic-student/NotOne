@@ -7,10 +7,10 @@ the field thats visible if the pen dropdown menus are collapsed
     android:id="@android:id/text1"
     style="@style/spinnerItemStyle"
     android:maxLines="1"
-    android:text="DDItemText"
+    android:text="DDItemText_Placeholder"
     android:textStyle="bold"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:ellipsize="marquee"
-    android:textColor="@color/white"
+    android:textColor="?colorOnSurfaceInverse"
     android:textAlignment="center"/>

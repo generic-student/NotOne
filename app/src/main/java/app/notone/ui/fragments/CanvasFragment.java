@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.color.MaterialColors;
 
 import org.json.JSONException;
 
@@ -434,12 +436,11 @@ public class CanvasFragment extends Fragment {
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
-                TextView textView = (TextView) view;
+                CheckedTextView textView = (CheckedTextView) view;
                 if (position == 0) {
                     // Set the hint text color of the first element gray
-                    textView.setTextColor(Color.GRAY);
-                } else {
-                    textView.setTextColor(Color.WHITE);
+                    textView.setTextColor(MaterialColors.getColor(getActivity(), com.google.android.material.R.attr.colorPrimaryDark, Color.BLACK));
+                    textView.setCheckMarkDrawable(null);
                 }
                 return view;
             }

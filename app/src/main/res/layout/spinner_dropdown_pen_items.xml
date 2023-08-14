@@ -6,7 +6,7 @@ the menu thats visible if the pen dropdown menus are expanded
     style="@style/spinnerDropDownItemStyle"
     android:id="@android:id/text1"
     android:checkMark="@android:drawable/btn_star"
-    android:textColor="@color/md_theme_light_inverseSurface"
+    android:textColor="?colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:paddingHorizontal="20dp"
