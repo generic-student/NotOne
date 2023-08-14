@@ -36,12 +36,12 @@ the night theme of the app
         <item name="colorIconsInverse">@color/white</item>
         <item name="colorIcons">@color/black</item>
 
-        <!-- Referenced -->
-        <!--        <item name="colorAccent">?attr/colorSecondary</item>-->
-        <!--        <item name="colorOnPrimary">?attr/colorCanvas</item>-->
-        <!--        <item name="colorSecondaryVariant">?attr/colorSecondary</item>-->
+<!--        Toolbar text and burger color -->
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="toolbarStyle">@style/CustomToolBarStyle</item>
+
         <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <!--        <item name="android:navigationBarColor">@color/white</item>-->
+        <item name="android:windowLightStatusBar">true</item>
 
 
 

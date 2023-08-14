@@ -19,17 +19,17 @@ style definitions mainly for the pen dropdownmenus
         <item name="widgetLayout">@layout/preference_material_switch</item>
     </style>
 
+<!--    Toolbar style -->
     <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
-        <item name="color">@color/md_theme_light_inverseOnSurface</item>
+        <item name="color">?colorOnSurfaceInverse</item>
     </style>
     <style name="NavigationLabel" parent="@style/Widget.Material3.NavigationView">
         <item name="spinBars">true</item>
-        <item name="color">@color/md_theme_light_inverseOnSurface</item>
+        <item name="color">?colorOnSurfaceInverse</item>
     </style>
-
     <style name="CustomToolBarStyle" parent="@style/Widget.AppCompat.Toolbar">
-        <item name="titleTextColor">@color/md_theme_light_inverseOnSurface</item>
+        <item name="titleTextColor">?colorOnSurfaceInverse</item>
     </style>
 
 
