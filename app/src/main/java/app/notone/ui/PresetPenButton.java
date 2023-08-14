@@ -1,9 +1,12 @@
 package app.notone.ui;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -11,6 +14,7 @@ import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import app.notone.R;
 
@@ -22,6 +26,7 @@ import app.notone.R;
 
 public class PresetPenButton extends MaterialButton {
     private static final String TAG = "NotOnePresetPenButton";
+    private int id = 0;
 
     /* assigned by the constructors */
     public Spinner mDDMenuColor;
@@ -39,24 +44,21 @@ public class PresetPenButton extends MaterialButton {
      * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context) {
-        super(context);
-        inflateLayout(context);
+        super(context, null, com.google.android.material.R.attr.materialIconButtonFilledTonalStyle);
     }
 
     /**
      * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        inflateLayout(context);
+        super(context, attrs, com.google.android.material.R.attr.materialIconButtonFilledTonalStyle);
     }
 
     /**
      * xml inflation constructor
      */
     public PresetPenButton(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        inflateLayout(context);
+        super(context, attrs, com.google.android.material.R.attr.materialIconButtonFilledTonalStyle);
     }
 
     /**
@@ -69,7 +71,7 @@ public class PresetPenButton extends MaterialButton {
     public PresetPenButton(Context context, FragmentActivity fragmentActivity,
                            int ddownmpencolorsid, int ddownmpenweightsid,
                            int colorindexmapid) {
-        super(context);
+        super(context, null, com.google.android.material.R.attr.materialIconButtonFilledTonalStyle);
 
         this.mDDMenuColorId = ddownmpencolorsid;
         this.mDDMenuWeightId = ddownmpenweightsid;
@@ -82,8 +84,11 @@ public class PresetPenButton extends MaterialButton {
         this.mDDMenuWeightIndex = mDDMenWeight.getSelectedItemPosition();
         this.mDDMenuWeightValue = Float.parseFloat(mDDMenWeight.getSelectedItem().toString());
 
+        if(this.id == 0)
+            this.id = generateViewId();
+        setId(this.id);
+
         setLayout(context);
-        inflateLayout(context);
     }
 
     /**
@@ -100,7 +105,7 @@ public class PresetPenButton extends MaterialButton {
                            int ddownmpencolorsid, int ddownmpenweightsid,
                            int colorindexmapid, int ddmenucolorindex,
                            int ddmenuweightindex, float ddmenuweightvalue){
-        super(context);
+        super(context, null, com.google.android.material.R.attr.materialIconButtonFilledTonalStyle);
 
         this.mDDMenuColorId = ddownmpencolorsid;
         this.mDDMenuWeightId = ddownmpenweightsid;
@@ -113,39 +118,34 @@ public class PresetPenButton extends MaterialButton {
         this.mDDMenuWeightIndex = ddmenuweightindex;
         this.mDDMenuWeightValue = ddmenuweightvalue;
 
+        if(this.id == 0)
+            this.id = generateViewId();
+        setId(this.id);
+
         setLayout(context);
-        inflateLayout(context);
     }
+
 
     /**
      * initialize the layout of the button
      * @param context
      */
-    public void setLayout(Context context) {
+    private void setLayout(Context context) {
         /* positioning */
-
-        float scale = (float) ((2 - 2 * Math.exp(-mDDMenuWeightValue / 8))); // 0 to 2
-        scale = scale < 0.5 ? 1 : scale;
-        int sizeXY = (int) (70 * scale);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeXY, sizeXY);
+       LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER;
         setLayoutParams(params);
+        setContentDescription("PresetPen");
 
 //        setScaleType(ScaleType.FIT_CENTER);
 
         /* color and res */
-        int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
+//        int[] colorIndexMap = getResources().getIntArray(mColor2IndexMapId);
+//        setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
 
-//        TypedValue selectableItemBackgroundResourceHolder = new TypedValue();
-//        context.getTheme().resolveAttribute(
-//                android.R.attr.selectableItemBackground, selectableItemBackgroundResourceHolder, true);
-//        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
-//
-//        setIcon(icon);
-        setHighlightColor(colorIndexMap[mDDMenuColorIndex]);
-    }
-    private void inflateLayout(Context context){
-        View.inflate(getContext(), R.layout.button_preset_pen, null);
-        invalidate();
-        requestLayout();
+
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_pen);
+        setIcon(icon);
     }
 }

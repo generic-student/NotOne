@@ -291,7 +291,7 @@ public class CanvasFragment extends Fragment {
         MaterialButton buttonAddPresetPen = fragmentActivity.findViewById(R.id.button_add_pen);
         MaterialButtonToggleGroup mbPresetPenStateToggleGroup = fragmentActivity.findViewById(R.id.preset_pen_state_toogle_group);
         buttonAddPresetPen.setOnClickListener(v -> {
-            PresetPenButton buttonPresetPen = createPresetPenButton(getContext(), fragmentActivity, mbPresetPenStateToggleGroup);
+            PresetPenButton buttonPresetPen = createPresetPenButtonFromUI(getContext(), fragmentActivity, mbPresetPenStateToggleGroup);
             mbPresetPenStateToggleGroup.addView(buttonPresetPen, 0);
             Toast.makeText(fragmentActivity, "long press to remove pen", Toast.LENGTH_SHORT).show();
         });
@@ -377,12 +377,14 @@ public class CanvasFragment extends Fragment {
      * @return a PresetPen
      */
     @NonNull
-    private static PresetPenButton createPresetPenButton(Context context, FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
+    private static PresetPenButton createPresetPenButtonFromUI(Context context, FragmentActivity fragmentActivity, LinearLayout llayoutPenContainer) {
         PresetPenButton buttonPresetPen = new PresetPenButton(
                 context, fragmentActivity,
                 R.id.ddownm_pen_colors, R.id.ddownm_pen_weights,
                 R.array.pen_color_values);
         setPresetPenButtonListeners(buttonPresetPen, llayoutPenContainer);
+        MaterialButtonToggleGroup toggleGroup = fragmentActivity.findViewById(R.id.preset_pen_state_toogle_group);
+        toggleGroup.check(buttonPresetPen.getId());
         Log.d(TAG, "generatePresetPenButton: generated Preset Pen Button");
         return buttonPresetPen;
     }
