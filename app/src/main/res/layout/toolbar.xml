@@ -150,20 +150,20 @@ tool items are toggled to invisible if a non canvas fragment is active
 <!--the container is unnecessary besides for hiding it in other fragments-->
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                        app:backgroundTint="@color/md_theme_light_inverseOnSurface"
                         android:id="@+id/button_undo"
                         android:contentDescription="UNDO"
                         app:icon="@drawable/ic_undo"
+                        android:backgroundTint="?colorBackgroundFloating"
                         android:layout_gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                        app:backgroundTint="@color/md_theme_light_inverseOnSurface"
                         android:id="@+id/button_redo"
                         android:contentDescription="REDO"
                         app:icon="@drawable/ic_redo"
+                        android:backgroundTint="?colorBackgroundFloating"
                         android:layout_gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
